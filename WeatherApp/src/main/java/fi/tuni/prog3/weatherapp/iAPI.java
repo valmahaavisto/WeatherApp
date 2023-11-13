@@ -13,6 +13,16 @@ import java.util.Map;
  */
 public interface iAPI {
     
+    /**
+     * Operations that need to be done when starting program
+     */
+    public void startup();
+    
+    /**
+     * Operations that need to be done when shutting program
+     */
+    public void shut_down();
+    
     String API_KEY = "25611dde424220be991fce1c7eefa21f";
     
     /**

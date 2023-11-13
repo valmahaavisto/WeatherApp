@@ -12,7 +12,20 @@ import java.util.Map;
 /**
 * Interface with methods to make data processing between API calls and GUI.
 */
-public interface events {
+public interface iEvents {
+    
+    /**
+     * Operations that need to be done when starting program
+     */
+    public void startup();
+    // API rajapinnan toteuttavan luokan olion tekeminen
+    // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
+    
+    /**
+     * Operations that need to be done when shutting program
+     */
+    public void shut_down();
+    // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
 
     /**
      * Fetch first 5 search results that match the searchphrase the best.
@@ -31,7 +44,7 @@ public interface events {
      * @return true if save successful, false if error in saving file.
      */
     public boolean add_favorite(String location, Coord latlong);
-       // Tallentaa suosikin tiedostoon.
+       // Tallentaa suosikin tiedostoon. Tallennus tiedostoon kurssin ohjeiden mukaan ohjelmaa sulkiessa.
     
     /**
      * Reads favorites from file.
@@ -39,7 +52,7 @@ public interface events {
      * called and displayed.
      */
     public Map<String, Coord> get_favourites();
-    // Lukee suosikit tiedostosta kaikki suosikit.
+    // Lukee suosikit tiedostosta kaikki suosikit. Lukeminen kurssin ohjeiden mukaan käynnistyksessä.
     
     /**
      * Fetch data about specific location weather now and save forecast
