@@ -4,31 +4,39 @@
  */
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * Interface for extracting data from the OpenWeatherMap API.
  */
 public interface iAPI {
     
+    String API_KEY = "25611dde424220be991fce1c7eefa21f";
+    
     /**
-     * Returns coordinates for a location.
+     * Searches possible locations matching searchword
      * @param loc Name of the location for which coordinates should be fetched.
-     * @return String.
+     * @return locations that match searchword and their coords
      */
-    public String lookUpLocation(String loc);
+    public Map<String, Coord> look_up_locations(String loc);
     
     /**
      * Returns the current weather for the given coordinates.
-     * @param lat The latitude of the location.
-     * @param lon The longitude of the location.
-     * @return String.
+     * @param coordinates of the location.
+     * @param units options: "imperial" or "metric"
+     * @return Weather object of current day. 
+     * @throws InvalidUnitsException when units are wrong
      */
-    public String getCurrentWeather(double lat, double lon);
+    public Weather get_current_weather(Coord coordinates, String units) throws InvalidUnitsException;
 
     /**
      * Returns a forecast for the given coordinates.
-     * @param lat The latitude of the location.
-     * @param lon The longitude of the location.
+     * @param coordinates of the location.
+     * @param units
      * @return String.
+     * @throws InvalidUnitsException when units are wrong
      */
-    public String getForecast(double lat, double lon);
+    public ArrayList<Weather> get_forecast(Coord coordinates, String units) throws InvalidUnitsException;
 }
