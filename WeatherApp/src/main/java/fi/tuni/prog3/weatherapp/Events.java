@@ -6,6 +6,7 @@ package fi.tuni.prog3.weatherapp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +31,20 @@ public class Events implements iEvents{
 
     @Override
     public Map<String, Coord> search(String input) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        Map<String, Coord> locations = api.look_up_locations(input); 
+        
+        Map<String, Coord> top_5 = new HashMap<>();
+        
+        //TODO: criteria for selection
+        int i = 0;
+        for(Map.Entry<String, Coord> entry : locations.entrySet()) {
+            while (i < 6) {
+                top_5.put(entry.getKey(), entry.getValue());
+                i++;
+            }
+        }
+        
+        return top_5;
     }
 
     @Override
