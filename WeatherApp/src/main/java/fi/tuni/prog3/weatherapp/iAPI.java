@@ -25,8 +25,6 @@ public interface iAPI {
     public void shut_down();
     // Päivittää suosikit -listan
     
-    String API_KEY = "25611dde424220be991fce1c7eefa21f";
-    
     /**
      * Searches possible locations matching searchword
      * @param loc Name of the location for which coordinates should be fetched.
@@ -36,6 +34,7 @@ public interface iAPI {
     
     /**
      * Returns the current weather for the given coordinates.
+     * Forecast arrayLists in Weather object will be empty.
      * @param coordinates of the location.
      * @param units options: "imperial" or "metric"
      * @return Weather object of current day. 
