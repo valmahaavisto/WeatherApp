@@ -17,11 +17,13 @@ public interface iAPI {
      * Operations that need to be done when starting program
      */
     public void startup();
+    // Hakee ohjelman tilan viimeisimmän käynnistyksen yhteydessä 
     
     /**
      * Operations that need to be done when shutting program
      */
     public void shut_down();
+    // Päivittää suosikit -listan
     
     String API_KEY = "25611dde424220be991fce1c7eefa21f";
     

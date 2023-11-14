@@ -1,5 +1,9 @@
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -15,12 +19,15 @@ import javafx.stage.Stage;
 
 
 /**
- * JavaFX Sisu
+ * JavaFX Weather App
  */
-public class WeatherApp extends Application {
+public class WeatherApp extends Application implements iEvents, iAPI {
+
 
     @Override
     public void start(Stage stage) {
+        // When function updated, '//' removed
+        //startup();
         
         //Creating a new BorderPane.
         BorderPane root = new BorderPane();
@@ -81,11 +88,89 @@ public class WeatherApp extends Application {
         //Creating a button.
         Button button = new Button("Quit");
         
+        // When function updated, '//' removed
+        //shut_down();
+        
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
             Platform.exit();
         });
         
         return button;
+    }
+
+    @Override
+    public void startup() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void shut_down() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Map<String, Coord> search(String input) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean add_favorite(String location, Coord latlong) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean remove_favorite(String location, Coord latlong) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Map<String, Coord> get_favourites() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Weather fetch_weather_data(String location, Coord latlong, String units) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Weather fetch_day_weather(Date day) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public ArrayList<String> get_days() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public ArrayList<Integer> get_every_day_min_temp() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public ArrayList<Integer> get_every_day_max_temp() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public ArrayList<Integer> get_every_day_description() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Map<String, Coord> look_up_locations(String loc) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Weather get_current_weather(Coord coordinates, String units) throws InvalidUnitsException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public ArrayList<Weather> get_forecast(Coord coordinates, String units) throws InvalidUnitsException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

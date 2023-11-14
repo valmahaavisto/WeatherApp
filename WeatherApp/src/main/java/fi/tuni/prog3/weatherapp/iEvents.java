@@ -36,6 +36,7 @@ public interface iEvents {
     public Map<String, Coord> search(String input);
        // Kutsuu API:lta hakutulokseen osuvat paikat ja palauttaa 5 parasta.
        // API:lta tulee N kappaletta osumia (N>5) joista valitaan "parhaat"
+       // Jos N<5 näytetään vain ne tai palautetaan tyhjä map, josta seuraa virheteksti 
        
     /**
      * Saves a favorite to a file for use on other executions.
@@ -44,7 +45,10 @@ public interface iEvents {
      * @return true if save successful, false if error in saving file.
      */
     public boolean add_favorite(String location, Coord latlong);
-       // Tallentaa suosikin tiedostoon. Tallennus tiedostoon kurssin ohjeiden mukaan ohjelmaa sulkiessa.
+    // Tallentaa suosikin tiedostoon. Tallennus tiedostoon kurssin ohjeiden mukaan ohjelmaa sulkiessa.
+    
+    public boolean remove_favorite(String location, Coord latlong);
+    // Poistaa suosikin tiedostosta. Poisto tiedostosta kurssin ohjeiden mukaan ohjelmaa sulkiessa. 
     
     /**
      * Reads favorites from file.
@@ -53,6 +57,7 @@ public interface iEvents {
      */
     public Map<String, Coord> get_favourites();
     // Lukee suosikit tiedostosta kaikki suosikit. Lukeminen kurssin ohjeiden mukaan käynnistyksessä.
+    // Suosikit palautetaan lisäämisjärjestyksessä (uusin ensin).  
     
     /**
      * Fetch data about specific location weather now and save forecast
@@ -84,12 +89,14 @@ public interface iEvents {
      * @return minimum temperature of each day
      */
     public ArrayList<Integer> get_every_day_min_temp();
+    // Kutsu Weather oliolla getTemps ja tästä min
     
     /**
      * Get maximum temperature of every day available for selected location
      * @return maximum temperature of each day
      */
     public ArrayList<Integer> get_every_day_max_temp();
+    // Kutsu Weather oliolla getTemps ja tästä max
     
     /**
      * Get weather description of every day available for selected location
@@ -99,3 +106,5 @@ public interface iEvents {
     public ArrayList<Integer> get_every_day_description();
     
 }
+
+
