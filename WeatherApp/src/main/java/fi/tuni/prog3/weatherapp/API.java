@@ -81,7 +81,8 @@ public class API implements iAPI {
     }
 
     @Override
-    public Weather get_current_weather(Coord coords, String units) throws InvalidUnitsException {
+    public Weather get_current_weather(Coord coords, String units)
+            throws InvalidUnitsException {
         // get data as StringBuilder from the API https
         StringBuilder api_data = get_data_from_api(URL_BEGINNING + NOW + 
                                                 "lat="+coords.getLat() +
@@ -89,15 +90,24 @@ public class API implements iAPI {
                                                 "&appid=" + API_KEY + 
                                                 "&units=" + units);
         if (api_data == null) {
-            // TODO: api data fetch did error
+            return null;
         }
         
         String json_data_string = api_data.toString();
         
         JsonObject jsonObject = new Gson().fromJson(json_data_string, JsonObject.class);
         
-        // TODO: check that data is good and not "call limit exceeded"
-        // also check other parts array and such as not empty
+        // Check for errors in the API response
+        if (jsonObject.has("cod") && jsonObject.get("cod").getAsInt() != 200) {
+            return null;
+        }
+
+        // Check that essential data is present in the JSON response
+        if (!jsonObject.has("name") || !jsonObject.has("main") ||
+                !jsonObject.has("wind") || !jsonObject.has("dt") ||
+                !jsonObject.has("weather")) {
+            return null;
+        }
         
         String location = jsonObject.getAsJsonPrimitive("name").getAsString();
         
@@ -115,10 +125,8 @@ public class API implements iAPI {
         Date date = new Date(dt*1000);
         
         JsonArray weather_array = jsonObject.getAsJsonArray("weather");
-        if (weather_array == null || weather_array.size() == 0) {
-            
-        // TODO: Handle the case where the "weather" array is empty
-
+        if (weather_array == null || weather_array.size() == 0) {    
+            return null;
         }   
         JsonObject weather_object = weather_array.get(0).getAsJsonObject();
         Integer weather_id = weather_object.getAsJsonPrimitive("id").getAsInt();
@@ -131,14 +139,12 @@ public class API implements iAPI {
             null);
         
         return current_weather;
-        
-        
-        
-        
+          
     }
 
     @Override
-    public ArrayList<Weather> get_forecast(Coord coordinates, String units) throws InvalidUnitsException {
+    public ArrayList<Weather> get_forecast(Coord coordinates, String units)
+            throws InvalidUnitsException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

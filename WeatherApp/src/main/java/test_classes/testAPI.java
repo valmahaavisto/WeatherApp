@@ -27,7 +27,8 @@ public class testAPI {
                 System.out.println("Weather ID: " + w.getDescription());
                 
             } else {
-                System.out.println("Weather data is null. Check for errors in API call.");
+                System.out.println("Weather data is null. "
+                        + "Check for errors in API call.");
             }
             System.out.println();
             
@@ -53,6 +54,10 @@ public class testAPI {
         testCurrentWeather(api, -33.8688, 151.2093);  // Sydney, Australia
         testCurrentWeather(api, -22.9068, -43.1729);  // Rio de Janeiro, Brazil
         
+        // faulty cases
+        
+        testCurrentWeather(api, 300, 300);
+        testCurrentWeather(api, Double.NaN, 300);
         
         
         
