@@ -6,7 +6,6 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 
 /**

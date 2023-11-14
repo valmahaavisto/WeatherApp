@@ -1,9 +1,5 @@
 package fi.tuni.prog3.weatherapp;
 
-import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -31,12 +27,9 @@ public class WeatherApp extends Application {
         
         // This is called when interacting with Events interface/class
         events = new Events();
-        events.startup();
         
-        // TODO: call events.shut_down() when exiting program
-        
-        // When function updated, '//' removed
-        //startup();
+        // When function implemented, '//' removed
+        // events.startup();
         
         //Creating a new BorderPane.
         BorderPane root = new BorderPane();
@@ -98,7 +91,7 @@ public class WeatherApp extends Application {
         Button button = new Button("Quit");
         
         // When function updated, '//' removed
-        //shut_down();
+        // events.shut_down()
         
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
