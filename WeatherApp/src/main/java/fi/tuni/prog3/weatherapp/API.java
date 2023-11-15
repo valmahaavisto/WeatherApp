@@ -81,7 +81,7 @@ public class API implements iAPI {
             throws APICallUnsuccessfulException {
         StringBuilder api_data = get_data_from_api(
                 "https://api.openweathermap.org/geo/1.0/direct?q=" 
-                        + loc + "&appid=" + API_KEY);
+                        + loc + "&appid=" + API_KEY+ "&limit=5");
         
         if (api_data == null) {
             throw new APICallUnsuccessfulException("Unable to connect to API");
@@ -97,10 +97,11 @@ public class API implements iAPI {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             String name = jsonObject.get("name").getAsString();
             String country = jsonObject.get("country").getAsString();
+            String state = jsonObject.get("country").getAsString();
             double lat = jsonObject.getAsJsonPrimitive("lat").getAsDouble();
             double lon = jsonObject.getAsJsonPrimitive("lon").getAsDouble();
             Coord coord = new Coord(lat, lon);
-            locations.put(name+","+country, coord);
+            locations.put(name+","+country+ "(lat:"+ lat+", lon:" +lon+")", coord);
         }
         return locations;
     }
