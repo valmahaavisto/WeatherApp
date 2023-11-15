@@ -23,6 +23,8 @@ public class Weather {
     private double wind_direction;
     private double rain;
     private int description;
+    private double temp_min;
+    private double temp_max;
     
     private ArrayList<Integer> times;
     private ArrayList<Integer> temps;
@@ -35,7 +37,7 @@ public class Weather {
             double wind_direction, double rain, int description, 
             ArrayList<Integer> times, ArrayList<Integer> temps, 
             ArrayList<Integer> wind_speeds, ArrayList<Integer> rains, 
-            ArrayList<Integer> descriptions) {
+            ArrayList<Integer> descriptions, double temp_min, double temp_max) {
         
         this.day = day;
         this.location = location;
@@ -51,6 +53,16 @@ public class Weather {
         this.wind_speeds = wind_speeds;
         this.rains = rains;
         this.descriptions = descriptions;
+        this.temp_min = temp_min;
+        this.temp_max = temp_max;
+    }
+
+    public double getTemp_min() {
+        return temp_min;
+    }
+
+    public double getTemp_max() {
+        return temp_max;
     }
 
     public Date getDay() {

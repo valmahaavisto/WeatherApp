@@ -4,6 +4,7 @@
  */
 package test_classes;
 
+import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import fi.tuni.prog3.weatherapp.API;
 import fi.tuni.prog3.weatherapp.Coord;
@@ -32,12 +33,10 @@ public class testAPI {
             }
             System.out.println();
             
-            
-            
-            
-            
         } catch (InvalidUnitsException e) {
             System.out.println("Invalid units");
+        } catch (APICallUnsuccessfulException e) {
+            System.out.println(e.getMessage());
         }
     }
 

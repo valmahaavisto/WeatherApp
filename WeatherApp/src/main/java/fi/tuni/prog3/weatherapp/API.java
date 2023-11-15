@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.net.URL;
 import java.io.InputStreamReader;
 import com.google.gson.*;
+import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -76,13 +77,14 @@ public class API implements iAPI {
     }
 
     @Override
-    public HashMap<String, Coord> look_up_locations(String loc) {
+    public HashMap<String, Coord> look_up_locations(String loc) 
+            throws APICallUnsuccessfulException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Weather get_current_weather(Coord coords, String units)
-            throws InvalidUnitsException {
+            throws InvalidUnitsException, APICallUnsuccessfulException{
         // get data as StringBuilder from the API https
         StringBuilder api_data = get_data_from_api(URL_BEGINNING + NOW + 
                                                 "lat="+coords.getLat() +
@@ -90,7 +92,8 @@ public class API implements iAPI {
                                                 "&appid=" + API_KEY + 
                                                 "&units=" + units);
         if (api_data == null) {
-            return null;
+            throw new APICallUnsuccessfulException(
+                    "Unable to connect to API");
         }
         
         String json_data_string = api_data.toString();
@@ -99,14 +102,16 @@ public class API implements iAPI {
         
         // Check for errors in the API response
         if (jsonObject.has("cod") && jsonObject.get("cod").getAsInt() != 200) {
-            return null;
+            throw new APICallUnsuccessfulException(
+                    "Unable to retrieve the requested data from API");
         }
 
         // Check that essential data is present in the JSON response
         if (!jsonObject.has("name") || !jsonObject.has("main") ||
                 !jsonObject.has("wind") || !jsonObject.has("dt") ||
                 !jsonObject.has("weather")) {
-            return null;
+            throw new APICallUnsuccessfulException(
+                    "Unable to retrieve the requested data from API");
         }
         
         String location = jsonObject.getAsJsonPrimitive("name").getAsString();
@@ -136,7 +141,7 @@ public class API implements iAPI {
             wind_direction, 0, weather_id, 
             null, null, 
             null, null, 
-            null);
+            null, temp_min, temp_max);
         
         return current_weather;
           
