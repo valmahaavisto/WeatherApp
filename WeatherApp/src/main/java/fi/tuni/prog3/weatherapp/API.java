@@ -68,12 +68,12 @@ public class API implements iAPI {
 
     @Override
     public void startup() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     @Override
     public void shut_down() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     @Override

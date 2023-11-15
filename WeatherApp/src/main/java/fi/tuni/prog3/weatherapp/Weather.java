@@ -16,6 +16,8 @@ public class Weather {
     private Date day;
     private String location;
     
+    private double temp_min;
+    private double temp_max;
     private double current_temp;
     private double feels_like;
     private String air_quality;
@@ -23,8 +25,6 @@ public class Weather {
     private double wind_direction;
     private double rain;
     private int description;
-    private double temp_min;
-    private double temp_max;
     
     private ArrayList<Integer> times;
     private ArrayList<Integer> temps;

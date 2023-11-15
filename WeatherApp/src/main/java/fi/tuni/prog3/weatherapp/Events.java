@@ -33,6 +33,7 @@ public class Events implements iEvents{
 
     @Override
     public Map<String, Coord> search(String input) {
+        
         try {
                 
             Map<String, Coord> locations = api.look_up_locations(input); 
@@ -72,6 +73,7 @@ public class Events implements iEvents{
 
     @Override
     public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException {
+        
         try {
             Weather weather = api.get_current_weather(latlong, units);
             System.out.print(weather.getDay());
