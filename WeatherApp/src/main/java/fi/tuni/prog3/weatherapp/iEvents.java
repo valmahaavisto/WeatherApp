@@ -5,6 +5,7 @@
 
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -66,8 +67,9 @@ public interface iEvents {
      * @param latlong Coordinates of the place
      * @param units options: "imperial" or "metric"
      * @return Current day weather information
+     * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
      */
-    public Weather fetch_weather_data(String location, Coord latlong, String units);
+    public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException;
     // Kutsuu API:lta nykyisen sään ja sääennusteen (kaksi eri API funktiota)
       
     /**

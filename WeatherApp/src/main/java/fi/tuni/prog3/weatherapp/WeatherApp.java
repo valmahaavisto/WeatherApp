@@ -29,7 +29,7 @@ public class WeatherApp extends Application {
         events = new Events();
         
         // When function implemented, '//' removed
-        // events.startup();
+        events.startup();
         
         //Creating a new BorderPane.
         BorderPane root = new BorderPane();

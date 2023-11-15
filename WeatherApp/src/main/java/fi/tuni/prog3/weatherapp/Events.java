@@ -4,13 +4,14 @@
  */
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A Class for storing weather data of one day.
+ * A Class with methods to make data processing between API calls and GUI.
  */
 
 public class Events implements iEvents{
@@ -63,8 +64,10 @@ public class Events implements iEvents{
     }
 
     @Override
-    public Weather fetch_weather_data(String location, Coord latlong, String units) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException {
+        Weather weather = api.get_current_weather(latlong, units);
+        System.out.print(weather.getDay());
+        return weather;
     }
 
     @Override
