@@ -4,6 +4,7 @@
  */
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,20 +33,26 @@ public class Events implements iEvents{
 
     @Override
     public Map<String, Coord> search(String input) {
-        Map<String, Coord> locations = api.look_up_locations(input); 
-        
-        Map<String, Coord> top_5 = new HashMap<>();
-        
-        //TODO: criteria for selection
-        int i = 0;
-        for(Map.Entry<String, Coord> entry : locations.entrySet()) {
-            while (i < 6) {
-                top_5.put(entry.getKey(), entry.getValue());
-                i++;
+        try {
+                
+            Map<String, Coord> locations = api.look_up_locations(input); 
+
+            Map<String, Coord> top_5 = new HashMap<>();
+
+            //TODO: criteria for selection
+            int i = 0;
+            for(Map.Entry<String, Coord> entry : locations.entrySet()) {
+                while (i < 6) {
+                    top_5.put(entry.getKey(), entry.getValue());
+                    i++;
+                }
             }
+
+            return top_5;
+        } catch(APICallUnsuccessfulException e) {
+            // TODO: handle this exception
+            return null;
         }
-        
-        return top_5;
     }
 
     @Override
@@ -65,9 +72,14 @@ public class Events implements iEvents{
 
     @Override
     public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException {
-        Weather weather = api.get_current_weather(latlong, units);
-        System.out.print(weather.getDay());
-        return weather;
+        try {
+            Weather weather = api.get_current_weather(latlong, units);
+            System.out.print(weather.getDay());
+            return weather;
+        } catch(APICallUnsuccessfulException e) {
+            // TODO: handle this exception
+            return null;
+        }
     }
 
     @Override

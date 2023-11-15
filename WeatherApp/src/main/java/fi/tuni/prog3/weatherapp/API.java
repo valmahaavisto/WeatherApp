@@ -79,7 +79,30 @@ public class API implements iAPI {
     @Override
     public HashMap<String, Coord> look_up_locations(String loc) 
             throws APICallUnsuccessfulException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        StringBuilder api_data = get_data_from_api(
+                "https://api.openweathermap.org/geo/1.0/direct?q=" 
+                        + loc + "&appid=" + API_KEY);
+        
+        if (api_data == null) {
+            throw new APICallUnsuccessfulException("Unable to connect to API");
+        }
+        
+        String json_data_string = api_data.toString();
+        
+        JsonArray jsonArray  = new Gson().fromJson(json_data_string, JsonArray.class);
+        
+        HashMap<String, Coord> locations = new HashMap();
+        
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+            String name = jsonObject.get("name").getAsString();
+            String country = jsonObject.get("country").getAsString();
+            double lat = jsonObject.getAsJsonPrimitive("lat").getAsDouble();
+            double lon = jsonObject.getAsJsonPrimitive("lon").getAsDouble();
+            Coord coord = new Coord(lat, lon);
+            locations.put(name+","+country, coord);
+        }
+        return locations;
     }
 
     @Override
@@ -92,8 +115,7 @@ public class API implements iAPI {
                                                 "&appid=" + API_KEY + 
                                                 "&units=" + units);
         if (api_data == null) {
-            throw new APICallUnsuccessfulException(
-                    "Unable to connect to API");
+            throw new APICallUnsuccessfulException("Unable to connect to API");
         }
         
         String json_data_string = api_data.toString();

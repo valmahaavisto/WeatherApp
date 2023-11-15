@@ -30,9 +30,10 @@ public interface iAPI {
      * Searches possible locations matching searchword
      * @param loc Name of the location for which coordinates should be fetched.
      * @return locations that match searchword and their coords
+     * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
      */
     public Map<String, Coord> look_up_locations(String loc) 
-            throws APICallUnsuccessfulException
+            throws APICallUnsuccessfulException;
     
     /**
      * Returns the current weather for the given coordinates.
