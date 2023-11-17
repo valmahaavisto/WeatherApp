@@ -9,15 +9,19 @@ import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import fi.tuni.prog3.weatherapp.API;
 import fi.tuni.prog3.weatherapp.Coord;
 import fi.tuni.prog3.weatherapp.Weather;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class testAPI {
     
-    private static void testCurrentWeather(API api, double lat, double lon) {
+    private static void testCurrentWeather(API api, double lat, double lon, String units) {
     Coord coord = new Coord(lat, lon);
     try {
-        Weather w = api.get_current_weather(coord, "metric");
+        Weather w = api.get_current_weather(coord, units);
 
         if (w != null) {
             System.out.println("Location: " + (w.getLocation().equals("null") ? "N/A" : w.getLocation()));
@@ -27,16 +31,14 @@ public class testAPI {
             System.out.println("Wind Direction: " + (Double.isNaN(w.getWind_direction()) ? "N/A" : w.getWind_direction()));
             System.out.println("Wind Gust: " + (Double.isNaN(w.getWind_gust()) ? "N/A" : w.getWind_gust()));
             System.out.println("Rain: " + (Double.isNaN(w.getRain()) ? "N/A" : w.getRain()));
-            System.out.println("Date: " + (w.getDay() != null ? w.getDay() : "N/A"));
+            System.out.println("Date: " + (w.getDate() != null ? w.getDate() : "N/A"));
             System.out.println("Weather ID: " + (w.getDescription().equals("null") ? "N/A" : w.getDescription()));
         } else {
             System.out.println("Weather data is null. Check for errors in API call.");
         }
         System.out.println();
 
-    } catch (InvalidUnitsException e) {
-        System.out.println("Invalid units");
-    } catch (APICallUnsuccessfulException e) {
+    } catch (InvalidUnitsException | APICallUnsuccessfulException e) {
         System.out.println(e.getMessage());
     }
 }
@@ -59,6 +61,41 @@ public class testAPI {
             System.out.println(e.getMessage());
         }
     }
+    
+    private static void testForecast(API api, double lat, double lon, String units) {
+        Coord coord = new Coord(lat, lon);
+        try {
+            HashMap<Date, Weather> forecast = api.get_forecast(coord, units);
+
+            if (!forecast.isEmpty()) {
+                // Sort dates
+                List<Date> sortedDates = new ArrayList<>(forecast.keySet());
+                Collections.sort(sortedDates);
+
+                System.out.println("Forecast for " + coord.getLat() + ":" + coord.getLon() + " (Units: " + units + ")");
+                for (Date time : sortedDates) {
+                    Weather weather = forecast.get(time);
+
+                    System.out.println("Time: " + time);
+                    System.out.println("Location: " + (weather.getLocation().equals("null") ? "N/A" : weather.getLocation()));
+                    System.out.println("Current Temperature: " + (Double.isNaN(weather.getCurrent_temp()) ? "N/A" : weather.getCurrent_temp()));
+                    System.out.println("Feels Like: " + (Double.isNaN(weather.getFeels_like()) ? "N/A" : weather.getFeels_like()));
+                    System.out.println("Wind Speed: " + (Double.isNaN(weather.getWind_speed()) ? "N/A" : weather.getWind_speed()));
+                    System.out.println("Wind Direction: " + (Double.isNaN(weather.getWind_direction()) ? "N/A" : weather.getWind_direction()));
+                    System.out.println("Wind Gust: " + (Double.isNaN(weather.getWind_gust()) ? "N/A" : weather.getWind_gust()));
+                    System.out.println("Rain: " + (Double.isNaN(weather.getRain()) ? "N/A" : weather.getRain()));
+                    System.out.println("Weather ID: " + (weather.getDescription().equals("null") ? "N/A" : weather.getDescription()));
+                    System.out.println();
+                }
+            } else {
+                System.out.println("Forecast is empty. Check for errors in API call.");
+            }
+            System.out.println();
+
+        } catch (InvalidUnitsException | APICallUnsuccessfulException e) {
+        System.out.println(e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
         // Instantiate API
@@ -69,22 +106,33 @@ public class testAPI {
         
         // current weather
         
-        testCurrentWeather(api, 60.1695, 24.9354);  // Helsinki, Finland
-        testCurrentWeather(api, 40.7128, -74.0060);  // New York City, USA
-        testCurrentWeather(api, 35.6895, 139.6917);  // Tokyo, Japan
-        testCurrentWeather(api, -33.8688, 151.2093);  // Sydney, Australia
-        testCurrentWeather(api, -22.9068, -43.1729);  // Rio de Janeiro, Brazil
+        testCurrentWeather(api, 60.1695, 24.9354, "metric");  // Helsinki, Finland
+        testCurrentWeather(api, 40.7128, -74.0060, "metric");  // New York City, USA
+        testCurrentWeather(api, 35.6895, 139.6917, "imperial");  // Tokyo, Japan
+        testCurrentWeather(api, -33.8688, 151.2093, "metric");  // Sydney, Australia
+        testCurrentWeather(api, -22.9068, -43.1729, "metric");  // Rio de Janeiro, Brazil
         // faulty cases
-        testCurrentWeather(api, 300, 300);
-        testCurrentWeather(api, Double.NaN, 300);
+        testCurrentWeather(api, 300, 300, "metric");
+        testCurrentWeather(api, Double.NaN, 30, "imperial");
+        testCurrentWeather(api, 0, 0, "freedomUnits");
         
         // look up locations
-        
         testLookUpLocations(api, "tampere");
         testLookUpLocations(api, "a");
         testLookUpLocations(api, "london");
         testLookUpLocations(api, "lontoo");
         testLookUpLocations(api, "lahti");
+
+        // Forecast
+        testForecast(api, 60.1695, 24.9354, "metric");  // Helsinki, Finland
+        testForecast(api, 40.7128, -74.0060, "imperial");  // New York City, USA
+        testForecast(api, 35.6895, 139.6917, "metric");  // Tokyo, Japan
+        testForecast(api, -33.8688, 151.2093, "imperial");  // Sydney, Australia
+        testForecast(api, -22.9068, -43.1729, "metric");  // Rio de Janeiro, Brazil
+        // faulty cases
+        testForecast(api, 300, 300, "metric");
+        testForecast(api, Double.NaN, 30, "imperial");
+        testForecast(api, 0, 0, "freedomUnits");
         
         
     }

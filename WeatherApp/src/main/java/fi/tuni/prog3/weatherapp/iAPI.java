@@ -6,7 +6,8 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,6 +56,6 @@ public interface iAPI {
      * @throws InvalidUnitsException when units are wrong
      * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
-    public ArrayList<Weather> get_forecast(Coord coordinates, String units) 
+    public HashMap<Date, Weather> get_forecast(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
 }

@@ -109,6 +109,11 @@ public class API implements iAPI {
     @Override
     public Weather get_current_weather(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException{
+        
+        if (units !="metric" && units !="imperial") {
+            throw new InvalidUnitsException("Invalid units. Choose 'imperial' or 'metric'.");
+        }
+        
         // get data as StringBuilder from the API https
         StringBuilder api_data = get_data_from_api(URL_BEGINNING + NOW + 
                                                 "lat="+coords.getLat() +
@@ -158,21 +163,121 @@ public class API implements iAPI {
             throw new APICallUnsuccessfulException("Unable to connect to API");
         }
         JsonObject weather_object = weather_array.get(0).getAsJsonObject();
-        Integer weather_id = weather_object.has("id") ? weather_object.getAsJsonPrimitive("id").getAsInt() : -1;
+        Integer id = weather_object.has("id") ? weather_object.getAsJsonPrimitive("id").getAsInt() : -1;
         String description = weather_object.has("description") ? weather_object.getAsJsonPrimitive("description").getAsString() : "N/A";
 
-        Weather current_weather = new Weather(date, location, "null", temp_min, temp_max, current_temp,
-                feels_like, wind_speed, wind_direction, wind_gust, 0, weather_id, description);
-
+        JsonObject rain = jsonObject.getAsJsonObject("rain");
+        double rain1h = rain != null && rain.has("1h") ? rain.getAsJsonPrimitive("1h").getAsDouble() : Double.NaN;
+        
+        JsonObject sys = jsonObject.getAsJsonObject("sys");
+        String country = ""; 
+        if (sys != null && sys.has("country")) {
+            country = sys.getAsJsonPrimitive("country").getAsString();
+        }
+        
+        Weather current_weather = new Weather(
+                    date,          
+                    location,     
+                    country,       
+                    temp_min,
+                    temp_max,
+                    current_temp,
+                    feels_like,
+                    wind_speed,
+                    wind_direction,      
+                    wind_gust,
+                    rain1h,         
+                    id,
+                    description
+            );
         
         return current_weather;
           
     }
 
     @Override
-    public ArrayList<Weather> get_forecast(Coord coordinates, String units)
-            throws InvalidUnitsException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public HashMap<Date, Weather> get_forecast(Coord coords, String units)
+            throws InvalidUnitsException, APICallUnsuccessfulException {
+        if (units !="metric" && units !="imperial") {
+            throw new InvalidUnitsException("Invalid units. Choose 'imperial' or 'metric'.");
+        }
+        
+        
+        StringBuilder api_data = get_data_from_api(
+                "https://pro.openweathermap.org/data/2.5/forecast/hourly?"+
+                                                "lat="+coords.getLat() +
+                                                "&lon="+coords.getLon() + 
+                                                "&appid=" + API_KEY + 
+                                                "&units=" + units);
+        
+        if (api_data == null) {
+            throw new APICallUnsuccessfulException("Unable to connect to API");
+        }
+        
+        String json_data_string = api_data.toString();
+        
+        JsonObject jsonObject = new Gson().fromJson(json_data_string, JsonObject.class);
+        
+        // Check for errors in the API response
+        if (jsonObject.has("cod") && jsonObject.get("cod").getAsInt() != 200) {
+            throw new APICallUnsuccessfulException(
+                    "Unable to retrieve the requested data from API");
+        }
+
+        JsonObject city = jsonObject.getAsJsonObject("city");
+        String city_name = city.getAsJsonPrimitive("name").getAsString();
+        String country = city.getAsJsonPrimitive("country").getAsString();
+        
+        JsonArray listArray = jsonObject.getAsJsonArray("list");
+        
+        HashMap<Date,Weather> forecast = new HashMap<>();
+        
+        for (JsonElement element : listArray) {
+            JsonObject listItem = element.getAsJsonObject();
+
+            long dt = listItem.getAsJsonPrimitive("dt").getAsLong();
+            Date time = new Date(dt * 1000);
+
+            JsonObject main = listItem.getAsJsonObject("main");
+            double temp = main.has("temp") ? main.getAsJsonPrimitive("temp").getAsDouble() : Double.NaN;
+            double feels_like = main.has("feels_like") ? main.getAsJsonPrimitive("feels_like").getAsDouble() : Double.NaN;
+            double temp_min = main.has("temp_min") ? main.getAsJsonPrimitive("temp_min").getAsDouble() : Double.NaN;
+            double temp_max = main.has("temp_max") ? main.getAsJsonPrimitive("temp_max").getAsDouble() : Double.NaN;
+
+            JsonArray weatherArray = listItem.getAsJsonArray("weather");
+            JsonObject weatherObject = weatherArray.get(0).getAsJsonObject();
+            int id = weatherObject.has("id") ? weatherObject.getAsJsonPrimitive("id").getAsInt() : -1; 
+            String description = weatherObject.has("description") ? weatherObject.getAsJsonPrimitive("description").getAsString() : "";
+
+            JsonObject wind = listItem.getAsJsonObject("wind");
+            double wind_speed = wind.has("speed") ? wind.getAsJsonPrimitive("speed").getAsDouble() : Double.NaN;
+            double wind_direction = wind.has("deg") ? wind.getAsJsonPrimitive("deg").getAsDouble() : Double.NaN;
+            double wind_gust = wind.has("gust") ? wind.getAsJsonPrimitive("gust").getAsDouble() : Double.NaN;
+
+            JsonObject rain = listItem.getAsJsonObject("rain");
+            double rain1h = rain != null && rain.has("1h") ? rain.getAsJsonPrimitive("1h").getAsDouble() : Double.NaN;
+
+            Weather weather = new Weather(
+                    time,
+                    city_name,
+                    country,
+                    temp_min,
+                    temp_max,
+                    temp,
+                    feels_like,
+                    wind_speed,
+                    wind_direction,
+                    wind_gust,
+                    rain1h,
+                    id,
+                    description
+            );
+
+            forecast.put(time, weather);
+        }
+
+        return forecast;
+        
     }
     
     

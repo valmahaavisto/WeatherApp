@@ -72,7 +72,7 @@ public class Events implements iEvents{
         
         try {
             Weather weather = api.get_current_weather(latlong, units);
-            System.out.print(weather.getDay());
+            System.out.print(weather.getDate());
             // TODO: fix this because interface call changed.
             return null;
         } catch(APICallUnsuccessfulException e) {

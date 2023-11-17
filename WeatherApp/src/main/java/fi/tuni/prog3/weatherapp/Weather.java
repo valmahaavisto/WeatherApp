@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class Weather {
     
-    private Date day;              // For example: 17/11/2023 17.44
+    private Date date;              // For example: 17/11/2023 17.44
     private String location;       // For example: Tampere
     private String country;        // For example: FI
     
@@ -28,11 +28,11 @@ public class Weather {
     private int weather_id;        //For example: 800
     private String description;    // For example: "broken clouds"
 
-    public Weather(Date day, String location, String country, double temp_min, 
+    public Weather(Date date, String location, String country, double temp_min, 
             double temp_max, double current_temp, double feels_like, 
             double wind_speed, double wind_direction, double wind_gust, 
             double rain, int weather_id, String description) {
-        this.day = day;
+        this.date = date;
         this.location = location;
         this.country = country;
         this.temp_min = temp_min;
@@ -47,8 +47,8 @@ public class Weather {
         this.description = description;
     }
 
-    public Date getDay() {
-        return day;
+    public Date getDate() {
+        return date;
     }
 
     public String getLocation() {
