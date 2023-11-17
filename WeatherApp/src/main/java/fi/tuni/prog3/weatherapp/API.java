@@ -5,11 +5,7 @@
 package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-
-
 import java.net.URL;
 import java.io.InputStreamReader;
 import com.google.gson.*;
@@ -17,6 +13,9 @@ import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * A Class for storing weather data of one day.
@@ -156,7 +155,10 @@ public class API implements iAPI {
         double wind_gust = wind.has("gust") ? wind.getAsJsonPrimitive("gust").getAsDouble() : Double.NaN;
 
         long dt = jsonObject.getAsJsonPrimitive("dt").getAsLong();
-        Date date = new Date(dt * 1000);
+        LocalDateTime date = LocalDateTime.ofInstant(
+                    Instant.ofEpochSecond(dt),
+                    ZoneId.systemDefault()
+            );
 
         JsonArray weather_array = jsonObject.getAsJsonArray("weather");
         if (weather_array == null || weather_array.size() == 0) {
@@ -196,9 +198,9 @@ public class API implements iAPI {
     }
 
     @Override
-    public HashMap<Date, Weather> get_forecast(Coord coords, String units)
+    public HashMap<LocalDateTime, Weather> get_forecast(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException {
-        if (units !="metric" && units !="imperial") {
+        if (!"metric".equals(units) && units !="imperial") {
             throw new InvalidUnitsException("Invalid units. Choose 'imperial' or 'metric'.");
         }
         
@@ -230,13 +232,16 @@ public class API implements iAPI {
         
         JsonArray listArray = jsonObject.getAsJsonArray("list");
         
-        HashMap<Date,Weather> forecast = new HashMap<>();
+        HashMap<LocalDateTime,Weather> forecast = new HashMap<>();
         
         for (JsonElement element : listArray) {
             JsonObject listItem = element.getAsJsonObject();
 
             long dt = listItem.getAsJsonPrimitive("dt").getAsLong();
-            Date time = new Date(dt * 1000);
+            LocalDateTime time = LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(dt),
+                        ZoneId.systemDefault()
+                );
 
             JsonObject main = listItem.getAsJsonObject("main");
             double temp = main.has("temp") ? main.getAsJsonPrimitive("temp").getAsDouble() : Double.NaN;

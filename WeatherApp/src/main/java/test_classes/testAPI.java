@@ -9,9 +9,9 @@ import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import fi.tuni.prog3.weatherapp.API;
 import fi.tuni.prog3.weatherapp.Coord;
 import fi.tuni.prog3.weatherapp.Weather;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,15 +65,15 @@ public class testAPI {
     private static void testForecast(API api, double lat, double lon, String units) {
         Coord coord = new Coord(lat, lon);
         try {
-            HashMap<Date, Weather> forecast = api.get_forecast(coord, units);
+            HashMap<LocalDateTime, Weather> forecast = api.get_forecast(coord, units);
 
             if (!forecast.isEmpty()) {
                 // Sort dates
-                List<Date> sortedDates = new ArrayList<>(forecast.keySet());
+                List<LocalDateTime> sortedDates = new ArrayList<>(forecast.keySet());
                 Collections.sort(sortedDates);
 
                 System.out.println("Forecast for " + coord.getLat() + ":" + coord.getLon() + " (Units: " + units + ")");
-                for (Date time : sortedDates) {
+                for (LocalDateTime time : sortedDates) {
                     Weather weather = forecast.get(time);
 
                     System.out.println("Time: " + time);

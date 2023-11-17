@@ -4,7 +4,8 @@
  */
 package fi.tuni.prog3.weatherapp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
 import java.util.HashMap;
 
 /**
@@ -12,19 +13,19 @@ import java.util.HashMap;
  */
 
 public class LocationWeather {
-    HashMap<Date, Weather> forecast;
+    HashMap<LocalDateTime, Weather> forecast;
     Weather currentWeather;
 
-    public LocationWeather(HashMap<Date, Weather> forecast, Weather currentWeather) {
+    public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
         this.forecast = forecast;
         this.currentWeather = currentWeather;
     }
 
-    public HashMap<Date, Weather> getForecast() {
+    public HashMap<LocalDateTime, Weather> getForecast() {
         return forecast;
     }
 
-    public void setForecast(HashMap<Date, Weather> forecast) {
+    public void setForecast(HashMap<LocalDateTime, Weather> forecast) {
         this.forecast = forecast;
     }
 
@@ -36,9 +37,16 @@ public class LocationWeather {
         this.currentWeather = currentWeather;
     }
     
-    public HashMap<Date, Weather> get_certain_day_weather(Date day) {
-        // TODO: Make this return all the weather items in forecast that are on the
-        // same day as "day" parameter.
-        return null;
+    public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime dateTime) {
+        HashMap<LocalDateTime, Weather> weathers = new HashMap<>();
+
+        for (HashMap.Entry<LocalDateTime, Weather> entry : forecast.entrySet()) {
+            LocalDateTime forecastDateTime = entry.getKey();
+            if (forecastDateTime.toLocalDate().equals(dateTime.toLocalDate())) {
+                weathers.put(forecastDateTime, entry.getValue());
+            }
+        }
+
+        return weathers;
     }
 }

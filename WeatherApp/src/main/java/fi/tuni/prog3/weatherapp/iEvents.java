@@ -6,8 +6,6 @@
 package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +57,6 @@ public interface iEvents {
     
     /**
      * Gets locations weather information and saves it to a LocationWeather object.
-     * @param location Name of the place
      * @param latlong Coordinates of the place
      * @param units options: "imperial" or "metric"
      * @return Current day weather information
