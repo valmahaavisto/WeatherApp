@@ -36,13 +36,18 @@ public class LocationWeather {
     public void setCurrentWeather(Weather currentWeather) {
         this.currentWeather = currentWeather;
     }
-    
-    public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime dateTime) {
+    /**
+     * Gets the forecast hours that are on the same day as dateTime
+     * @param dateTime The day that we are interesetd in. The hour doesn't matter.
+     * @return All Weather forecasts that are within the given day.
+     */
+    public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime day) {
         HashMap<LocalDateTime, Weather> weathers = new HashMap<>();
 
+        // Check each forecast hour and see which ones have the same day as "day"
         for (HashMap.Entry<LocalDateTime, Weather> entry : forecast.entrySet()) {
             LocalDateTime forecastDateTime = entry.getKey();
-            if (forecastDateTime.toLocalDate().equals(dateTime.toLocalDate())) {
+            if (forecastDateTime.toLocalDate().equals(day.toLocalDate())) {
                 weathers.put(forecastDateTime, entry.getValue());
             }
         }
