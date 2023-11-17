@@ -8,6 +8,7 @@ package fi.tuni.prog3.weatherapp;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,13 +18,16 @@ public interface iEvents {
     
     /**
      * Operations that need to be done when starting program
+     * Calls API startup()
      */
     public void startup();
     // API rajapinnan toteuttavan luokan olion tekeminen
     // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
     
     /**
-     * Operations that need to be done when shutting program
+     * Operations that need to be done when shutting program.
+     * Saves current locaiton and favorites to file.
+     * Calls API shut_down()
      */
     public void shut_down();
     // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
@@ -32,81 +36,36 @@ public interface iEvents {
      * Fetch first 5 search results that match the searchphrase the best.
      * @param input The text in searchbox
      * @return  Alphabetical list of locations in the form:
-     * "location,country_prefix (lat: xx.xxx, lon: xx.xxx)" and Coordinates.
+     * "location,country_prefix" and Coordinates.
      */
     public Map<String, Coord> search(String input);
        // Kutsuu API:lta hakutulokseen osuvat paikat ja palauttaa 5 parasta.
-       // API:lta tulee N kappaletta osumia (N>5) joista valitaan "parhaat"
+       // API:lta tulee 5 kappaletta osumia  joista valitaan "parhaat" 5
        // Jos N<5 näytetään vain ne tai palautetaan tyhjä map, josta seuraa virheteksti 
        
     /**
-     * Saves a favorite to a file for use on other executions.
-     * @param location Name of the location
+     * Updates favorite information of given location
      * @param latlong Coordinates of the location
-     * @return true if save successful, false if error in saving file.
+     * @return container of favorite locations and coords
      */
-    public boolean add_favorite(String location, Coord latlong);
-    // Tallentaa suosikin tiedostoon. Tallennus tiedostoon kurssin ohjeiden mukaan ohjelmaa sulkiessa.
-    
-    public boolean remove_favorite(String location, Coord latlong);
-    // Poistaa suosikin tiedostosta. Poisto tiedostosta kurssin ohjeiden mukaan ohjelmaa sulkiessa. 
+    public HashMap<String, Coord> add_favorite(Coord latlong);
+    // Toteuta suosikkien välimuistissa pitäminen parhaaksi katsomallasi tavalla :)
     
     /**
-     * Reads favorites from file.
-     * @return Map of favorites and their coordinates so they can be 
-     * called and displayed.
+     * Returns container of favorite locations and coords
+     * @return container of favorite locations and coords
      */
-    public Map<String, Coord> get_favourites();
-    // Lukee suosikit tiedostosta kaikki suosikit. Lukeminen kurssin ohjeiden mukaan käynnistyksessä.
-    // Suosikit palautetaan lisäämisjärjestyksessä (uusin ensin).  
+    public HashMap<String, Coord> get_favourites(); 
     
     /**
-     * Fetch data about specific location weather now and save forecast
-     * information to class
+     * Gets locations weather information and saves it to a LocationWeather object.
      * @param location Name of the place
      * @param latlong Coordinates of the place
      * @param units options: "imperial" or "metric"
      * @return Current day weather information
      * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
      */
-    public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException;
+    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException;
     // Kutsuu API:lta nykyisen sään ja sääennusteen (kaksi eri API funktiota)
-      
-    /**
-     * Get the weather of currently selected location
-     * @param day Date of requested day
-     * @return Weather information of the requested day
-     */
-    public Weather fetch_day_weather(Date day);
-    // 
-    
-    /**
-     * Get the days that have been fetched for selected location
-     * @return 
-     */
-    public ArrayList<String> get_days();
-    
-    /**
-     * Get minimum temperature of every day available for selected location
-     * @return minimum temperature of each day
-     */
-    public ArrayList<Integer> get_every_day_min_temp();
-    // Kutsu Weather oliolla getTemps ja tästä min
-    
-    /**
-     * Get maximum temperature of every day available for selected location
-     * @return maximum temperature of each day
-     */
-    public ArrayList<Integer> get_every_day_max_temp();
-    // Kutsu Weather oliolla getTemps ja tästä max
-    
-    /**
-     * Get weather description of every day available for selected location
-     * See ids at: https://openweathermap.org/weather-conditions
-     * @return weather description ids of each day
-     */
-    public ArrayList<Integer> get_every_day_description();
-    
+
 }
-
-

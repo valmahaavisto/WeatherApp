@@ -13,56 +13,38 @@ import java.util.Date;
 
 public class Weather {
     
-    private Date day;
-    private String location;
+    private Date day;              // For example: 17/11/2023 17.44
+    private String location;       // For example: Tampere
+    private String country;        // For example: FI
     
-    private double temp_min;
-    private double temp_max;
-    private double current_temp;
-    private double feels_like;
-    private String air_quality;
-    private double wind_speed;
-    private double wind_direction;
-    private double rain;
-    private int description;
-    
-    private ArrayList<Integer> times;
-    private ArrayList<Integer> temps;
-    private ArrayList<Integer> wind_speeds;
-    private ArrayList<Integer> rains;
-    private ArrayList<Integer> descriptions;
+    private double temp_min;       // Celsius or farenheit
+    private double temp_max;       // Celsius or farenheit
+    private double current_temp;   // Celsius or farenheit
+    private double feels_like;     // Celsius or farenheit
+    private double wind_speed;     // Celsius or farenheit
+    private double wind_direction; // Degrees
+    private double wind_gust;      // m/s or freedoms/second? :)
+    private double rain;           // mm or mm :)
+    private int weather_id;        //For example: 800
+    private String description;    // For example: "broken clouds"
 
-    public Weather(Date day, String location, double current_temp, 
-            double feels_like, String air_quality, double wind_speed, 
-            double wind_direction, double rain, int description, 
-            ArrayList<Integer> times, ArrayList<Integer> temps, 
-            ArrayList<Integer> wind_speeds, ArrayList<Integer> rains, 
-            ArrayList<Integer> descriptions, double temp_min, double temp_max) {
-        
+    public Weather(Date day, String location, String country, double temp_min, 
+            double temp_max, double current_temp, double feels_like, 
+            double wind_speed, double wind_direction, double wind_gust, 
+            double rain, int weather_id, String description) {
         this.day = day;
         this.location = location;
-        this.current_temp = current_temp;
-        this.feels_like = feels_like;
-        this.air_quality = air_quality;
-        this.wind_speed = wind_speed;
-        this.wind_direction = wind_direction;
-        this.rain = rain;
-        this.description = description;
-        this.times = times;
-        this.temps = temps;
-        this.wind_speeds = wind_speeds;
-        this.rains = rains;
-        this.descriptions = descriptions;
+        this.country = country;
         this.temp_min = temp_min;
         this.temp_max = temp_max;
-    }
-
-    public double getTemp_min() {
-        return temp_min;
-    }
-
-    public double getTemp_max() {
-        return temp_max;
+        this.current_temp = current_temp;
+        this.feels_like = feels_like;
+        this.wind_speed = wind_speed;
+        this.wind_direction = wind_direction;
+        this.wind_gust = wind_gust;
+        this.rain = rain;
+        this.weather_id = weather_id;
+        this.description = description;
     }
 
     public Date getDay() {
@@ -73,16 +55,24 @@ public class Weather {
         return location;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public double getTemp_min() {
+        return temp_min;
+    }
+
+    public double getTemp_max() {
+        return temp_max;
+    }
+
     public double getCurrent_temp() {
         return current_temp;
     }
 
     public double getFeels_like() {
         return feels_like;
-    }
-
-    public String getAir_quality() {
-        return air_quality;
     }
 
     public double getWind_speed() {
@@ -93,35 +83,21 @@ public class Weather {
         return wind_direction;
     }
 
+    public double getWind_gust() {
+        return wind_gust;
+    }
+
     public double getRain() {
         return rain;
     }
 
-    public int getDescription() {
+    public int getWeather_id() {
+        return weather_id;
+    }
+
+    public String getDescription() {
         return description;
     }
-
-    public ArrayList<Integer> getTimes() {
-        return times;
-    }
-
-    public ArrayList<Integer> getTemps() {
-        return temps;
-    }
-
-    public ArrayList<Integer> getWind_speeds() {
-        return wind_speeds;
-    }
-
-    public ArrayList<Integer> getRains() {
-        return rains;
-    }
-
-    public ArrayList<Integer> getDescriptions() {
-        return descriptions;
-    }
-
     
     
-
 }

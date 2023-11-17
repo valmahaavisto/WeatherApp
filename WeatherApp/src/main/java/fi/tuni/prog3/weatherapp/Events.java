@@ -6,8 +6,6 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +14,9 @@ import java.util.Map;
  */
 
 public class Events implements iEvents{
+    
+    // TODO: store favorites some way
+    // TODO: store current location some way
     
     API api;
 
@@ -57,56 +58,26 @@ public class Events implements iEvents{
     }
 
     @Override
-    public boolean add_favorite(String location, Coord latlong) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public HashMap<String, Coord> add_favorite(Coord latlong) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public HashMap<String, Coord> get_favourites(){
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean remove_favorite(String location, Coord latlong) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public Map<String, Coord> get_favourites() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public Weather fetch_weather_data(String location, Coord latlong, String units) throws InvalidUnitsException {
+    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException {
         
         try {
             Weather weather = api.get_current_weather(latlong, units);
             System.out.print(weather.getDay());
-            return weather;
+            // TODO: fix this because interface call changed.
+            return null;
         } catch(APICallUnsuccessfulException e) {
             // TODO: handle this exception
             return null;
         }
-    }
-
-    @Override
-    public Weather fetch_day_weather(Date day) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public ArrayList<String> get_days() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public ArrayList<Integer> get_every_day_min_temp() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public ArrayList<Integer> get_every_day_max_temp() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public ArrayList<Integer> get_every_day_description() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
+    } 
 }

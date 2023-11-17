@@ -15,32 +15,32 @@ import java.util.Map;
 public class testAPI {
     
     private static void testCurrentWeather(API api, double lat, double lon) {
-        Coord coord = new Coord(lat,lon);
-        try {
-            Weather w = api.get_current_weather(coord, "metric");
-            
-            
-            if (w != null) {
-                System.out.println("Location: " + w.getLocation());
-                System.out.println("Current Temperature: " + w.getCurrent_temp());
-                System.out.println("Feels Like: " + w.getFeels_like());
-                System.out.println("Wind Speed: " + w.getWind_speed());
-                System.out.println("Wind Direction: " + w.getWind_direction());
-                System.out.println("Date: " + w.getDay());
-                System.out.println("Weather ID: " + w.getDescription());
-                
-            } else {
-                System.out.println("Weather data is null. "
-                        + "Check for errors in API call.");
-            }
-            System.out.println();
-            
-        } catch (InvalidUnitsException e) {
-            System.out.println("Invalid units");
-        } catch (APICallUnsuccessfulException e) {
-            System.out.println(e.getMessage());
+    Coord coord = new Coord(lat, lon);
+    try {
+        Weather w = api.get_current_weather(coord, "metric");
+
+        if (w != null) {
+            System.out.println("Location: " + (w.getLocation().equals("null") ? "N/A" : w.getLocation()));
+            System.out.println("Current Temperature: " + (Double.isNaN(w.getCurrent_temp()) ? "N/A" : w.getCurrent_temp()));
+            System.out.println("Feels Like: " + (Double.isNaN(w.getFeels_like()) ? "N/A" : w.getFeels_like()));
+            System.out.println("Wind Speed: " + (Double.isNaN(w.getWind_speed()) ? "N/A" : w.getWind_speed()));
+            System.out.println("Wind Direction: " + (Double.isNaN(w.getWind_direction()) ? "N/A" : w.getWind_direction()));
+            System.out.println("Wind Gust: " + (Double.isNaN(w.getWind_gust()) ? "N/A" : w.getWind_gust()));
+            System.out.println("Rain: " + (Double.isNaN(w.getRain()) ? "N/A" : w.getRain()));
+            System.out.println("Date: " + (w.getDay() != null ? w.getDay() : "N/A"));
+            System.out.println("Weather ID: " + (w.getDescription().equals("null") ? "N/A" : w.getDescription()));
+        } else {
+            System.out.println("Weather data is null. Check for errors in API call.");
         }
+        System.out.println();
+
+    } catch (InvalidUnitsException e) {
+        System.out.println("Invalid units");
+    } catch (APICallUnsuccessfulException e) {
+        System.out.println(e.getMessage());
     }
+}
+
     private static void testLookUpLocations(API api, String text) {
         try {
             HashMap<String, Coord> locations = api.look_up_locations(text);

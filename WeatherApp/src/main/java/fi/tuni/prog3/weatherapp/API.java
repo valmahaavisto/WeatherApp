@@ -101,7 +101,7 @@ public class API implements iAPI {
             double lat = jsonObject.getAsJsonPrimitive("lat").getAsDouble();
             double lon = jsonObject.getAsJsonPrimitive("lon").getAsDouble();
             Coord coord = new Coord(lat, lon);
-            locations.put(name+","+country+ "(lat:"+ lat+", lon:" +lon+")", coord);
+            locations.put(name+","+country, coord);
         }
         return locations;
     }
@@ -138,33 +138,32 @@ public class API implements iAPI {
         }
         
         String location = jsonObject.getAsJsonPrimitive("name").getAsString();
-        
+
         JsonObject main = jsonObject.getAsJsonObject("main");
-        double current_temp = main.getAsJsonPrimitive("temp").getAsDouble();
-        double feels_like = main.getAsJsonPrimitive("feels_like").getAsDouble();
-        double temp_min = main.getAsJsonPrimitive("temp_min").getAsDouble();
-        double temp_max = main.getAsJsonPrimitive("temp_max").getAsDouble();
-        
+        double current_temp = main.has("temp") ? main.getAsJsonPrimitive("temp").getAsDouble() : Double.NaN;
+        double feels_like = main.has("feels_like") ? main.getAsJsonPrimitive("feels_like").getAsDouble() : Double.NaN;
+        double temp_min = main.has("temp_min") ? main.getAsJsonPrimitive("temp_min").getAsDouble() : Double.NaN;
+        double temp_max = main.has("temp_max") ? main.getAsJsonPrimitive("temp_max").getAsDouble() : Double.NaN;
+
         JsonObject wind = jsonObject.getAsJsonObject("wind");
-        double wind_speed = wind.getAsJsonPrimitive("speed").getAsDouble();
-        double wind_direction = wind.getAsJsonPrimitive("deg").getAsDouble();
-        
+        double wind_speed = wind.has("speed") ? wind.getAsJsonPrimitive("speed").getAsDouble() : Double.NaN;
+        double wind_direction = wind.has("deg") ? wind.getAsJsonPrimitive("deg").getAsDouble() : Double.NaN;
+        double wind_gust = wind.has("gust") ? wind.getAsJsonPrimitive("gust").getAsDouble() : Double.NaN;
+
         long dt = jsonObject.getAsJsonPrimitive("dt").getAsLong();
-        Date date = new Date(dt*1000);
-        
+        Date date = new Date(dt * 1000);
+
         JsonArray weather_array = jsonObject.getAsJsonArray("weather");
-        if (weather_array == null || weather_array.size() == 0) {    
-            return null;
-        }   
+        if (weather_array == null || weather_array.size() == 0) {
+            throw new APICallUnsuccessfulException("Unable to connect to API");
+        }
         JsonObject weather_object = weather_array.get(0).getAsJsonObject();
-        Integer weather_id = weather_object.getAsJsonPrimitive("id").getAsInt();
-        
-        Weather current_weather = new Weather(date, location, current_temp, 
-            feels_like, "null", wind_speed, 
-            wind_direction, 0, weather_id, 
-            null, null, 
-            null, null, 
-            null, temp_min, temp_max);
+        Integer weather_id = weather_object.has("id") ? weather_object.getAsJsonPrimitive("id").getAsInt() : -1;
+        String description = weather_object.has("description") ? weather_object.getAsJsonPrimitive("description").getAsString() : "N/A";
+
+        Weather current_weather = new Weather(date, location, "null", temp_min, temp_max, current_temp,
+                feels_like, wind_speed, wind_direction, wind_gust, 0, weather_id, description);
+
         
         return current_weather;
           
