@@ -1,8 +1,10 @@
 package fi.tuni.prog3.weatherapp;
 
+import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,47 +29,63 @@ public class WeatherApp extends Application {
 
     // Events class object to interact with
     Events events;
+    private Stage stage; 
+    private Map<String, Coord> top_5;
+    private BorderPane root;
+    private Scene scene1;
     
     @Override
     public void start(Stage stage) {
+        this.stage = stage;
         
         // This is called when interacting with Events interface/class
-        events = new Events();
+        events = new Events();        
         
         // When function implemented, '//' removed
         events.startup();
         
         //Creating a new BorderPane.
-        BorderPane root = new BorderPane();
+        root = new BorderPane();
         root.setPadding(new Insets(0, 0,0 , 0));
-        
-        //Adding HBox to the center of the BorderPane.
-        root.setCenter(getCenterVBox());
         
         //Adding button to the BorderPane and aligning it to the right.
         var quitButton = getQuitButton();
         BorderPane.setMargin(quitButton, new Insets(0, 0, 0, 0));
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
-        
-        Scene scene = new Scene(root, 500, 600);                      
-        stage.setScene(scene);
+
         stage.setTitle("WeatherApp");
-        stage.show();
+        //shows the last searched place's weather
+        show_start();
     }
 
     public static void main(String[] args) {
         launch();
     }
     
-    private VBox getCenterVBox() {
+    private void show_start() {
+        scene1 = new Scene(root, 500, 600); 
+        stage.setScene(scene1);
+        stage.setTitle("last weather");
         //Creating an VBox.
         VBox page = new VBox(0);
         
         //Adding all components to the VBox.
-        page.getChildren().addAll(upperMenu(), currentWeather(), weekDays(), weatherByHour());
-       
-        return page;
+        page.getChildren().addAll(upperMenu(), currentWeather(),
+                weekDays(), weatherByHour());
+        
+        root.setCenter(page);
+        stage.show();
+    }
+    
+    private void searchResults(){
+        //Creating an VBox.
+        VBox searches = new VBox(0);
+        
+        //Adding all components to the VBox.
+        searches.getChildren().addAll(upperMenu(),searchResult());
+        root.setCenter(searches);
+        stage.show();
     }
     
     private VBox upperMenu() {
@@ -84,17 +102,34 @@ public class WeatherApp extends Application {
         
         // textfield for the search bar
         TextField search = new TextField();
-        search.setPromptText("search place...");
+        search.setPromptText("Search place...");
         search.setPrefWidth(200);
         Insets marginInsets = new Insets(20,0 , 10, 50);
         HBox.setMargin(search, marginInsets);
         
         //search button
-        Button searchBtn=new Button("Search");
+        Button searchBtn = new Button("Search");
         searchBtn.setPrefWidth(54);
         Insets marginInsets1 = new Insets(20,0 , 10, 10);
         HBox.setMargin(searchBtn, marginInsets1);
-        upperHBox.getChildren().addAll(appName, search, searchBtn);
+        
+        searchBtn.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                String place = search.getText();
+                top_5 = events.search(place);
+                //new scene: the search results
+                searchResults();
+            }
+        });
+        
+        //units button
+        Button unitBtn = new Button("imperial");
+        HBox.setMargin(unitBtn, marginInsets1);
+        // add all elements to upperHBox
+        upperHBox.getChildren().addAll(appName, search, searchBtn,
+                unitBtn);
         
         //HBox for favorite searches
         HBox lowerHBox = new HBox();
@@ -103,21 +138,21 @@ public class WeatherApp extends Application {
         
         Insets marginFave1 = new Insets(6,6 , 10, 110);
         Insets marginFave2 = new Insets(0,6 , 10, 0);
-        Label favorites= new Label("Favorites:");
+        Label favorites = new Label("Favorites:");
         favorites.setStyle("-fx-text-fill: white;");
         HBox.setMargin(favorites, marginFave1);
         lowerHBox.getChildren().add(favorites);
         
         for(int i=0; i<3;i++){
             //placeholders for the real places
-            Button fave= new Button("Tampere");
+            Button fave = new Button("Tampere");
             HBox.setMargin(fave, marginFave2);
             lowerHBox.getChildren().add(fave);
         }
         
         //if there is lot of favorites, then they should be 
         //found behind this button
-        Button moreFaves= new Button("more");
+        Button moreFaves = new Button("more");
         HBox.setMargin(moreFaves, marginFave2);
         lowerHBox.getChildren().add(moreFaves);
         lowerHBox.setStyle("-fx-background-color: #232f75;");
@@ -200,7 +235,6 @@ public class WeatherApp extends Application {
         row1.setPercentHeight(20);
         row2.setPercentHeight(60);
         row3.setPercentHeight(20);
-        
         return grid;
     }
     
@@ -222,6 +256,20 @@ public class WeatherApp extends Application {
         return weatherGrid;
     }
     
+    private VBox searchResult(){
+        //Creating an VBox.
+        VBox results = new VBox(0);
+        results.setStyle("-fx-background-color: #FFFFFF;");
+        
+        //add list of results that mach the input
+        for(var entry : top_5.entrySet()){
+            String key = entry.getKey();
+            Button result = new Button(key);
+            result.prefWidth(key.length()+5);
+            results.getChildren().add(result);
+        }
+        return results;
+    }
     private Button getQuitButton() {
         //Creating a button.
         Button button = new Button("Quit");
