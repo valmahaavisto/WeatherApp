@@ -33,6 +33,8 @@ public class WeatherApp extends Application {
     private Map<String, Coord> top_5;
     private BorderPane root;
     private Scene scene1;
+    private boolean favorite;
+    private boolean metric;
     
     @Override
     public void start(Stage stage) {
@@ -53,6 +55,12 @@ public class WeatherApp extends Application {
         BorderPane.setMargin(quitButton, new Insets(0, 0, 0, 0));
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
+        
+        //uppermenu is always in same place
+        root.setTop(upperMenu());
+        //scene
+        scene1 = new Scene(root, 550, 600); 
+        stage.setScene(scene1);
 
         stage.setTitle("WeatherApp");
         //shows the last searched place's weather
@@ -64,14 +72,12 @@ public class WeatherApp extends Application {
     }
     
     private void show_start() {
-        scene1 = new Scene(root, 500, 600); 
-        stage.setScene(scene1);
-        stage.setTitle("last weather");
+
         //Creating an VBox.
         VBox page = new VBox(0);
         
         //Adding all components to the VBox.
-        page.getChildren().addAll(upperMenu(), currentWeather(),
+        page.getChildren().addAll( currentWeather(),
                 weekDays(), weatherByHour());
         
         root.setCenter(page);
@@ -83,7 +89,7 @@ public class WeatherApp extends Application {
         VBox searches = new VBox(0);
         
         //Adding all components to the VBox.
-        searches.getChildren().addAll(upperMenu(),searchResult());
+        searches.getChildren().addAll(searchResult());
         root.setCenter(searches);
         stage.show();
     }
@@ -118,14 +124,41 @@ public class WeatherApp extends Application {
             @Override
             public void handle(ActionEvent e) {
                 String place = search.getText();
-                top_5 = events.search(place);
-                //new scene: the search results
-                searchResults();
+                if(place.length()!=0){
+                    top_5 = events.search(place);
+                    //new scene: the search results
+                    //first lets check if there are no results
+                    if(top_5==null){
+                        //somekind of error: found 0 starting with given place
+                    }else{
+                        searchResults();
+                    }
+                }
             }
         });
         
         //units button
-        Button unitBtn = new Button("imperial");
+        String btnText;
+        if(metric == true){
+            btnText= "change to imperial";
+        }else{
+            btnText= "change to metric";
+        }
+        Button unitBtn = new Button(btnText);
+        unitBtn.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                if(metric == true){
+                    metric = false;
+                    
+                }else{
+                    metric = true;  
+                }
+                root.setTop(upperMenu());
+            }
+        });
+        
         HBox.setMargin(unitBtn, marginInsets1);
         // add all elements to upperHBox
         upperHBox.getChildren().addAll(appName, search, searchBtn,
@@ -178,7 +211,31 @@ public class WeatherApp extends Application {
         grid.add(placeName, 0,0);
         
         //Add to favorites button in top right
-        Button addFav = new Button ("Add to favorites");
+        String favBtnText;
+        if( favorite == false ){
+            favBtnText = "Add to favorites";
+        } else {
+            favBtnText = "remove from favorites";
+        }
+        Button addFav = new Button (favBtnText);
+        addFav.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                if (favorite == false){
+                    favorite = true;
+                   //events.add_favorite(latlong);
+                   root.setTop(upperMenu());
+                   show_start();
+                }else{
+                    favorite = false;
+                    //events.remove_favorite(latLong);
+                    root.setTop(upperMenu());
+                    show_start();
+                }
+            }
+        });
+        
         GridPane.setValignment(addFav, VPos.TOP);
         GridPane.setHalignment(addFav, HPos.RIGHT);
         grid.add(addFav, 2, 0);
@@ -187,6 +244,7 @@ public class WeatherApp extends Application {
         VBox temperatures= new VBox();
         temperatures.setAlignment(Pos.CENTER);
         // Label that shows the current temperature
+        
         Label temperature = new Label("12C");
         temperature.setStyle("-fx-font-size: 40px;");
         // Label that shows the current temperature
@@ -260,16 +318,29 @@ public class WeatherApp extends Application {
         //Creating an VBox.
         VBox results = new VBox(0);
         results.setStyle("-fx-background-color: #FFFFFF;");
-        
         //add list of results that mach the input
         for(var entry : top_5.entrySet()){
             String key = entry.getKey();
-            Button result = new Button(key);
+            var parts= key.split(",");
+            Button result = new Button(parts[1]);
             result.prefWidth(key.length()+5);
             results.getChildren().add(result);
+            result.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent e) {
+                    //get the right weather data
+                    //events.get_weather(entry.getValue(),"metric");
+
+                    //new scene: the search results
+                    show_start();
+            }
+            });
+        
         }
         return results;
     }
+    
     private Button getQuitButton() {
         //Creating a button.
         Button button = new Button("Quit");
