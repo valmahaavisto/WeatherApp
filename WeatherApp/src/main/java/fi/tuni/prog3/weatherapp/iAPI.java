@@ -6,7 +6,8 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public interface iAPI {
      * Searches possible locations matching searchword
      * @param loc Name of the location for which coordinates should be fetched.
      * @return locations that match searchword and their coords
-     * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
+     * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
     public Map<String, Coord> look_up_locations(String loc) 
             throws APICallUnsuccessfulException;
@@ -42,7 +43,7 @@ public interface iAPI {
      * @param units options: "imperial" or "metric"
      * @return Weather object of current day. 
      * @throws InvalidUnitsException when units are wrong
-     * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
+     * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
     public Weather get_current_weather(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
@@ -53,8 +54,8 @@ public interface iAPI {
      * @param units
      * @return String.
      * @throws InvalidUnitsException when units are wrong
-     * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
+     * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
-    public ArrayList<Weather> get_forecast(Coord coordinates, String units) 
+    public HashMap<LocalDateTime, Weather> get_forecast(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
 }

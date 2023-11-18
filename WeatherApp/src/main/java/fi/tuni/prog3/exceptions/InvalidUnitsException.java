@@ -11,6 +11,6 @@ package fi.tuni.prog3.exceptions;
 
 public class InvalidUnitsException extends Exception {
     public InvalidUnitsException(String message) {
-        super("Available units: metric or imperial");
+        super(message);
     }
 }
