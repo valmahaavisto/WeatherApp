@@ -32,10 +32,10 @@ public interface iEvents {
 
     /**
      * 
-     * @return coordinates of the place that was shown 
+     * @return LocationWeather of the place that was shown 
      * when the app was closed last time
      */
-    public Coord getLastWeather();
+    public LocationWeather get_last_weather();
     
     /**
      * Fetch first 5 search results that match the searchphrase the best.

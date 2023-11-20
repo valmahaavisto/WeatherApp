@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
+import javafx.util.Pair;
 
 /**
  * A Class with methods to make data processing between API calls and GUI.
@@ -26,7 +27,7 @@ public class Events implements iEvents {
     HashMap<String, Coord> favorites = new HashMap<>();
     
     // store current location's coordinates
-    Coord lastWeather = new Coord(0.0,0.0);
+    Pair<Coord, String> lastWeather = new Pair(new Coord(0.0,0.0), "i");
     
     API api;
 
@@ -42,7 +43,7 @@ public class Events implements iEvents {
             // Open the file and read it line by line using a stream
             try (Stream<String> lines = Files.lines(Paths.get(favoritesFilePath))) {
                 lines.forEach(line -> {
-                    String[] parts = line.split(" ");
+                    String[] parts = line.split(", ");
                     String name = parts[0];
                     double lat = Double.parseDouble(parts[1]);
                     double lon = Double.parseDouble(parts[2]);
@@ -76,15 +77,15 @@ public class Events implements iEvents {
             String[] parts = coordString.split(",");
             double lat = Double.parseDouble(parts[0]);
             double lon = Double.parseDouble(parts[1]);
+            String unit = parts[2];
             
-            lastWeather = new Coord(lat, lon);
+            lastWeather = new Pair(new Coord(lat, lon), unit);
 
         } catch (IOException e) {
              // If the file doesn't exist, create it and empty ArrayList
             if (e instanceof NoSuchFileException) {
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
-                    lastWeather = new Coord(0.0, 0.0);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -107,7 +108,7 @@ public class Events implements iEvents {
                 String key = entry.getKey();
                 Coord value = entry.getValue();
                 
-                String content = key + " " + value.getLat() + " " + value.getLon();
+                String content = key + ", " + value.getLat() + ", " + value.getLon();
                 Files.write(Paths.get(favoritesFilePath), content.getBytes());
             }
             
@@ -120,7 +121,8 @@ public class Events implements iEvents {
         String lastWeatherFilePath = "lastWeather.txt";
 
         try {
-            String content = lastWeather.getLat()+ ", " +lastWeather.getLon();
+            String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
+                    + ", " + lastWeather.getValue();
             Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
             
         } catch (IOException e) {
@@ -131,8 +133,14 @@ public class Events implements iEvents {
 
     
     @Override
-    public Coord getLastWeather() {
-        return lastWeather;
+    public LocationWeather get_last_weather() {
+        try {
+            return get_weather(lastWeather.getKey(), lastWeather.getValue());
+        } catch (InvalidUnitsException ex) {
+            // InvalidUnitsException
+            ex.printStackTrace();
+            return null;
+        }
     }
     
     @Override
@@ -179,7 +187,7 @@ public class Events implements iEvents {
         
         try {
             // move the searched word to last searched
-            lastWeather = latlong;
+            lastWeather = new Pair(latlong, units);
             
             Weather weather = api.get_current_weather(latlong, units);
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
