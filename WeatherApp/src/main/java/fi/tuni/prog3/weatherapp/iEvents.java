@@ -7,7 +7,7 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 /**
 * Interface with methods to make data processing between API calls and GUI.
@@ -31,22 +31,31 @@ public interface iEvents {
     // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
 
     /**
+     * 
+     * @return coordinates of the place that was shown 
+     * when the app was closed last time
+     */
+    public Coord getLastWeather();
+    
+    /**
      * Fetch first 5 search results that match the searchphrase the best.
      * @param input The text in searchbox
      * @return  Alphabetical list of locations in the form:
      * "location,country_prefix" and Coordinates.
      */
-    public Map<String, Coord> search(String input);
+    public TreeMap<String, Coord> search(String input);
        // Kutsuu API:lta hakutulokseen osuvat paikat ja palauttaa 5 parasta.
        // API:lta tulee 5 kappaletta osumia  joista valitaan "parhaat" 5
-       // Jos N<5 näytetään vain ne tai palautetaan tyhjä map, josta seuraa virheteksti 
+       // Jos N<5 näytetään vain ne tai palautetaan tyhjä map, josta seuraa virheteksti
+       // WeatherApp:ssa
        
     /**
      * Updates favorite information of given location
      * @param latlong Coordinates of the location
+     * @param name name of the place
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> add_favorite(Coord latlong);
+    public HashMap<String, Coord> add_favorite(Coord latlong, String name);
     // Toteuta suosikkien välimuistissa pitäminen parhaaksi katsomallasi tavalla :)
     
     /**
