@@ -66,6 +66,13 @@ public interface iEvents {
     public HashMap<String, Coord> remove_favorite(Coord latlong, String name);
     
     /**
+     * Searches if coordinates are marked as favorite
+     * @param latlong Coordinates of the location
+     * @return True -> is favoite, false -> is not favorite
+     */
+    public boolean is_favorite(Coord latlong);
+    
+    /**
      * Returns container of favorite locations and coords
      * @return container of favorite locations and coords
      */

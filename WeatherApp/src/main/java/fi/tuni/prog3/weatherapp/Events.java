@@ -92,7 +92,7 @@ public class Events implements iEvents {
                     System.err.println("Invalid latitude format: " + parts[0]);
                 }
             } else {
-                // lastWeather is most likely empty
+                // lastWeather is empty
                 //System.err.println("Latitude is missing or empty.");
             }
 
@@ -207,6 +207,16 @@ public class Events implements iEvents {
         }
         
         return favorites;
+    }
+    
+    @Override
+    public boolean is_favorite(Coord latlong) {
+        for (Entry<String, Coord> entry : favorites.entrySet()) {
+            if (entry.getValue().equals(latlong)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @Override
