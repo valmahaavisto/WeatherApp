@@ -81,6 +81,7 @@ public class WeatherApp extends Application {
         if (lastWeather==null){
             page.getChildren().add(startScreen());
         }else{
+            page.getChildren().clear();
             page.getChildren().addAll( currentWeather(),
                 weekDays(), weatherByHour());
         }
@@ -206,10 +207,12 @@ public class WeatherApp extends Application {
         VBox box = new VBox();
         box.setPrefSize(400,500);
         box.setAlignment(Pos.CENTER);
-        box.setStyle("-fx-background-color: rgba(35, 47,117, 0.7); -fx-background-radius: 10;");
+        box.setStyle("-fx-background-color: rgba(35, 47,117, 0.7);"
+                + "-fx-background-radius: 10;");
         
         //text
-        Label infoText= new Label("Welcome to the mainpage of our cool\n Weather app. Get started by searching a city.");
+        Label infoText= new Label("Welcome to the mainpage of our cool\n"
+                + "Weather app. Get started by searching a city.");
         infoText.setStyle("-fx-text-fill: white;");
         
         box.getChildren().add(infoText);
@@ -355,7 +358,7 @@ public class WeatherApp extends Application {
                 public void handle(ActionEvent e) {
                     try {
                         //get the right weather data
-                        events.get_weather(entry.getValue(),"metric");
+                        lastWeather=events.get_weather(entry.getValue(),"metric");
                     } catch (InvalidUnitsException ex) {
                         //some error
                     }
