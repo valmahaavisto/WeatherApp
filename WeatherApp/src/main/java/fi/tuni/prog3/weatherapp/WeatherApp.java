@@ -35,9 +35,11 @@ public class WeatherApp extends Application {
     private Map<String, Coord> top_5;
     private BorderPane root;
     private Scene scene1;
-    private boolean favorite;
+    private boolean favorite=false;
     private boolean metric;
     private LocationWeather lastWeather;
+    private Coord latLong;
+    private String name;
     
     @Override
     public void start(Stage stage) {
@@ -59,8 +61,12 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
         
-        //uppermenu is always in same place
-        root.setTop(upperMenu());
+        try {
+            //uppermenu is always in same place
+            root.setTop(upperMenu());
+        } catch (InvalidUnitsException ex) {
+            
+        }
         //scene
         scene1 = new Scene(root, 550, 600); 
         stage.setScene(scene1);
@@ -100,7 +106,7 @@ public class WeatherApp extends Application {
         stage.show();
     }
     
-    private VBox upperMenu() {
+    private VBox upperMenu() throws InvalidUnitsException {
         //Creating a HBox for the logo, search bar and search button.
         HBox upperHBox = new HBox();
         upperHBox.setPrefHeight(40);
@@ -161,7 +167,11 @@ public class WeatherApp extends Application {
                 }else{
                     metric = true;  
                 }
-                root.setTop(upperMenu());
+                try {
+                    root.setTop(upperMenu());
+                } catch (InvalidUnitsException ex) {
+                    
+                }
             }
         });
         
@@ -181,21 +191,44 @@ public class WeatherApp extends Application {
         favorites.setStyle("-fx-text-fill: white;");
         HBox.setMargin(favorites, marginFave1);
         lowerHBox.getChildren().add(favorites);
-        
-        for(int i=0; i<3;i++){
-            //placeholders for the real places
-            Button fave = new Button("Tampere");
-            HBox.setMargin(fave, marginFave2);
-            lowerHBox.getChildren().add(fave);
+        var favoriteList = events.get_favourites();
+        int counter =0;
+        for (var favoritePlace : favoriteList.entrySet()) {
+            if(counter == 3){
+                //if there is lot of favorites, then they should be 
+                //found behind this button
+                Button moreFaves = new Button("more");
+                HBox.setMargin(moreFaves, marginFave2);
+                lowerHBox.getChildren().add(moreFaves); 
+                break;
+            }
+            
+            var placeInfo = events.get_weather(favoritePlace.getValue(), "metric");
+            Button favoriteButton = new Button(favoritePlace.getKey()+", "
+                    +placeInfo.currentWeather.getCountry());
+            
+            //when clicked the favorite buttons it goes to it's place's weather view
+            favoriteButton.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                    public void handle(ActionEvent e) {
+                        try {
+                            lastWeather=events.get_weather(favoritePlace.getValue(), "metric");
+                            name = favoritePlace.getKey();
+                            latLong =favoritePlace.getValue();
+                            favorite = events.is_favorite(latLong);
+                            
+                        } catch (InvalidUnitsException ex) {
+                        }
+                        show_start();
+                        }           
+                });
+            HBox.setMargin(favoriteButton, marginFave2);
+            lowerHBox.getChildren().add(favoriteButton);
+            counter++;
         }
         
-        //if there is lot of favorites, then they should be 
-        //found behind this button
-        Button moreFaves = new Button("more");
-        HBox.setMargin(moreFaves, marginFave2);
-        lowerHBox.getChildren().add(moreFaves);
         lowerHBox.setStyle("-fx-background-color: #232f75;");
-        
         //VBox for search HBox and favourites HBox
         VBox centerHBox = new VBox(0);
         centerHBox.getChildren().addAll(upperHBox, lowerHBox);
@@ -211,9 +244,9 @@ public class WeatherApp extends Application {
                 + "-fx-background-radius: 10;");
         
         //text
-        Label infoText= new Label("Welcome to the mainpage of our cool\n"
-                + "Weather app. Get started by searching a city.");
-        infoText.setStyle("-fx-text-fill: white;");
+        Label infoText= new Label("Welcome to the starting page\n"
+                +"of our Weather app. Get Started\n "+"by searching a city.\n");
+        infoText.setStyle("-fx-text-fill: white;-fx-font-size: 30px;");
         
         box.getChildren().add(infoText);
         // Create a StackPane to contain the VBox
@@ -233,39 +266,19 @@ public class WeatherApp extends Application {
 
         // Label that shows the city (and coordinates if multiple same)
         //in top left
-        Label placeName = new Label("Tampere");
+        String place = lastWeather.currentWeather.getLocation();
+        Label placeName = new Label(place);
+        placeName.prefWidth(place.length()+3);
         placeName.setStyle("-fx-font-size: 20px;");
         grid.add(placeName, 0,0);
         
         //Add to favorites button in top right
-        String favBtnText;
-        if( favorite == false ){
-            favBtnText = "Add to favorites";
-        } else {
-            favBtnText = "remove from favorites";
-        }
-        Button addFav = new Button (favBtnText);
-        addFav.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent e) {
-                if (favorite == false){
-                    favorite = true;
-                   //events.add_favorite(latlong);
-                   root.setTop(upperMenu());
-                   show_start();
-                }else{
-                    favorite = false;
-                    //events.remove_favorite(latLong);
-                    root.setTop(upperMenu());
-                    show_start();
-                }
-            }
-        });
+        Button addFavorite =getFavoriteButton();
         
-        GridPane.setValignment(addFav, VPos.TOP);
-        GridPane.setHalignment(addFav, HPos.RIGHT);
-        grid.add(addFav, 2, 0);
+        
+        GridPane.setValignment(addFavorite, VPos.TOP);
+        GridPane.setHalignment(addFavorite, HPos.RIGHT);
+        grid.add(addFavorite, 2, 0);
         
         // Temperature and what it feels like in the center of the grid
         VBox temperatures= new VBox();
@@ -348,26 +361,28 @@ public class WeatherApp extends Application {
         //add list of results that mach the input
         for(var entry : top_5.entrySet()){
             String key = entry.getKey();
-            var parts= key.split(",");
-            Button result = new Button(parts[1]);
-            result.prefWidth(key.length()+5);
-            results.getChildren().add(result);
+            Coord coordinates = entry.getValue();
+            
+            Button result = new Button(key);
             result.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
                 public void handle(ActionEvent e) {
                     try {
                         //get the right weather data
-                        lastWeather=events.get_weather(entry.getValue(),"metric");
+                        lastWeather=events.get_weather(coordinates,"metric");
+                        name =key;
+                        latLong = entry.getValue();
+                        favorite = events.is_favorite(coordinates);
                     } catch (InvalidUnitsException ex) {
                         //some error
                     }
 
                     //new scene: the search results
                     show_start();
-            }
+                }
             });
-        
+            results.getChildren().add(result);
         }
         return results;
     }
@@ -385,6 +400,42 @@ public class WeatherApp extends Application {
         });
         
         return button;
+    }
+    
+    private Button getFavoriteButton() {
+        Button addFavorite = new Button ();
+        if( favorite == false ){
+            addFavorite.setText("Add to favorites");
+        } else {
+            addFavorite.setText("remove from favorites");
+        }
+        addFavorite.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                if (favorite == false){
+                    events.add_favorite(latLong, name);
+                    favorite= true;
+                    try {
+                        root.setTop(upperMenu());
+                    } catch (InvalidUnitsException ex) {
+                        
+                    }
+                   show_start();
+                }else{
+                    events.remove_favorite(latLong, lastWeather.getCurrentWeather().getCountry());
+                    favorite= events.is_favorite(latLong);
+                    try {
+                        root.setTop(upperMenu());
+                    } catch (InvalidUnitsException ex) {
+                        
+                    }
+                    show_start();
+                }
+            }
+        });
+        return addFavorite;
+        
     }
 
 }
