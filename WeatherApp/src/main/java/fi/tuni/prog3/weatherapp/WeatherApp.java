@@ -1,5 +1,6 @@
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,6 +19,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -35,6 +37,7 @@ public class WeatherApp extends Application {
     private Scene scene1;
     private boolean favorite;
     private boolean metric;
+    private LocationWeather lastWeather;
     
     @Override
     public void start(Stage stage) {
@@ -64,6 +67,7 @@ public class WeatherApp extends Application {
 
         stage.setTitle("WeatherApp");
         //shows the last searched place's weather
+        lastWeather = events.get_last_weather();
         show_start();
     }
 
@@ -72,13 +76,14 @@ public class WeatherApp extends Application {
     }
     
     private void show_start() {
-
         //Creating an VBox.
         VBox page = new VBox(0);
-        
-        //Adding all components to the VBox.
-        page.getChildren().addAll( currentWeather(),
+        if (lastWeather==null){
+            page.getChildren().add(startScreen());
+        }else{
+            page.getChildren().addAll( currentWeather(),
                 weekDays(), weatherByHour());
+        }
         
         root.setCenter(page);
         stage.show();
@@ -194,6 +199,25 @@ public class WeatherApp extends Application {
         VBox centerHBox = new VBox(0);
         centerHBox.getChildren().addAll(upperHBox, lowerHBox);
         return centerHBox;
+    }
+    
+    private StackPane startScreen(){
+        // Creating HBox for the current wearther
+        VBox box = new VBox();
+        box.setPrefSize(400,500);
+        box.setAlignment(Pos.CENTER);
+        box.setStyle("-fx-background-color: rgba(35, 47,117, 0.7); -fx-background-radius: 10;");
+        
+        //text
+        Label infoText= new Label("Welcome to the mainpage of our cool\n Weather app. Get started by searching a city.");
+        infoText.setStyle("-fx-text-fill: white;");
+        
+        box.getChildren().add(infoText);
+        // Create a StackPane to contain the VBox
+        StackPane stackPane = new StackPane(box);
+        stackPane.setStyle("-fx-padding: 40;"); // Adjust padding as needed
+        
+        return stackPane;
     }
     
     private GridPane currentWeather() {
@@ -329,8 +353,12 @@ public class WeatherApp extends Application {
 
                 @Override
                 public void handle(ActionEvent e) {
-                    //get the right weather data
-                    //events.get_weather(entry.getValue(),"metric");
+                    try {
+                        //get the right weather data
+                        events.get_weather(entry.getValue(),"metric");
+                    } catch (InvalidUnitsException ex) {
+                        //some error
+                    }
 
                     //new scene: the search results
                     show_start();
