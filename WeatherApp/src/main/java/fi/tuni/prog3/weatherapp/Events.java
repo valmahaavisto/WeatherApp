@@ -12,7 +12,9 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javafx.util.Pair;
@@ -58,10 +60,13 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(favoritesFilePath));
                 } catch (IOException ex) {
+                    System.err.println("Error while creating file favorites.txt");
                     ex.printStackTrace();
                 }
             } else {
-                // Handle other IOExceptions
+                System.err.println("Found other IOException(s) when creating "
+                        + "favorites.txt");
+                
                 e.printStackTrace();
             }
         }
@@ -72,14 +77,24 @@ public class Events implements iEvents {
         try {
            // Read the string representation of Coord from the file
             String coordString = new String(Files.readAllBytes(Paths.get(lastWeatherFilePath)));
-
-            // Split the string into latitude and longitude parts
             String[] parts = coordString.split(",");
-            double lat = Double.parseDouble(parts[0]);
-            double lon = Double.parseDouble(parts[1]);
-            String unit = parts[2];
             
-            lastWeather = new Pair(new Coord(lat, lon), unit);
+            // Split the string into latitude and longitude parts
+            if (parts.length > 0 && !parts[0].isEmpty()) {
+                try {
+                    double lat = Double.parseDouble(parts[0]);
+                    double lon = Double.parseDouble(parts[1]);
+                    String unit = parts[2];
+
+                    lastWeather = new Pair(new Coord(lat, lon), unit);
+                } catch (NumberFormatException e) {
+                    // 'parts[0]' is not a double
+                    System.err.println("Invalid latitude format: " + parts[0]);
+                }
+            } else {
+                // lastWeather is most likely empty
+                //System.err.println("Latitude is missing or empty.");
+            }
 
         } catch (IOException e) {
              // If the file doesn't exist, create it and empty ArrayList
@@ -87,10 +102,13 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
+                    System.err.println("Error while creating file lastWeather.txt");
                     ex.printStackTrace();
                 }
             } else {
-                // Handle other IOExceptions
+                System.err.println("Found other IOException(s) when creating "
+                        + "lastWeather.txt");
+                
                 e.printStackTrace();
             } 
         }
@@ -113,8 +131,8 @@ public class Events implements iEvents {
             }
             
         } catch (IOException e) {
-            // Handle IOException
-            e.printStackTrace();
+            System.err.println("File not found: favorites.txt\n");
+            
         }
         
         // save lastWeather
@@ -126,8 +144,7 @@ public class Events implements iEvents {
             Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
             
         } catch (IOException e) {
-            // Handle IOException
-            e.printStackTrace();
+            System.err.println("File not found: lastWeather.txt\n");
         }    
     }
 
@@ -137,8 +154,8 @@ public class Events implements iEvents {
         try {
             return get_weather(lastWeather.getKey(), lastWeather.getValue());
         } catch (InvalidUnitsException ex) {
-            // InvalidUnitsException
-            ex.printStackTrace();
+            System.err.println("Invalid units. Choose 'imperial' or 'metric'.");
+            
             return null;
         }
     }
@@ -165,7 +182,8 @@ public class Events implements iEvents {
             return sortedTop5;
             
         } catch(APICallUnsuccessfulException e) {
-            // TODO: handle this exception
+            System.err.println("Unable to get search information.");
+            
             return null;
         }
     }
@@ -173,6 +191,20 @@ public class Events implements iEvents {
     @Override
     public HashMap<String, Coord> add_favorite(Coord latlong, String name) {
         favorites.put(name, latlong);
+        
+        return favorites;
+    }
+    
+    @Override
+    public HashMap<String, Coord> remove_favorite(Coord latlong, String name) {
+        // remove by value (location's coordinates)
+        Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<String, Coord> entry = iterator.next();
+            if (entry.getValue().equals(latlong)) {
+                iterator.remove();
+            }
+        }
         
         return favorites;
     }
@@ -195,7 +227,8 @@ public class Events implements iEvents {
             return locationWeather;
             
         } catch(APICallUnsuccessfulException e) {
-            // TODO: handle this exception
+            System.err.println("Unable to get weather information.");
+            
             return null;
         }
     } 

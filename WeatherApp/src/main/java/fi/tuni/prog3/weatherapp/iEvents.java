@@ -56,7 +56,14 @@ public interface iEvents {
      * @return container of favorite locations and coords
      */
     public HashMap<String, Coord> add_favorite(Coord latlong, String name);
-    // Toteuta suosikkien välimuistissa pitäminen parhaaksi katsomallasi tavalla :)
+    
+    /**
+     * Removes location from favorites
+     * @param latlong Coordinates of the location
+     * @param name name of the place
+     * @return container of favorite locations and coords
+     */
+    public HashMap<String, Coord> remove_favorite(Coord latlong, String name);
     
     /**
      * Returns container of favorite locations and coords
