@@ -1,10 +1,8 @@
 package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -17,9 +15,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -35,11 +34,11 @@ public class WeatherApp extends Application {
     // Events class object to interact with
     Events events;
     private Stage stage; 
-    private Map<String, Coord> top_5;
+    private TreeMap<String, Coord> top_5;
     private BorderPane root;
     private Scene scene1;
-    private boolean favorite=false;
-    private boolean metric;
+    private boolean favorite;
+    private String units;
     private LocationWeather lastWeather;
     private Coord latLong;
     private String name;
@@ -64,12 +63,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
         
-        try {
-            //uppermenu is always in same place
-            root.setTop(upperMenu());
-        } catch (InvalidUnitsException ex) {
-            
-        }
+        
         //scene
         scene1 = new Scene(root, 600, 650); 
         stage.setScene(scene1);
@@ -78,6 +72,8 @@ public class WeatherApp extends Application {
         
         //shows the last searched place's weather
         lastWeather = events.get_last_weather();
+        favorite = false;
+        units = "metric";
         show_start();
     }
 
@@ -86,6 +82,12 @@ public class WeatherApp extends Application {
     }
     
     private void show_start() {
+        try {
+            //uppermenu is always in same place
+            root.setTop(upperMenu());
+        } catch (InvalidUnitsException ex) {
+            
+        }
         //Creating an VBox.
         VBox page = new VBox(0);
         if (lastWeather==null){
@@ -105,7 +107,7 @@ public class WeatherApp extends Application {
         VBox searches = new VBox(0);
         
         //Adding all components to the VBox.
-        searches.getChildren().add(searchResult());
+        searches.getChildren().addAll(searchResult());
         root.setCenter(searches);
         stage.show();
     }
@@ -130,7 +132,7 @@ public class WeatherApp extends Application {
                 + " -fx-background-radius: 10;");
         Insets marginInsets = new Insets(20,0 , 10, 50);
         HBox.setMargin(search, marginInsets);
-        
+          
         //search button
         Button searchBtn = new Button("Search");
         searchBtn.setStyle("-fx-background-color: white;"
@@ -139,11 +141,8 @@ public class WeatherApp extends Application {
         Insets marginInsets1 = new Insets(20,0 , 10, 10);
         HBox.setMargin(searchBtn, marginInsets1);
         
-        searchBtn.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent e) {
-                String place = search.getText();
+        EventHandler<ActionEvent> buttonHandler = e -> {
+            String place = search.getText();
                 if(place.length()!=0){
                     top_5 = events.search(place);
                     //new scene: the search results
@@ -154,34 +153,20 @@ public class WeatherApp extends Application {
                         searchResults();
                     }
                 }
-            }
-        });
+        };
+        searchBtn.setOnAction(buttonHandler);
         
-        //units button
-        String btnText;
-        if(metric == true){
-            btnText= "change to imperial";
-        }else{
-            btnText= "change to metric";
-        }
-        Button unitBtn = new Button(btnText);
-        unitBtn.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent e) {
-                if(metric == true){
-                    metric = false;
-                    
-                }else{
-                    metric = true;  
-                }
-                try {
-                    root.setTop(upperMenu());
-                } catch (InvalidUnitsException ex) {
-                    
-                }
+        EventHandler<KeyEvent> enterKeyHandler = e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                // Handle the action directly without using button.fire()
+                buttonHandler.handle(new ActionEvent());
+                // Consume the event to prevent default behavior
+                e.consume();
             }
-        });
+        };
+        search.addEventHandler(KeyEvent.KEY_PRESSED, enterKeyHandler);
+        
+        Button unitBtn=getUnitBtn();
         
         HBox.setMargin(unitBtn, marginInsets1);
         // add all elements to upperHBox
@@ -213,7 +198,7 @@ public class WeatherApp extends Application {
                 break;
             }
             
-            var placeInfo = events.get_weather(favoritePlace.getValue(), "metric");
+            var placeInfo = events.get_weather(favoritePlace.getValue(), units);
             Button favoriteButton = new Button(favoritePlace.getKey());
             favoriteButton.setStyle("-fx-background-color: rgba(225, 225,225, 0.9);"
                 + "-fx-background-radius: 10;");
@@ -224,7 +209,7 @@ public class WeatherApp extends Application {
                 @Override
                     public void handle(ActionEvent e) {
                         try {
-                            lastWeather=events.get_weather(favoritePlace.getValue(), "metric");
+                            lastWeather=events.get_weather(favoritePlace.getValue(), units);
                             name = favoritePlace.getKey();
                             latLong =favoritePlace.getValue();
                             favorite = events.is_favorite(latLong);
@@ -269,13 +254,18 @@ public class WeatherApp extends Application {
     
     private StackPane currentWeather() {        
         // Creating HBox for the current wearther
-        VBox grid = new VBox();
-        grid.setPrefSize(500,200);
-        grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(15,15,15,15));
+        VBox grid = new VBox(5);
         grid.setStyle("-fx-background-color: #a0e6ff;"
-                + " -fx-background-radius: 30;-fx-padding: 10;");
+                + " -fx-background-radius: 30;-fx-padding: 7;");
+        
+        // Set the alignment to center
+        grid.setAlignment(javafx.geometry.Pos.CENTER);
 
+        // Limit the maximum width of the VBox
+        grid.setMaxWidth(500);
+        grid.setMaxHeight(220);
+        grid.setMinHeight(220);
+        
         // Label that shows the area name, city and country
         //in top left and a favorite button in right
         grid.getChildren().add(topInfo());
@@ -333,33 +323,36 @@ public class WeatherApp extends Application {
     
     private VBox searchResult(){
         //Creating an VBox.
-        VBox results = new VBox(0);
-        results.setStyle("-fx-background-color: #FFFFFF;");
+        VBox results = new VBox();
+        results.setPadding(new Insets(10, 10,10 , 10));
+        results.setStyle("-fx-background-color: lightblue;");
         //add list of results that mach the input
+        System.out.print(top_5.size());
         for(var entry : top_5.entrySet()){
             String key = entry.getKey();
             LocationWeather placeInfo;
             Coord coordinates = entry.getValue();
             try {
-                placeInfo=events.get_weather(entry.getValue(),"metric");
+                placeInfo=events.get_weather(entry.getValue(),units);
             } catch (InvalidUnitsException ex) {
                 break;
             }
             Button result = new Button(placeInfo.currentWeather.getLocation()+", "+key);
+            result.setStyle("-fx-background-color: white;"
+                + "-fx-background-radius: 10;");
             result.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
                 public void handle(ActionEvent e) {
                     try {
                         //get the right weather data
-                        lastWeather=events.get_weather(coordinates,"metric");
+                        lastWeather=events.get_weather(coordinates,units);
                         name =key;
                         latLong = entry.getValue();
                         favorite = events.is_favorite(coordinates);
                     } catch (InvalidUnitsException ex) {
                         //some error
                     }
-
                     //new scene: the search results
                     show_start();
                 }
@@ -370,48 +363,71 @@ public class WeatherApp extends Application {
     }
     
     private AnchorPane topInfo(){
+        AnchorPane anchorPane = new AnchorPane();
         //has the area, city and country
         VBox nameInfo = new VBox();
-        nameInfo.setPrefHeight(25);
         var place = lastWeather.currentWeather;
-        Label placeName = new Label(place.getLocation());
-        Label cityName = new Label(name);
-        //set style to texts
-        placeName.setStyle("-fx-font-size: 20px;");
-        cityName.setStyle("-fx-font-size: 20px;");
-        //add to VBox
-        nameInfo.getChildren().addAll(placeName, cityName);
+        if(name==null){
+            startScreen();
+            return anchorPane;
+        }
+        var parts= name.split(",");
+        Label placeName = new Label("");
+        Label cityName = new Label("");
+        cityName.setText(parts[0]+", "+parts[1]);
+        if (!place.getLocation().equals(parts[0])){
+            placeName.setText(place.getLocation());
+            placeName.setStyle("-fx-font-size: 17px; -fx-font-weight: bold;");
+            cityName.setText(parts[0]+", "+parts[1]);
+            cityName.setStyle("-fx-font-size: 14px;");
+            //add to VBox
+            nameInfo.getChildren().addAll(placeName, cityName);
+        }else {
+           cityName.setStyle("-fx-font-size: 17px; -fx-font-weight: bold;"); 
+           nameInfo.getChildren().addAll(cityName);
+        }
+        
         nameInfo.setAlignment(Pos.CENTER_LEFT);
         
         //favorite button in the right upper corner
         Button addFavorite =getFavoriteButton();
         
         //layout is AnchorPane for this top row
-        AnchorPane anchorPane = new AnchorPane();
+        
+        anchorPane.getChildren().addAll(nameInfo, addFavorite);
         AnchorPane.setLeftAnchor(nameInfo, 10.0);
         AnchorPane.setRightAnchor(addFavorite, 10.0);
-        anchorPane.getChildren().addAll(nameInfo, addFavorite);
         
         return anchorPane;
     }
     
     private VBox middleInfo(){
         // Temperature and what it feels like in the center of the grid
+        String unitString="";
+        if(units.equals("metric")){
+            unitString="℃";
+        }else{
+          unitString="°F";  
+        }
         VBox temperatures = new VBox();
-        temperatures.setPadding(new Insets(10));
         temperatures.setAlignment(Pos.CENTER);
         
         //image of the weather
         var image =getImage(lastWeather.getCurrentWeather().getDescription());
+        image.setFitWidth(60);
+        image.setFitHeight(60);
         
         // Label that shows the current temperature
-        Label temperature = new Label(Double.toString(lastWeather.currentWeather.getCurrent_temp()));
-        temperature.setStyle("-fx-font-size: 30px;");
+        Label temperature = new Label(Double.
+                toString(lastWeather.currentWeather.getCurrent_temp())
+                +unitString);
+        temperature.setStyle("-fx-font-size: 23px;");
         
         // Label that shows the current temperature
         Label feelsLike = new Label("Feels like: "+ Double.
-                toString(lastWeather.getCurrentWeather().getFeels_like()));
-        feelsLike.setStyle("-fx-font-size: 20px;");
+                toString(lastWeather.getCurrentWeather().getFeels_like())+
+                unitString);
+        feelsLike.setStyle("-fx-font-size: 15px;");
         
         //add temperature and what it feels like to the VBox
         temperatures.getChildren().addAll(image,temperature,feelsLike);
@@ -473,44 +489,43 @@ public class WeatherApp extends Application {
             }
         });
         return addFavorite;
-        
     }
     
     private ImageView getImage(String description){
         // Create Image and ImageView
-        System.out.print(description);
-        String pathFile= "";
-        if(description.equals("clear sky")){
-            //get that
-            pathFile= "file:icons/clearsky.png";
-        }else if(description.equals("few clouds")){
-            //get image
-            pathFile= "file:icons/fewclouds.png";
-        }else if(description.equals("broken clouds")){
-            //get image
-            pathFile= "file:icons/brokenclouds.png";
-        }else if(description.equals("shower rain")){
-            //get image
-            pathFile= "file:icons/showerrain.png";
-        }else if(description.equals("rain")){
-            //get image
-            pathFile= "file:icons/rain.png";
-        }else if(description.equals("thunderstorm")){
-            //get image
-            pathFile= "file:icons/thunderstorm.png";
-        }else if(description.equals("snow")){
-            //get image
-            pathFile= "file:icons/snow.png";
-        }else if(description.equals("mist")){
-            //get image
-            pathFile= "file:icons/mist.png";
-        }else if(description.equals("overcast clouds")){
-            //get image
-            pathFile= "file:icons/brokenclouds.png";
-        }
-        else{
-            //until the images can be displayed smarter
-            pathFile= "file:icons/showerrain.png";
+        String pathFile;
+        switch (description) {
+            case "clear sky":
+                pathFile= "file:icons/clearsky.png";
+                break;
+            case "few clouds":
+                pathFile= "file:icons/fewclouds.png";
+                break;
+            case "broken clouds":
+                pathFile= "file:icons/brokenclouds.png";
+                break;
+            case "shower rain":
+                pathFile= "file:icons/showerrain.png";
+                break;
+            case "rain":
+                pathFile= "file:icons/rain.png";
+                break;
+            case "thunderstorm":
+                pathFile= "file:icons/thunderstorm.png";
+                break;
+            case "snow":
+                pathFile= "file:icons/snow.png";
+                break;
+            case "mist":
+                pathFile= "file:icons/mist.png";
+                break;
+            case "overcast clouds":
+                pathFile= "file:icons/brokenclouds.png";
+                break;
+            default:
+                //until the images can be displayed smarter
+                pathFile= "file:icons/showerrain.png";
+                break;
         }
         Image img = new Image(pathFile);
         ImageView imageView = new ImageView(img);
@@ -518,9 +533,42 @@ public class WeatherApp extends Application {
         return imageView;
     }
     
+    private Button getUnitBtn(){
+       //units button
+        String btnText;
+        if("metric".equals(units)){
+            btnText= "change to imperial";
+        }else{
+            btnText= "change to metric";
+        }
+        Button unitBtn = new Button(btnText);
+        unitBtn.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                if("metric".equals(units)){
+                    units = "imperial";
+                }else{
+                    units = "metric"; 
+                }
+                show_start();
+            }
+        }); 
+        return unitBtn;
+    }
+    
     private Button getQuitButton() {
         //Creating a button.
         Button button = new Button("Quit");
+        
+        EventHandler<KeyEvent> enterKeyHandler = e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                // Consume the event to prevent default behavior
+                e.consume();
+            }
+        };
+        // Add the Enter key handler to the other button
+        button.addEventHandler(KeyEvent.KEY_PRESSED, enterKeyHandler);
         
         events.shut_down();
         
