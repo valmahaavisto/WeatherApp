@@ -1,24 +1,27 @@
 package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -68,10 +71,11 @@ public class WeatherApp extends Application {
             
         }
         //scene
-        scene1 = new Scene(root, 550, 600); 
+        scene1 = new Scene(root, 600, 650); 
         stage.setScene(scene1);
 
         stage.setTitle("WeatherApp");
+        
         //shows the last searched place's weather
         lastWeather = events.get_last_weather();
         show_start();
@@ -85,7 +89,7 @@ public class WeatherApp extends Application {
         //Creating an VBox.
         VBox page = new VBox(0);
         if (lastWeather==null){
-            page.getChildren().add(startScreen());
+            page.getChildren().addAll(startScreen());
         }else{
             page.getChildren().clear();
             page.getChildren().addAll( currentWeather(),
@@ -101,7 +105,7 @@ public class WeatherApp extends Application {
         VBox searches = new VBox(0);
         
         //Adding all components to the VBox.
-        searches.getChildren().addAll(searchResult());
+        searches.getChildren().add(searchResult());
         root.setCenter(searches);
         stage.show();
     }
@@ -122,11 +126,15 @@ public class WeatherApp extends Application {
         TextField search = new TextField();
         search.setPromptText("Search place...");
         search.setPrefWidth(200);
+        search.setStyle("-fx-background-color: white;"
+                + " -fx-background-radius: 10;");
         Insets marginInsets = new Insets(20,0 , 10, 50);
         HBox.setMargin(search, marginInsets);
         
         //search button
         Button searchBtn = new Button("Search");
+        searchBtn.setStyle("-fx-background-color: white;"
+                + " -fx-background-radius: 10;");
         searchBtn.setPrefWidth(54);
         Insets marginInsets1 = new Insets(20,0 , 10, 10);
         HBox.setMargin(searchBtn, marginInsets1);
@@ -198,14 +206,17 @@ public class WeatherApp extends Application {
                 //if there is lot of favorites, then they should be 
                 //found behind this button
                 Button moreFaves = new Button("more");
+                moreFaves.setStyle("-fx-background-color: white;"
+                + " -fx-background-radius: 10;");
                 HBox.setMargin(moreFaves, marginFave2);
                 lowerHBox.getChildren().add(moreFaves); 
                 break;
             }
             
             var placeInfo = events.get_weather(favoritePlace.getValue(), "metric");
-            Button favoriteButton = new Button(favoritePlace.getKey()+", "
-                    +placeInfo.currentWeather.getCountry());
+            Button favoriteButton = new Button(favoritePlace.getKey());
+            favoriteButton.setStyle("-fx-background-color: rgba(225, 225,225, 0.9);"
+                + "-fx-background-radius: 10;");
             
             //when clicked the favorite buttons it goes to it's place's weather view
             favoriteButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -256,92 +267,46 @@ public class WeatherApp extends Application {
         return stackPane;
     }
     
-    private GridPane currentWeather() {
+    private StackPane currentWeather() {        
         // Creating HBox for the current wearther
-        GridPane grid = new GridPane();
+        VBox grid = new VBox();
         grid.setPrefSize(500,200);
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(new Insets(15,15,15,15));
-        grid.setStyle("-fx-background-color: #a0e6ff;");
+        grid.setStyle("-fx-background-color: #a0e6ff;"
+                + " -fx-background-radius: 30;-fx-padding: 10;");
 
-        // Label that shows the city (and coordinates if multiple same)
-        //in top left
-        String place = lastWeather.currentWeather.getLocation();
-        Label placeName = new Label(place);
-        placeName.prefWidth(place.length()+3);
-        placeName.setStyle("-fx-font-size: 20px;");
-        grid.add(placeName, 0,0);
+        // Label that shows the area name, city and country
+        //in top left and a favorite button in right
+        grid.getChildren().add(topInfo());
         
-        //Add to favorites button in top right
-        Button addFavorite =getFavoriteButton();
+        //temperature
+        grid.getChildren().add(middleInfo());
         
-        
-        GridPane.setValignment(addFavorite, VPos.TOP);
-        GridPane.setHalignment(addFavorite, HPos.RIGHT);
-        grid.add(addFavorite, 2, 0);
-        
-        // Temperature and what it feels like in the center of the grid
-        VBox temperatures= new VBox();
-        temperatures.setAlignment(Pos.CENTER);
-        // Label that shows the current temperature
-        
-        Label temperature = new Label("12C");
-        temperature.setStyle("-fx-font-size: 40px;");
-        // Label that shows the current temperature
-        Label feelsLike = new Label("Feels like: 12C");
-        feelsLike.setStyle("-fx-font-size: 20px;");
-        temperatures.getChildren().addAll(temperature,feelsLike);
-        grid.add(temperatures, 1,1);
-        
-        //Air quality in bottom left
-        Label airQuality = new Label("AQI: 23");
-        airQuality.setStyle("-fx-font-size: 12px;");
-        GridPane.setValignment(airQuality, VPos.BOTTOM);
-        GridPane.setHalignment(airQuality, HPos.CENTER);
-        grid.add(airQuality, 0,2);
-        
-        // rain stuff in bottom center
-        Label rain = new Label("rain: 4%");
-        rain.setStyle("-fx-font-size: 12px;");
-        GridPane.setValignment(rain, VPos.BOTTOM);
-        GridPane.setHalignment(rain, HPos.CENTER);
-        grid.add(rain, 1,2);
-        
-        //Label that shows current speed of the wind in bottom right
-        Label windSpeed = new Label("wind: 10,0km/h"+"   ->");
-        windSpeed.setStyle("-fx-font-size: 12px;");
-        //Label that shows current direction of the wind
-        GridPane.setValignment(windSpeed, VPos.BOTTOM);
-        GridPane.setHalignment(windSpeed, HPos.CENTER);
-        grid.add(windSpeed, 2, 2);
-        
-        //column and row constraints to get grid looking clean
-        ColumnConstraints column1 = new ColumnConstraints();
-        ColumnConstraints column2 = new ColumnConstraints();
-        ColumnConstraints column3 = new ColumnConstraints();   
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        RowConstraints row3 = new RowConstraints();
+        //get three stuff like wind, airquality and rain stuff
+        grid.getChildren().add(bottomInfo());
 
-        grid.getColumnConstraints().addAll(column1, column2, column3);
-        grid.getRowConstraints().addAll(row1,row2,row3);
+        StackPane stackPane = new StackPane(grid);
+        stackPane.setStyle("-fx-padding: 20;");
         
-        //assign precentages for rows and collumns
-        column1.setPercentWidth(30);
-        column2.setPercentWidth(40);
-        column3.setPercentWidth(30);
-        row1.setPercentHeight(20);
-        row2.setPercentHeight(60);
-        row3.setPercentHeight(20);
-        return grid;
+        return stackPane;
     }
     
     private HBox weekDays(){
         //HBox that presents all the days
-        HBox days = new HBox();
+        HBox days = new HBox(10);
+        days.setAlignment(Pos.CENTER);
         days.setPrefSize(500,100);
-        days.setAlignment(Pos.CENTER_LEFT);
-        days.setStyle("-fx-background-color: #e4e4e4;");
+        
+        for(int i=0; i<=3;i++){
+            Button day= new Button("maanantai");
+            day.setStyle("-fx-min-width: 100px; -fx-max-width: 60px;"
+                    + " -fx-min-height: 80px; -fx-max-height: 70px;"
+                    + "-fx-background-color: #a0e6ff; -fx-background-radius: 10;"
+                    + "-fx-padding: 5;");
+            days.getChildren().add(day);
+        }
+        
         return days;
     }
     
@@ -351,6 +316,18 @@ public class WeatherApp extends Application {
         weatherGrid.setPrefSize(500,200);
         weatherGrid.setAlignment(Pos.CENTER);
         weatherGrid.setStyle("-fx-background-color: #d9d9d9;");
+        
+        Label time=new Label("");
+        for(int i=1; i<=24;i++){
+            if(i==24){
+                time.setText("0");   
+            }
+            else{
+                time.setText(Integer.toString(i));
+            }
+            
+        }
+
         return weatherGrid;
     }
     
@@ -361,9 +338,14 @@ public class WeatherApp extends Application {
         //add list of results that mach the input
         for(var entry : top_5.entrySet()){
             String key = entry.getKey();
+            LocationWeather placeInfo;
             Coord coordinates = entry.getValue();
-            
-            Button result = new Button(key);
+            try {
+                placeInfo=events.get_weather(entry.getValue(),"metric");
+            } catch (InvalidUnitsException ex) {
+                break;
+            }
+            Button result = new Button(placeInfo.currentWeather.getLocation()+", "+key);
             result.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -387,23 +369,79 @@ public class WeatherApp extends Application {
         return results;
     }
     
-    private Button getQuitButton() {
-        //Creating a button.
-        Button button = new Button("Quit");
+    private AnchorPane topInfo(){
+        //has the area, city and country
+        VBox nameInfo = new VBox();
+        nameInfo.setPrefHeight(25);
+        var place = lastWeather.currentWeather;
+        Label placeName = new Label(place.getLocation());
+        Label cityName = new Label(name);
+        //set style to texts
+        placeName.setStyle("-fx-font-size: 20px;");
+        cityName.setStyle("-fx-font-size: 20px;");
+        //add to VBox
+        nameInfo.getChildren().addAll(placeName, cityName);
+        nameInfo.setAlignment(Pos.CENTER_LEFT);
         
-        // When function updated, '//' removed
-        events.shut_down();
+        //favorite button in the right upper corner
+        Button addFavorite =getFavoriteButton();
         
-        //Adding an event to the button to terminate the application.
-        button.setOnAction((ActionEvent event) -> {
-            Platform.exit();
-        });
+        //layout is AnchorPane for this top row
+        AnchorPane anchorPane = new AnchorPane();
+        AnchorPane.setLeftAnchor(nameInfo, 10.0);
+        AnchorPane.setRightAnchor(addFavorite, 10.0);
+        anchorPane.getChildren().addAll(nameInfo, addFavorite);
         
-        return button;
+        return anchorPane;
+    }
+    
+    private VBox middleInfo(){
+        // Temperature and what it feels like in the center of the grid
+        VBox temperatures = new VBox();
+        temperatures.setPadding(new Insets(10));
+        temperatures.setAlignment(Pos.CENTER);
+        
+        //image of the weather
+        var image =getImage(lastWeather.getCurrentWeather().getDescription());
+        
+        // Label that shows the current temperature
+        Label temperature = new Label(Double.toString(lastWeather.currentWeather.getCurrent_temp()));
+        temperature.setStyle("-fx-font-size: 30px;");
+        
+        // Label that shows the current temperature
+        Label feelsLike = new Label("Feels like: "+ Double.
+                toString(lastWeather.getCurrentWeather().getFeels_like()));
+        feelsLike.setStyle("-fx-font-size: 20px;");
+        
+        //add temperature and what it feels like to the VBox
+        temperatures.getChildren().addAll(image,temperature,feelsLike);
+        return temperatures;
+    }
+    
+    private HBox bottomInfo(){
+        HBox bottomThree = new HBox(30);
+        bottomThree.setAlignment(Pos.CENTER);
+        
+        //Air quality in bottom left
+        Label airQuality = new Label("AQI: 23");
+        airQuality.setStyle("-fx-font-size: 12px;");
+        
+        // rain stuff in bottom center
+        Label rain = new Label("rain: 4%");
+        rain.setStyle("-fx-font-size: 12px;");
+        
+        //Label that shows current speed of the wind in bottom right
+        Label windSpeed = new Label("wind: 10,0km/h"+"   ->");
+        windSpeed.setStyle("-fx-font-size: 12px;");
+        
+        bottomThree.getChildren().addAll(airQuality, rain, windSpeed);
+        return bottomThree;
     }
     
     private Button getFavoriteButton() {
         Button addFavorite = new Button ();
+        addFavorite.setStyle("-fx-text-fill: white;-fx-background-color: #232f75;"
+                + " -fx-background-radius: 30; -fx-font-weight: bold;");
         if( favorite == false ){
             addFavorite.setText("Add to favorites");
         } else {
@@ -437,5 +475,60 @@ public class WeatherApp extends Application {
         return addFavorite;
         
     }
+    
+    private ImageView getImage(String description){
+        // Create Image and ImageView
+        System.out.print(description);
+        String pathFile= "";
+        if(description.equals("clear sky")){
+            //get that
+            pathFile= "file:icons/clearsky.png";
+        }else if(description.equals("few clouds")){
+            //get image
+            pathFile= "file:icons/fewclouds.png";
+        }else if(description.equals("broken clouds")){
+            //get image
+            pathFile= "file:icons/brokenclouds.png";
+        }else if(description.equals("shower rain")){
+            //get image
+            pathFile= "file:icons/showerrain.png";
+        }else if(description.equals("rain")){
+            //get image
+            pathFile= "file:icons/rain.png";
+        }else if(description.equals("thunderstorm")){
+            //get image
+            pathFile= "file:icons/thunderstorm.png";
+        }else if(description.equals("snow")){
+            //get image
+            pathFile= "file:icons/snow.png";
+        }else if(description.equals("mist")){
+            //get image
+            pathFile= "file:icons/mist.png";
+        }else if(description.equals("overcast clouds")){
+            //get image
+            pathFile= "file:icons/brokenclouds.png";
+        }
+        else{
+            //until the images can be displayed smarter
+            pathFile= "file:icons/showerrain.png";
+        }
+        Image img = new Image(pathFile);
+        ImageView imageView = new ImageView(img);
 
+        return imageView;
+    }
+    
+    private Button getQuitButton() {
+        //Creating a button.
+        Button button = new Button("Quit");
+        
+        events.shut_down();
+        
+        //Adding an event to the button to terminate the application.
+        button.setOnAction((ActionEvent event) -> {
+            Platform.exit();
+        });
+        
+        return button;
+    }
 }
