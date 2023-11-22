@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,8 +29,8 @@ public class Events implements iEvents {
     // store favorites' coordinates and names
     HashMap<String, Coord> favorites = new HashMap<>();
     
-    // store current location's coordinates
-    Pair<Coord, String> lastWeather = new Pair(new Coord(0.0,0.0), "i");
+    // store current location's coordinates and imperial/metric choice
+    Pair<Coord, String> lastWeather = new Pair(new Coord(0.0,0.0), "metric");
     
     API api;
 
@@ -77,7 +78,7 @@ public class Events implements iEvents {
         try {
            // Read the string representation of Coord from the file
             String coordString = new String(Files.readAllBytes(Paths.get(lastWeatherFilePath)));
-            String[] parts = coordString.split(",");
+            String[] parts = coordString.split(", ");
             
             // Split the string into latitude and longitude parts
             if (parts.length > 0 && !parts[0].isEmpty()) {
@@ -127,7 +128,8 @@ public class Events implements iEvents {
                 Coord value = entry.getValue();
                 
                 String content = key + ", " + value.getLat() + ", " + value.getLon();
-                Files.write(Paths.get(favoritesFilePath), content.getBytes());
+                Files.write(Paths.get(favoritesFilePath), (content + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
+
             }
             
         } catch (IOException e) {
@@ -141,6 +143,7 @@ public class Events implements iEvents {
         try {
             String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
                     + ", " + lastWeather.getValue();
+            
             Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
             
         } catch (IOException e) {

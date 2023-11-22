@@ -392,7 +392,7 @@ public class WeatherApp extends Application {
         Button button = new Button("Quit");
         
         // When function updated, '//' removed
-        // events.shut_down()
+        events.shut_down();
         
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
