@@ -94,7 +94,10 @@ public class API implements iAPI {
             double lat = jsonObject.getAsJsonPrimitive("lat").getAsDouble();
             double lon = jsonObject.getAsJsonPrimitive("lon").getAsDouble();
             Coord coord = new Coord(lat, lon);
-            locations.put(name+","+country, coord);
+            String location_key = name + "," + country;
+            if (!locations.containsKey(location_key)) {
+                locations.put(location_key, coord);
+            }
         }
         return locations;
     }
