@@ -19,8 +19,8 @@ import java.time.ZoneId;
 
 /**
  * A Class for storing weather data of one day.
+ * @author Aarni Akkala
  */
-
 public class API implements iAPI {
     
     final String API_KEY = "25611dde424220be991fce1c7eefa21f";
@@ -90,7 +90,6 @@ public class API implements iAPI {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             String name = jsonObject.get("name").getAsString();
             String country = jsonObject.get("country").getAsString();
-            String state = jsonObject.get("country").getAsString();
             double lat = jsonObject.getAsJsonPrimitive("lat").getAsDouble();
             double lon = jsonObject.getAsJsonPrimitive("lon").getAsDouble();
             Coord coord = new Coord(lat, lon);

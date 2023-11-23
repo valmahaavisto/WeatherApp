@@ -22,6 +22,7 @@ import javafx.util.Pair;
 
 /**
  * A Class with methods to make data processing between API calls and GUI.
+ * @author Valma Haavisto
  */
 
 public class Events implements iEvents {

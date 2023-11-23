@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 /**
 * Interface with methods to make data processing between API calls and GUI.
+* @author Valma Haavisto, Aarni Akkala
 */
 public interface iEvents {
     

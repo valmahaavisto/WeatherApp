@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 /**
  * A Class for storing weather data of one location.
+ * @author Valma Haavisto, Aarni Akkala
  */
 
 public class LocationWeather {

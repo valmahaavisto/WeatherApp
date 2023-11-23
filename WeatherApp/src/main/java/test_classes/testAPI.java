@@ -16,6 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Test class for checking that API call data is good. Junit test file is a
+ * separate test. This is manual testing.
+ * @author Aarni Akkala
+ */
 public class testAPI {
     
     private static void testCurrentWeather(API api, double lat, double lon, String units) {

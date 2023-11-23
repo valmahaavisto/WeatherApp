@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 
 /**
  * JavaFX Weather App
+ * @author Vilma Pirilä
  */
 public class WeatherApp extends Application {
 

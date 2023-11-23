@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * A Class for storing weather data of one day.
+ * @author Aarni Akkala
  */
 
 public class Weather {

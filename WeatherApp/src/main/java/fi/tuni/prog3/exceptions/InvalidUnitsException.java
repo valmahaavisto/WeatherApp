@@ -5,10 +5,9 @@
 package fi.tuni.prog3.exceptions;
 
 /**
- * Stores coordinates of a location latitude and longitude
+ * Thrown when units are wrong in API call. Need to be metric or imperial.
+ * @author Aarni Akkala
  */
-
-
 public class InvalidUnitsException extends Exception {
     public InvalidUnitsException(String message) {
         super(message);

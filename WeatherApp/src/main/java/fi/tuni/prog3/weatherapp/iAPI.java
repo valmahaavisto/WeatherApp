@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * Interface for extracting data from the OpenWeatherMap API.
+ * @author Aarni Akkala
  */
 public interface iAPI {
     
