@@ -116,7 +116,7 @@ public class API implements iAPI {
                                                 "&lon="+coords.getLon() + 
                                                 "&appid=" + API_KEY + 
                                                 "&units=" + units);
-        
+   
         if (api_data == null) {
             throw new APICallUnsuccessfulException("Unable to connect to API");
         }

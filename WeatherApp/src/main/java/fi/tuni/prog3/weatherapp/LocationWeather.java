@@ -5,6 +5,7 @@
 package fi.tuni.prog3.weatherapp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 
@@ -14,6 +15,7 @@ import java.util.HashMap;
 
 public class LocationWeather {
     HashMap<LocalDateTime, Weather> forecast;
+    ArrayList<LocalDateTime> days = new ArrayList<>();
     Weather currentWeather;
 
     public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
@@ -38,7 +40,7 @@ public class LocationWeather {
     }
     /**
      * Gets the forecast hours that are on the same day as dateTime
-     * @param dateTime The day that we are interesetd in. The hour doesn't matter.
+     * @param day The day that we are interesetd in. The hour doesn't matter.
      * @return All Weather forecasts that are within the given day.
      */
     public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime day) {
@@ -53,5 +55,25 @@ public class LocationWeather {
         }
 
         return weathers;
+    }
+    /**
+     * Returns LocalDateTime list of days that a forecast is saved of.
+     * @return List of different days saved. Time is atStartOfDay().
+     */
+    public ArrayList<LocalDateTime> getDays() {
+        if (days.isEmpty()) {
+            // Iterate over the keys (LocalDateTime) in the forecast
+            for (LocalDateTime dateTime : forecast.keySet()) {
+                // Extract the date part from each LocalDateTime
+                LocalDateTime day = dateTime.toLocalDate().atStartOfDay();
+
+                // Add the day to the ArrayList if it's not already present
+                if (!days.contains(day)) {
+                    days.add(day);
+                }
+            }
+        }
+        
+        return days;
     }
 }

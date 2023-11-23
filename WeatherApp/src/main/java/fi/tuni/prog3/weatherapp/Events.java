@@ -171,6 +171,7 @@ public class Events implements iEvents {
             Map<String, Coord> top_5 = new HashMap<>();
             int i = 0;
             
+            // TODO: does not work
             // get first 5 search results
             for(Map.Entry<String, Coord> entry : locations.entrySet()) {
                 while (i < 6) {
