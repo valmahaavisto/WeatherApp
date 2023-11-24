@@ -333,12 +333,7 @@ public class WeatherApp extends Application {
             String key = entry.getKey();
             LocationWeather placeInfo;
             Coord coordinates = entry.getValue();
-            try {
-                placeInfo=events.get_weather(entry.getValue(),units);
-            } catch (InvalidUnitsException ex) {
-                break;
-            }
-            Button result = new Button(placeInfo.currentWeather.getLocation()+", "+key);
+            Button result = new Button(key);
             result.setStyle("-fx-background-color: white;"
                 + "-fx-background-radius: 10;");
             result.setOnAction(new EventHandler<ActionEvent>() {
@@ -571,10 +566,11 @@ public class WeatherApp extends Application {
         // Add the Enter key handler to the other button
         button.addEventHandler(KeyEvent.KEY_PRESSED, enterKeyHandler);
         
-        events.shut_down();
+        
         
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
+            events.shut_down();
             Platform.exit();
         });
         
