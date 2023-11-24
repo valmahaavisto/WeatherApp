@@ -22,11 +22,15 @@ public class LocationWeatherTest {
 
     @Test
     public void testSetCurrentWeather() {
+        
+        Coord coords = new Coord(23,23);
+        
         // Create a Weather instance for testing
         Weather testWeather = new Weather(
                 LocalDateTime.of(2023, 11, 17, 17, 44),
                 "Tampere",
                 "FI",
+                coords,
                 10.0,
                 20.0,
                 15.0,
@@ -51,11 +55,14 @@ public class LocationWeatherTest {
 
     @Test
     public void testGetDays() {
+        
+        Coord coords = new Coord(23,23);
         // Create a Weather instance for testing
         Weather testWeather1 = new Weather(
                 LocalDateTime.of(2023, 11, 17, 17, 44),
                 "Tampere",
                 "FI",
+                coords,
                 10.0,
                 20.0,
                 15.0,
@@ -73,6 +80,7 @@ public class LocationWeatherTest {
                 LocalDateTime.of(2023, 11, 18, 12, 0),
                 "Tampere",
                 "FI",
+                coords,
                 8.0,
                 18.0,
                 12.0,

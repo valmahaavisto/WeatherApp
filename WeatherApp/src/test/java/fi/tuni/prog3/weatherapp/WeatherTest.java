@@ -41,12 +41,15 @@ public class WeatherTest {
     public void testWeather() {
         // Create a LocalDateTime instance for testing
         LocalDateTime testDate = LocalDateTime.of(2023, 11, 17, 17, 44);
+        
+        Coord coords = new Coord(23,23);
 
         // Create a Weather instance for testing
         Weather testWeather = new Weather(
                 testDate,
                 "Tampere",
                 "FI",
+                coords,
                 10.0, // temp_min
                 20.0, // temp_max
                 15.0, // current_temp

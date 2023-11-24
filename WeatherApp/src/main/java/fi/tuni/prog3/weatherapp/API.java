@@ -188,7 +188,8 @@ public class API implements iAPI {
         Weather current_weather = new Weather(
                     date,          
                     location,     
-                    country,       
+                    country,
+                    coords,
                     temp_min,
                     temp_max,
                     current_temp,
@@ -280,6 +281,7 @@ public class API implements iAPI {
                     time,
                     city_name,
                     country,
+                    coords,
                     temp_min,
                     temp_max,
                     temp,

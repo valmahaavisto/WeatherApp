@@ -16,6 +16,7 @@ public class Weather {
     private LocalDateTime date;              // For example: 17/11/2023 17.44
     private String location;       // For example: Tampere
     private String country;        // For example: FI
+    private Coord coord;
     
     private double temp_min;       // Celsius or farenheit
     private double temp_max;       // Celsius or farenheit
@@ -28,13 +29,11 @@ public class Weather {
     private int weather_id;        //For example: 800
     private String description;    // For example: "broken clouds"
 
-    public Weather(LocalDateTime date, String location, String country, double temp_min, 
-            double temp_max, double current_temp, double feels_like, 
-            double wind_speed, double wind_direction, double wind_gust, 
-            double rain, int weather_id, String description) {
+    public Weather(LocalDateTime date, String location, String country, Coord coord, double temp_min, double temp_max, double current_temp, double feels_like, double wind_speed, double wind_direction, double wind_gust, double rain, int weather_id, String description) {
         this.date = date;
         this.location = location;
         this.country = country;
+        this.coord = coord;
         this.temp_min = temp_min;
         this.temp_max = temp_max;
         this.current_temp = current_temp;
@@ -46,6 +45,13 @@ public class Weather {
         this.weather_id = weather_id;
         this.description = description;
     }
+
+    
+
+    public Coord getCoord() {
+        return coord;
+    }
+    
 
     public LocalDateTime getDate() {
         return date;
