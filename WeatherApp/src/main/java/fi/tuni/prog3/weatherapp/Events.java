@@ -169,7 +169,7 @@ public class Events implements iEvents {
         
         try {     
             Map<String, Coord> locations = api.look_up_locations(input); 
-            Map<String, Coord> top_5 = new HashMap<>();
+            /*Map<String, Coord> top_5 = new HashMap<>();
             int i = 0;
             
             // TODO: does not work
@@ -179,10 +179,10 @@ public class Events implements iEvents {
                     top_5.put(entry.getKey(), entry.getValue());
                     i++;
                 }
-            }
+            }*/
 
             // sort the top_5 by key (city and country name)
-            TreeMap<String, Coord> sortedTop5 = new TreeMap<>(top_5);
+            TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
             
             return sortedTop5;
             
