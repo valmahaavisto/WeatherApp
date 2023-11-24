@@ -31,7 +31,7 @@ public class Events implements iEvents {
     HashMap<String, Coord> favorites = new HashMap<>();
     
     // store current location's coordinates and imperial/metric choice
-    Pair<Coord, String> lastWeather = new Pair(new Coord(0.0,0.0), "metric");
+    Pair<Coord, String> lastWeather = new Pair(null, null);
     
     API api;
 
@@ -118,24 +118,33 @@ public class Events implements iEvents {
 
     @Override
     public void shut_down() {
-        api.shut_down(); 
         
-        // read ArrayList favorites to file and empty it
+        api.shut_down(); 
+
+        
+        // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";
 
+        byte[] emptyBytes = new byte[0];
+
+        try {
+            // Write the empty byte array to the file
+            Files.write(Paths.get(favoritesFilePath), emptyBytes);
+        } catch (IOException ex) {
+            System.err.println("File not found: " + favoritesFilePath + "\n");
+        }
+        
         try {
             for (Map.Entry<String, Coord> entry : favorites.entrySet()) {
-                String key = entry.getKey();
                 Coord value = entry.getValue();
-                
-                String content = key + ", " + value.getLat() + ", " + value.getLon();
-                Files.write(Paths.get(favoritesFilePath), (content + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
 
+                String content = entry.getKey() + ", " + value.getLat() + ", " + value.getLon();
+                Files.write(Paths.get(favoritesFilePath), 
+                        (content + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
+                
             }
-            
         } catch (IOException e) {
-            System.err.println("File not found: favorites.txt\n");
-            
+            System.err.println("File not found: " + favoritesFilePath + "\n");
         }
         
         // save lastWeather
@@ -158,7 +167,9 @@ public class Events implements iEvents {
         try {
             return get_weather(lastWeather.getKey(), lastWeather.getValue());
         } catch (InvalidUnitsException ex) {
-            System.err.println("Invalid units. Choose 'imperial' or 'metric'.");
+            if (lastWeather.getKey() != null) {
+                System.err.println("Invalid units. Choose 'imperial' or 'metric'.");
+            }
             
             return null;
         }
@@ -172,7 +183,7 @@ public class Events implements iEvents {
             /*Map<String, Coord> top_5 = new HashMap<>();
             int i = 0;
             
-            // TODO: does not work
+            
             // get first 5 search results
             for(Map.Entry<String, Coord> entry : locations.entrySet()) {
                 while (i < 6) {
