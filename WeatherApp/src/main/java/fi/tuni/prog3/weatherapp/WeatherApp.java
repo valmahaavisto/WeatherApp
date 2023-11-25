@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -23,7 +25,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -39,6 +40,7 @@ public class WeatherApp extends Application {
     // Events class object to interact with
     Events events;
     private Stage stage; 
+    private VBox page;
     private TreeMap<String, Coord> top_5;
     private BorderPane root;
     private Scene scene1;
@@ -49,6 +51,7 @@ public class WeatherApp extends Application {
     private String name;
     private String city;
     private Weather currentW;
+    private HashMap<LocalDateTime, Weather> certainDayW;
     
     @Override
     public void start(Stage stage) throws InvalidUnitsException {
@@ -71,7 +74,7 @@ public class WeatherApp extends Application {
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
         
         //scene
-        scene1 = new Scene(root, 600, 650); 
+        scene1 = new Scene(root, 700, 650); 
         stage.setScene(scene1);
 
         stage.setTitle("WeatherApp");
@@ -102,10 +105,9 @@ public class WeatherApp extends Application {
     
     private VBox show_start() {
         //Creating a VBox.
-        VBox page = new VBox(0);
+        page = new VBox(0);
         page.getChildren().clear();
-        page.getChildren().addAll( currentWeather(),weekDays(),
-                weatherByHour());
+        page.getChildren().addAll( currentWeather(),weekDays());
         
         return page;
     }
@@ -283,24 +285,26 @@ public class WeatherApp extends Application {
         daysHbox.setAlignment(Pos.CENTER);
         daysHbox.setPrefSize(500,100);
         var days= lastWeather.getDays();
-        
         Collections.sort(days, Comparator.naturalOrder());
-
+        
         for(var day: days){
             //date
             //image
             //lowest and highest temperature
- 
-            //date
             String date_= day.getDayOfMonth()+"."+day.getMonthValue();
-            
             // get weather description of the weather in the middle of the day
             var weather=events.get_last_weather().get_certain_day_weather(day);
-            var keys = new ArrayList<>(weather.keySet());
-            Collections.sort(keys);// Hae keskimmäinen avain
+            
+            LinkedHashMap<LocalDateTime, Weather> sortedMap = new LinkedHashMap<>();
+            weather.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+            
+            var keys = new ArrayList<>(sortedMap.keySet());
             var middleKey = keys.get(keys.size() / 2);
             // Hae keskimmäinen arvo käyttäen keskimmäistä avainta
-            var middleValue =weather.get(middleKey);
+            var middleValue =sortedMap.get(middleKey);
             //image
             var image=getImage(middleValue.getDescription());
             image.setFitWidth(30);
@@ -322,29 +326,45 @@ public class WeatherApp extends Application {
                     + "-fx-padding: 5;");
                
             dayBtn.setGraphic(image);
+            dayBtn.setOnAction((ActionEvent e) ->{
+               certainDayW=sortedMap;
+               page.getChildren().add(weatherByHour());
+            });
             daysHbox.getChildren().add(dayBtn);
         }
         return daysHbox;
     }
     
-    private GridPane weatherByHour(){
+    private HBox weatherByHour(){
         //shows 24 hour forecast
-        GridPane weatherGrid = new GridPane();
+        HBox weatherGrid = new HBox();
         weatherGrid.setPrefSize(500,200);
-        weatherGrid.setAlignment(Pos.CENTER);
-        weatherGrid.setStyle("-fx-background-color: #d9d9d9;");
-        
-        Label time=new Label("");
-        for(int i=1; i<=24;i++){
-            if(i==24){
-                time.setText("0");   
-            }
-            else{
-                time.setText(Integer.toString(i));
-            }
+        weatherGrid.setAlignment(Pos.TOP_CENTER);
+        weatherGrid.setStyle("-fx-background-color: white; -fx-padding: 5;");
+        var keys = new ArrayList<>(certainDayW.keySet());
+        Collections.sort(keys);
+        for(int i=0;i< certainDayW.keySet().size();i++){
+            VBox hourForecast= new VBox();  
+            Label time=new Label("");
             
+            time.setText(Integer.toString(keys.get(i).getHour()));           
+            time.setStyle("-fx-background-color: white; -fx-padding: 7;");
+            // Convert the keys to a List
+            var keyList = new ArrayList<>(certainDayW.keySet());
+            var key = keyList.get(i);
+            var value = certainDayW.get(key);
+            var image=getImage(value.getDescription());
+            image.setFitWidth(30);
+            image.setFitHeight(30);
+            hourForecast.getChildren().addAll(time, image);
+            
+            int size = page.getChildren().size();
+            if(size==3){
+                // Remove the last added element
+                page.getChildren().remove(2);
+            }
+            weatherGrid.getChildren().add(hourForecast);
         }
-
         return weatherGrid;
     }
     
@@ -480,7 +500,6 @@ public class WeatherApp extends Application {
             if (favorite == false){
                 events.add_favorite(latLong, city);
                 favorite=events.is_favorite(latLong);
-                System.out.print(favorite);
                 try {
                     root.setTop(upperMenu());
                 } catch (InvalidUnitsException ex) {
