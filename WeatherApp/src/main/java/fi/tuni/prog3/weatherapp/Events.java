@@ -151,10 +151,12 @@ public class Events implements iEvents {
         String lastWeatherFilePath = "lastWeather.txt";
 
         try {
-            String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
+            if (lastWeather.getKey() != null && lastWeather.getValue() != null) {
+                String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
                     + ", " + lastWeather.getValue();
+                Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
+            } 
             
-            Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
             
         } catch (IOException e) {
             System.err.println("File not found: lastWeather.txt\n");
@@ -180,17 +182,6 @@ public class Events implements iEvents {
         
         try {     
             Map<String, Coord> locations = api.look_up_locations(input); 
-            /*Map<String, Coord> top_5 = new HashMap<>();
-            int i = 0;
-            
-            
-            // get first 5 search results
-            for(Map.Entry<String, Coord> entry : locations.entrySet()) {
-                while (i < 6) {
-                    top_5.put(entry.getKey(), entry.getValue());
-                    i++;
-                }
-            }*/
 
             // sort the top_5 by key (city and country name)
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
