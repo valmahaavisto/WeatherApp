@@ -219,7 +219,8 @@ public class Events implements iEvents {
     @Override
     public boolean is_favorite(Coord latlong) {
         for (Entry<String, Coord> entry : favorites.entrySet()) {
-            if (entry.getValue().equals(latlong)) {
+            if (entry.getValue().getLon() == latlong.getLon() 
+                    && entry.getValue().getLat() == latlong.getLat()) {
                 return true;
             }
         }
@@ -236,7 +237,14 @@ public class Events implements iEvents {
         
         try {
             // move the searched word to last searched
+            /*if (latlong != null) {
+                System.out.println("Coordinates: " + latlong.getLat() + " " + latlong.getLon());
+            }*/
             lastWeather = new Pair(latlong, units);
+            
+            /*if (lastWeather.getKey() != null) {
+                System.out.println("Coordinates in lastWeather:" + lastWeather.getKey().getLat() + " " + lastWeather.getKey().getLon());
+            }*/
             
             Weather weather = api.get_current_weather(latlong, units);
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
