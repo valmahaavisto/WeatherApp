@@ -18,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -74,7 +75,7 @@ public class WeatherApp extends Application {
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
         
         //scene
-        scene1 = new Scene(root, 700, 650); 
+        scene1 = new Scene(root, 600, 650); 
         stage.setScene(scene1);
 
         stage.setTitle("WeatherApp");
@@ -335,12 +336,13 @@ public class WeatherApp extends Application {
         return daysHbox;
     }
     
-    private HBox weatherByHour(){
+    private ScrollPane weatherByHour(){
         //shows 24 hour forecast
-        HBox weatherGrid = new HBox();
+        HBox weatherGrid = new HBox(20);
         weatherGrid.setPrefSize(500,200);
-        weatherGrid.setAlignment(Pos.TOP_CENTER);
-        weatherGrid.setStyle("-fx-background-color: white; -fx-padding: 5;");
+        weatherGrid.setAlignment(Pos.TOP_LEFT);
+        weatherGrid.setStyle("-fx-background-color: white; -fx-padding: 10;");
+       
         var keys = new ArrayList<>(certainDayW.keySet());
         Collections.sort(keys);
         for(int i=0;i< certainDayW.keySet().size();i++){
@@ -348,7 +350,7 @@ public class WeatherApp extends Application {
             Label time=new Label("");
             
             time.setText(Integer.toString(keys.get(i).getHour()));           
-            time.setStyle("-fx-background-color: white; -fx-padding: 7;");
+            time.setStyle("-fx-background-color: white;");
             // Convert the keys to a List
             var keyList = new ArrayList<>(certainDayW.keySet());
             var key = keyList.get(i);
@@ -356,7 +358,17 @@ public class WeatherApp extends Application {
             var image=getImage(value.getDescription());
             image.setFitWidth(30);
             image.setFitHeight(30);
-            hourForecast.getChildren().addAll(time, image);
+            
+            String unitString;
+            if(units.equals("metric")){
+                unitString="℃";
+            }else{
+              unitString="°F";  
+            }
+            int roundedTemp = (int) Math.round(value.getCurrent_temp());
+           
+            Label temperature=new Label(Integer.toString(roundedTemp)+unitString);
+            hourForecast.getChildren().addAll(time, image, temperature);
             
             int size = page.getChildren().size();
             if(size==3){
@@ -365,7 +377,11 @@ public class WeatherApp extends Application {
             }
             weatherGrid.getChildren().add(hourForecast);
         }
-        return weatherGrid;
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(weatherGrid);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        return scrollPane;
     }
     
     private void searchResult(){
