@@ -121,7 +121,6 @@ public class Events implements iEvents {
         
         api.shut_down(); 
 
-        
         // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";
 
@@ -208,7 +207,8 @@ public class Events implements iEvents {
         Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<String, Coord> entry = iterator.next();
-            if (entry.getValue().equals(latlong)) {
+            if (entry.getValue().getLon() == latlong.getLon() 
+                    && entry.getValue().getLat() == latlong.getLat()) {
                 iterator.remove();
             }
         }
@@ -235,20 +235,13 @@ public class Events implements iEvents {
     @Override
     public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException {
         
-        try {
-            // move the searched word to last searched
-            /*if (latlong != null) {
-                System.out.println("Coordinates: " + latlong.getLat() + " " + latlong.getLon());
-            }*/
+        try {           
             lastWeather = new Pair(latlong, units);
-            
-            /*if (lastWeather.getKey() != null) {
-                System.out.println("Coordinates in lastWeather:" + lastWeather.getKey().getLat() + " " + lastWeather.getKey().getLon());
-            }*/
             
             Weather weather = api.get_current_weather(latlong, units);
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
-            LocationWeather locationWeather = new LocationWeather(forecast, weather);            
+            LocationWeather locationWeather = new LocationWeather(forecast, weather);
+            
             return locationWeather;
             
         } catch(APICallUnsuccessfulException e) {
