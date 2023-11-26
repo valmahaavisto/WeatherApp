@@ -169,6 +169,20 @@ public class APITest {
         }
     }
     
+    public void testGet_city_name() {
+        API api = new API();
+        // Call the actual method
+        try {
+            Coord testCoord = new Coord(60.1695, 24.9354);
+            String cityName = api.get_city_name(testCoord);
+
+            // Assert the result
+            assertEquals("Helsinki", cityName);
+        } catch (APICallUnsuccessfulException e) {
+            fail("Unsuccessfull API call in get_city_name");
+        }
+    }
+    
 }
 
 

@@ -301,6 +301,7 @@ public class API implements iAPI {
         
     }
     
+    @Override
     public String get_city_name(Coord latlon) throws APICallUnsuccessfulException{
         // Get the best 5 matches for searchword from API
         StringBuilder api_data = get_data_from_api(
