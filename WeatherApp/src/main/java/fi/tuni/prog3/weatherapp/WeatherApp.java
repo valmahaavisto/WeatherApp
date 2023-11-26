@@ -95,16 +95,17 @@ public class WeatherApp extends Application {
             System.out.print(latLong.getLon());
             favorite= events.is_favorite(latLong);
             name = currentW.getLocation();
-            top_5 = events.search(name);
-            for (var  entry : top_5.entrySet()) {
-                System.out.print("\n"+entry.getValue().getLon());
-            if (entry.getValue().getLon() == latLong.getLon() 
-                    && entry.getValue().getLat() == latLong.getLat()) {
-                
-                var  splitted= entry.getKey().split(",");
-                city=splitted[0];
-            }
-        }
+            city = lastWeather.getCity_name();
+            //top_5 = events.search(name);
+            //for (var  entry : top_5.entrySet()) {
+            //    System.out.print("\n"+entry.getValue().getLon());
+            //if (entry.getValue().getLon() == latLong.getLon() 
+            //       && entry.getValue().getLat() == latLong.getLat()) {
+            //    
+            //   var  splitted= entry.getKey().split(",");
+            //    city=splitted[0];
+            //}
+            //}
             root.setCenter(show_start());
         }
         stage.show();

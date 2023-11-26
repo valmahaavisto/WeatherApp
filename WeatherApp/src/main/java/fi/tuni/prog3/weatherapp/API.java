@@ -301,5 +301,30 @@ public class API implements iAPI {
         
     }
     
+    public String get_city_name(Coord latlon) throws APICallUnsuccessfulException{
+        // Get the best 5 matches for searchword from API
+        StringBuilder api_data = get_data_from_api(
+                "http://api.openweathermap.org/geo/1.0/reverse?lat="
+                        +latlon.getLat()+
+                        "&lon="+latlon.getLon()+
+                        "&limit=1&appid=" + API_KEY);
+        
+        if (api_data == null) {
+            throw new APICallUnsuccessfulException("Unable to connect to API");
+        }
+        
+        // Convert to jsonObject for easier processing
+        String json_data_string = api_data.toString();
+        JsonArray jsonArray  = new Gson().fromJson(json_data_string, JsonArray.class);
+        
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+        String name = jsonObject.get("name").getAsString();
+        
+        if (name.isEmpty()) {
+            throw new APICallUnsuccessfulException("Name not found");
+        }
+        return name;
+    }
+    
     
 }

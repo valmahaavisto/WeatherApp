@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javafx.util.Pair;
@@ -166,8 +167,13 @@ public class Events implements iEvents {
     @Override
     public LocationWeather get_last_weather() {
         try {
-            return get_weather(lastWeather.getKey(), lastWeather.getValue());
-        } catch (InvalidUnitsException ex) {
+            LocationWeather w = get_weather(lastWeather.getKey(), lastWeather.getValue());
+            // Add the city_name that usually is gotten from search
+            String cityname = api.get_city_name(lastWeather.getKey());
+            w.setCity_name(cityname);
+            return w;
+            
+        } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
             if (lastWeather.getKey() != null) {
                 System.err.println("Invalid units. Choose 'imperial' or 'metric'.");
             }

@@ -101,6 +101,36 @@ public class testAPI {
         System.out.println(e.getMessage());
         }
     }
+    
+    private static void testGetCityName(API api, String text) {
+        try {
+            HashMap<String, Coord> locations = api.look_up_locations(text);
+            
+            System.out.println("Locations:");
+            for (Map.Entry<String, Coord> entry : locations.entrySet()) {
+                String name = entry.getKey();
+                Coord coord = entry.getValue();
+                System.out.println(name+ " | " + 
+                        coord.getLat()+ ":" + coord.getLon());
+                
+                Weather w = api.get_current_weather(coord, "metric");
+                
+                if (w != null) {
+                    
+                    String city_name = api.get_city_name(w.getCoord());
+                    
+                    
+                    
+                    System.out.println(text + "->"+ name + "->" + w.getLocation() + "->" + city_name);
+                }
+                
+                
+            }
+            
+        } catch (InvalidUnitsException | APICallUnsuccessfulException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
         // Instantiate API
@@ -138,6 +168,14 @@ public class testAPI {
         testForecast(api, 300, 300, "metric");
         testForecast(api, Double.NaN, 30, "imperial");
         testForecast(api, 0, 0, "freedomUnits");
+        
+        
+        
+        //  test that search and getcitname give same name
+        testGetCityName(api, "tampere");
+        testGetCityName(api, "lahti");
+        testGetCityName(api, "parkano");
+        testGetCityName(api, "Ei tällästä mestaa oo olemassakaan");
         
         
     }
