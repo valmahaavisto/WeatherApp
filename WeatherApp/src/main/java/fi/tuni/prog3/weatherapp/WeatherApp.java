@@ -92,9 +92,19 @@ public class WeatherApp extends Application {
             lastWeather = events.get_last_weather();
             currentW= events.get_last_weather().getCurrentWeather();
             latLong= currentW.getCoord();
+            System.out.print(latLong.getLon());
             favorite= events.is_favorite(latLong);
-            name = lastWeather.currentWeather.getLocation();
-            city=lastWeather.getCurrentWeather().getLocation();
+            name = currentW.getLocation();
+            top_5 = events.search(name);
+            for (var  entry : top_5.entrySet()) {
+                System.out.print("\n"+entry.getValue().getLon());
+            if (entry.getValue().getLon() == latLong.getLon() 
+                    && entry.getValue().getLat() == latLong.getLat()) {
+                
+                var  splitted= entry.getKey().split(",");
+                city=splitted[0];
+            }
+        }
             root.setCenter(show_start());
         }
         stage.show();
@@ -106,7 +116,7 @@ public class WeatherApp extends Application {
     
     private VBox show_start() {
         //Creating a VBox.
-        page = new VBox(0);
+        page = new VBox();
         page.getChildren().clear();
         page.getChildren().addAll( currentWeather(),weekDays());
         
@@ -124,6 +134,7 @@ public class WeatherApp extends Application {
         appName.setStyle("-fx-text-fill: white; -fx-font-size: 24px;");
         Insets marginInsets3 = new Insets(15,0 , 10, 30);
         HBox.setMargin(appName, marginInsets3);
+        Label space= new Label("            ");
         
         // textfield for the search bar
         TextField search = new TextField();
@@ -167,10 +178,12 @@ public class WeatherApp extends Application {
         search.addEventHandler(KeyEvent.KEY_PRESSED, enterKeyHandler);
         
         Button unitBtn=getUnitBtn();
+        unitBtn.setStyle("-fx-background-color: white;"
+                + " -fx-background-radius: 5;");
         
         HBox.setMargin(unitBtn, marginInsets1);
         // add all elements to upperHBox
-        upperHBox.getChildren().addAll(appName, search, searchBtn,
+        upperHBox.getChildren().addAll(appName, search, searchBtn,space,
                 unitBtn);
         
         //HBox for favorite searches
@@ -231,7 +244,7 @@ public class WeatherApp extends Application {
     private void startScreen(){
         
         // Creating HBox for the current wearther
-        VBox box = new VBox(30);
+        VBox box = new VBox();
         box.setPrefSize(400,500);
         box.setAlignment(Pos.CENTER);
         box.setStyle("-fx-background-color: rgba(35, 47,117, 0.7);"
@@ -254,15 +267,15 @@ public class WeatherApp extends Application {
     private StackPane currentWeather() {
         VBox grid = new VBox(5);
         grid.setStyle("-fx-background-color: #a0e6ff;"
-                + " -fx-background-radius: 30;-fx-padding: 7;");
+                + " -fx-background-radius: 30;-fx-padding: 50;");
         
         // Set the alignment to center
         grid.setAlignment(javafx.geometry.Pos.CENTER);
 
         // Limit the maximum width of the VBox
         grid.setMaxWidth(500);
-        grid.setMaxHeight(220);
-        grid.setMinHeight(220);
+        grid.setMaxHeight(250);
+        grid.setMinHeight(250);
         
         // Label that shows the area name, city and country
         //in top left and a favorite button in right
@@ -275,16 +288,17 @@ public class WeatherApp extends Application {
         grid.getChildren().add(bottomInfo());
 
         StackPane stackPane = new StackPane(grid);
-        stackPane.setStyle("-fx-padding: 20;");
+        stackPane.setStyle("-fx-padding: 10;");
         
         return stackPane;
     }
     
     private HBox weekDays(){
+        ArrayList<Button> buttons= new ArrayList();
         //HBox that presents all the days
         HBox daysHbox = new HBox(5);
         daysHbox.setAlignment(Pos.CENTER);
-        daysHbox.setPrefSize(500,100);
+        daysHbox.setPrefSize(600,100);
         var days= lastWeather.getDays();
         Collections.sort(days, Comparator.naturalOrder());
         
@@ -308,26 +322,34 @@ public class WeatherApp extends Application {
             var middleValue =sortedMap.get(middleKey);
             //image
             var image=getImage(middleValue.getDescription());
-            image.setFitWidth(30);
-            image.setFitHeight(30);
+            image.setFitWidth(25);
+            image.setFitHeight(25);
 
             int tempMin = (int) Math.round(middleValue.getTemp_min());
             int tempMax = (int) Math.round(middleValue.getTemp_max());
-            String unit="";
-            if(units.equals("metric")){
-                unit="℃";
-            }else{
-                unit="F";
+            String unit;
+            if(units.equals("metric")) {
+                unit = "℃";
+            } else {
+                unit = "°F";
             }
             //var lowest=weather.
-            Button dayBtn= new Button(date_+"\n"+tempMin+unit+"..."+tempMax+unit);
-            dayBtn.setStyle("-fx-min-width: 110px; -fx-max-width: 110px;"
-                    + " -fx-min-height: 70px; -fx-max-height: 70px;"
-                    + "-fx-background-color: #a0e6ff; -fx-background-radius: 10;"
-                    + "-fx-padding: 5;");
+            Button dayBtn= new Button(date_+"\n"+tempMin+unit+"/"+tempMax+unit);
+            buttons.add(dayBtn);
+            
+            dayBtn.setStyle("-fx-min-width: 115px; -fx-max-width: 115px;"
+                    + "-fx-min-height: 70px; -fx-max-height: 70px;"
+                    + "-fx-background-color: #a0e6ff;"
+                    + "-fx-background-radius: 10;");
                
             dayBtn.setGraphic(image);
+            
             dayBtn.setOnAction((ActionEvent e) ->{
+                changeColor(buttons);
+               dayBtn.setStyle("-fx-min-width: 115px; -fx-max-width: 115px;"
+                    + "-fx-min-height: 70px; -fx-max-height: 70px;"
+                    + "-fx-background-color: #a9c6f4;"
+                    + "-fx-background-radius: 10;");
                certainDayW=sortedMap;
                page.getChildren().add(weatherByHour());
             });
@@ -343,43 +365,63 @@ public class WeatherApp extends Application {
         weatherGrid.setAlignment(Pos.TOP_LEFT);
         weatherGrid.setStyle("-fx-background-color: white; -fx-padding: 10;");
        
+        //we need to sort list that dates are in right order
         var keys = new ArrayList<>(certainDayW.keySet());
         Collections.sort(keys);
         for(int i=0;i< certainDayW.keySet().size();i++){
-            VBox hourForecast= new VBox();  
-            Label time=new Label("");
+            //one collumn for one hour
+            VBox hourForecast= new VBox(5);
+            hourForecast.setPrefWidth(30);
+            hourForecast.setAlignment(Pos.TOP_CENTER);
             
+            //hour label
+            Label time=new Label("");
             time.setText(Integer.toString(keys.get(i).getHour()));           
             time.setStyle("-fx-background-color: white;");
-            // Convert the keys to a List
-            var keyList = new ArrayList<>(certainDayW.keySet());
-            var key = keyList.get(i);
+            
+            //get description of the weather that we can use to get the image
+            var key = keys.get(i);
             var value = certainDayW.get(key);
             var image=getImage(value.getDescription());
             image.setFitWidth(30);
             image.setFitHeight(30);
             
-            String unitString;
+            //temperature
+            String unitTemp;
             if(units.equals("metric")){
-                unitString="℃";
+                unitTemp="℃";
             }else{
-              unitString="°F";  
+              unitTemp="°F";  
             }
+            //no need for more specific temperature so we dont need decimals
             int roundedTemp = (int) Math.round(value.getCurrent_temp());
-           
-            Label temperature=new Label(Integer.toString(roundedTemp)+unitString);
-            hourForecast.getChildren().addAll(time, image, temperature);
+            Label temperature=new Label(Integer.toString(roundedTemp)+unitTemp);
             
+            //get wind direction image
+            ImageView windDirection= getImage(value.getWind_direction());
+            windDirection.setFitWidth(30);
+            windDirection.setFitHeight(30);
+            
+            //add all to the collumn
+            hourForecast.getChildren().addAll(time, image, temperature,
+                    windDirection);
+            
+            //if another day is clicked it removes the previous days hourly weather
             int size = page.getChildren().size();
             if(size==3){
                 // Remove the last added element
                 page.getChildren().remove(2);
             }
+            
+            //add the collumn to the HBox
             weatherGrid.getChildren().add(hourForecast);
         }
+        
+        //add scroll feature
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(weatherGrid);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        //we dont need vertical scroll
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scrollPane;
     }
@@ -423,7 +465,7 @@ public class WeatherApp extends Application {
         VBox nameInfo = new VBox();
         Label placeName = new Label("");
         Label cityName = new Label("");
-        placeName.setText(city);
+        placeName.setText(name);
         placeName.setStyle("-fx-font-size: 17px; -fx-font-weight: bold;");
         cityName.setText(city + ", " + currentW.getCountry());
         cityName.setStyle("-fx-font-size: 14px;");
@@ -436,11 +478,11 @@ public class WeatherApp extends Application {
         Button addFavorite =getFavoriteButton();
         
         //layout is AnchorPane for this top row
-        
         anchorPane.getChildren().addAll(nameInfo, addFavorite);
-        AnchorPane.setLeftAnchor(nameInfo, 10.0);
-        AnchorPane.setRightAnchor(addFavorite, 10.0);
-        
+        AnchorPane.setLeftAnchor(nameInfo, 5.0);
+        AnchorPane.setTopAnchor(nameInfo, 5.0);
+        AnchorPane.setRightAnchor(addFavorite, 15.0);
+        AnchorPane.setTopAnchor(addFavorite, 15.0);
         return anchorPane;
     }
     
@@ -486,14 +528,32 @@ public class WeatherApp extends Application {
         airQuality.setStyle("-fx-font-size: 12px;");
         
         // rain stuff in bottom center
-        Label rain = new Label("rain: 4%");
+        HBox rainInfo = new HBox(5);
+        rainInfo.setAlignment(Pos.CENTER);
+        var rainImage= getImage("water");
+        rainImage.setFitWidth(20);
+        rainImage.setFitHeight(20);
+        Label rain = new Label(Double.toString(currentW.getRain())+"mm");
         rain.setStyle("-fx-font-size: 12px;");
+        rainInfo.getChildren().addAll(rainImage,rain);
         
         //Label that shows current speed of the wind in bottom right
-        Label windSpeed = new Label("wind: 10,0km/h"+"   ->");
+        HBox windInfo = new HBox(10);
+        windInfo.setAlignment(Pos.CENTER);
+        var windImage= getImage("wind");
+        windImage.setFitWidth(30);
+        windImage.setFitHeight(30);
+        //todo: km/h no String
+        Label windSpeed = new Label(Double.toString(currentW.
+                getWind_speed())+"km/h");
         windSpeed.setStyle("-fx-font-size: 12px;");
+        double direction= currentW.getWind_direction();
+        ImageView windDirImage= getImage(direction);
+        windDirImage.setFitWidth(40);
+        windDirImage.setFitHeight(40);
+        windInfo.getChildren().addAll(windImage,windSpeed, windDirImage);
         
-        bottomThree.getChildren().addAll(airQuality, rain, windSpeed);
+        bottomThree.getChildren().addAll(airQuality, rainInfo, windInfo);
         return bottomThree;
     }
     
@@ -566,6 +626,48 @@ public class WeatherApp extends Application {
             case "overcast clouds":
                 pathFile= "file:icons/brokenclouds.png";
                 break;
+            case "rain and snow":
+                pathFile= "file:icons/rainandsnow.png";
+                break;
+            case "tornado":
+                pathFile= "file:icons/tornado.png";
+                break;   
+            case "heavy snow":
+                pathFile= "file:icons/heavysnow.png";
+                break;
+            case "scattered clouds":
+                pathFile= "file:icons/scatteredclouds.png";
+                break;               
+            case "wind":
+                pathFile= "file:icons/wind_icon.png";
+                break;               
+            case "water":
+                pathFile= "file:icons/water.png";
+                break;              
+            case "north":
+                pathFile= "file:icons/north.png";
+                break;               
+            case "west":
+                pathFile= "file:icons/west.png";
+                break;              
+            case "east":
+                pathFile= "file:icons/east.png";
+                break;              
+            case "south":
+                pathFile= "file:icons/south.png";
+                break;              
+            case "NW":
+                pathFile= "file:icons/NW.png";
+                break;
+            case "NE":
+                pathFile= "file:icons/NE.png";
+                break;
+            case "SE":
+                pathFile= "file:icons/SE.png";
+                break;
+            case "SW":
+                pathFile= "file:icons/SW.png";
+                break;
             default:
                 //until the images can be displayed smarter
                 pathFile= "file:icons/showerrain.png";
@@ -575,6 +677,30 @@ public class WeatherApp extends Application {
         ImageView imageView = new ImageView(img);
 
         return imageView;
+    }
+
+    private ImageView getImage(double direction){
+        ImageView windDirImage;
+        if(direction>22.5 && direction<=67.5){
+            windDirImage= getImage("NE");
+        }else if(direction>67.5 && direction<=112.5){
+            windDirImage= getImage("east");
+        }else if(direction>112.5 && direction<=157.5){
+            windDirImage= getImage("SE");
+        }else if ((direction>157.5 && direction<=202.5)){
+            windDirImage= getImage("south");
+        }else if(direction>202.5 && direction<=247.5){
+            windDirImage= getImage("SE");
+        }else if(direction>247.5 && direction<=292.5){
+            windDirImage= getImage("east");
+        }else if ((direction>292.5 && direction<=337.5)){
+            windDirImage= getImage("NE");
+        }else if(direction>337.5 || (direction>0&& direction<=22.5)){
+            windDirImage= getImage("north");
+        }else{
+            windDirImage= getImage("error");
+        }
+        return windDirImage;
     }
     
     private Button getUnitBtn(){
@@ -633,5 +759,14 @@ public class WeatherApp extends Application {
         });
         
         return button;
+    }
+    
+    private void changeColor(ArrayList<Button> buttons) {
+        for( Button button :buttons){
+            button.setStyle("-fx-min-width: 115px; -fx-max-width: 115px;"
+                    + " -fx-min-height: 70px; -fx-max-height: 70px;"
+                    + "-fx-background-color: #a0e6ff;"
+                    + " -fx-background-radius: 10;");
+        }
     }
 }
