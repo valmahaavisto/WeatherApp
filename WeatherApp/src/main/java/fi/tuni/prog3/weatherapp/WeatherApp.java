@@ -2,7 +2,6 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
-import static java.lang.Double.NaN;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -208,29 +207,50 @@ public class WeatherApp extends Application {
                 //if there is lot of favorites, then they should be 
                 //found behind this button
                 Button moreFaves = new Button("more");
-                moreFaves.setStyle("-fx-background-color: white;"
-                + " -fx-background-radius: 10;");
                 HBox.setMargin(moreFaves, marginFave2);
                 
-                //moreFaves.setOnAction((ActionEvent e) -> {
-                //    ContextMenu contextMenu = new ContextMenu();
-                //    String input = search.getText().toLowerCase();
-                //    contextMenu.getItems().clear();
+                moreFaves.setOnAction((ActionEvent e) -> {
+                    ContextMenu contextMenu = new ContextMenu();
+                    contextMenu.getItems().clear();
+                    
                     //Show context menu below the text field
-                //    for (var favorite : favoriteList.entrySet()) {
-                //        MenuItem item = new MenuItem(favorite.getKey());
-                //        contextMenu.getItems().add(item);
-                //    }
+                    int counter2 =0;
+                    for (var allFavorite : favoriteList.entrySet()) {
+                        if(counter2<3){
+                            counter2++;
+                            continue;
+                        }
+                        Button allBtn= new Button(allFavorite.getKey());
+                        allBtn.setPrefWidth(contextMenu.getMaxWidth());
+                        allBtn.setStyle("-fx-background-color: white;");
+                        allBtn.setOnAction((ActionEvent f) -> {
+                           try {
+                                lastWeather=events.get_weather(allFavorite.getValue(), units);
+                                currentW=lastWeather.getCurrentWeather();
+                                name = currentW.getLocation();
+                                city= allFavorite.getKey();
+                                latLong =allFavorite.getValue();
+                                favorite = events.is_favorite(latLong);
+
+                            } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                                //TODO: handle APICallUnsuccessfulException and InvalidUnitsException
+                            }
+                            try {
+                                root.setCenter(show_start());
+                            } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                                //TODO: handle invalidUnitsException and APICallUnsuccesfulExcpetion
+                            } 
+                            
+                        });
+                        MenuItem item = new MenuItem("",allBtn);
+                        contextMenu.getItems().add(item);
+                    }
+                    //location and if the context menu is on or off
+                    double x = moreFaves.localToScreen(0, 0).getX();
+                    double y = search.localToScreen(0, search.getHeight()+40).getY();
+                    contextMenu.show(search, x, y);
+                });
                 
-                //location and if the context menu is on or off
-                //    if (!contextMenu.getItems().isEmpty() && search.getText().length()!=0) {
-                //        double x = moreFaves.localToScreen(0, 0).getX();
-                //        double y = search.localToScreen(0, search.getHeight()).getY();
-                //        contextMenu.show(search, x, y);
-                //    } else {
-                //        contextMenu.hide();
-                //    }
-                //});
                 lowerHBox.getChildren().add(moreFaves); 
                 break;
             }
@@ -764,7 +784,9 @@ public class WeatherApp extends Application {
                     // TODO: handle APICallUnsuccessfulException and InvalidUnitsException
                 }
                 currentW=lastWeather.getCurrentWeather();
-                try {
+                
+            }
+            try {
                     root.setTop(upperMenu());
                 } catch (InvalidUnitsException ex) {
                 }
@@ -773,10 +795,10 @@ public class WeatherApp extends Application {
                 } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
                     //TODO: handle InvalidUnitsException and APICallUnsuccessfulException
                 }
-            }
         }); 
         return unitBtn;
     }
+
     
     private Button getQuitButton() {
         //Creating a button.
