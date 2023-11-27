@@ -19,6 +19,8 @@ public class LocationWeather {
     ArrayList<LocalDateTime> days = new ArrayList<>();
     Weather currentWeather;
     String city_name;
+    String units;
+    
 
     public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
         this.forecast = forecast;
