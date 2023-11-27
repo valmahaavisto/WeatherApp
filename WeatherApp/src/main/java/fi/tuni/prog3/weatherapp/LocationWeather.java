@@ -18,11 +18,21 @@ public class LocationWeather {
     HashMap<LocalDateTime, Weather> forecast;
     ArrayList<LocalDateTime> days = new ArrayList<>();
     Weather currentWeather;
+    String city_name;
 
     public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
         this.forecast = forecast;
         this.currentWeather = currentWeather;
     }
+
+    public String getCity_name() {
+        return city_name;
+    }
+
+    public void setCity_name(String city_name) {
+        this.city_name = city_name;
+    }
+    
 
     public HashMap<LocalDateTime, Weather> getForecast() {
         return forecast;
