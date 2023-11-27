@@ -19,12 +19,22 @@ public class LocationWeather {
     ArrayList<LocalDateTime> days = new ArrayList<>();
     Weather currentWeather;
     String city_name;
+    String units;
+    
 
     public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
         this.forecast = forecast;
         this.currentWeather = currentWeather;
     }
 
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+    
     public String getCity_name() {
         return city_name;
     }

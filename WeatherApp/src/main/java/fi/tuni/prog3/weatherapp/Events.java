@@ -161,6 +161,8 @@ public class Events implements iEvents {
             // Add the city_name that usually is gotten from search
             String cityname = api.get_city_name(lastWeather.getKey());
             w.setCity_name(cityname);
+            String units = lastWeather.getValue();
+            w.setUnits(units);
             return w;
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
