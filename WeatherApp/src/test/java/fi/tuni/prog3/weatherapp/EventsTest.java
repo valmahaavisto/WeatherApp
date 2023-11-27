@@ -4,6 +4,7 @@
  */
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.util.HashMap;
 import java.util.TreeMap;
 import org.junit.jupiter.api.AfterEach;
@@ -17,97 +18,60 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Valma Haavisto
  */
-public class EventsTest {
-    
-    public EventsTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
+class EventsTest {
+
+    private Events events;
+
     @BeforeEach
-    public void setUp() {
+    void setUp() {
+        events = new Events();
+        events.startup();
     }
-    
+
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
+        events.shut_down();
     }
 
-    /**
-     * Test of startup method, of class Events.
-     */
     @Test
-    public void testStartup() {
-
+    void testGetLastWeather() {
+        // Ensure that get_last_weather returns a non-null value
+        assertNotNull(events.get_last_weather());
     }
 
-    /**
-     * Test of shut_down method, of class Events.
-     */
     @Test
-    public void testShut_down() {
-
+    void testSearch() {
+        // Ensure that search returns a non-null value for a sample input
+        assertNotNull(events.search("Helsinki"));
     }
 
-    /**
-     * Test of get_last_weather method, of class Events.
-     */
     @Test
-    public void testGet_last_weather() {
+    void testAddRemoveFavorite() {
+        Coord coordinates = new Coord(60.1695, 24.9354);
+        String name = "Helsinki";
 
+        // Add favorite
+        events.add_favorite(coordinates, name);
+        assertTrue(events.is_favorite(coordinates));
+
+        // Remove favorite
+        events.remove_favorite(coordinates, name);
+        assertFalse(events.is_favorite(coordinates));
     }
 
-    /**
-     * Test of search method, of class Events.
-     */
     @Test
-    public void testSearch() {
-
+    void testGetFavourites() {
+        // Ensure that get_favourites returns a non-null value
+        assertNotNull(events.get_favourites());
     }
 
-    /**
-     * Test of add_favorite method, of class Events.
-     */
     @Test
-    public void testAdd_favorite() {
+    void testGetWeather() throws InvalidUnitsException {
+        Coord coordinates = new Coord(60.1695, 24.9354);
+        String units = "metric";
 
+        // Ensure that get_weather returns a non-null value for a sample input
+        assertNotNull(events.get_weather(coordinates, units));
     }
 
-    /**
-     * Test of remove_favorite method, of class Events.
-     */
-    @Test
-    public void testRemove_favorite() {
-
-    }
-
-    /**
-     * Test of is_favorite method, of class Events.
-     */
-    @Test
-    public void testIs_favorite() {
-
-    }
-
-    /**
-     * Test of get_favourites method, of class Events.
-     */
-    @Test
-    public void testGet_favourites() {
-
-    }
-
-    /**
-     * Test of get_weather method, of class Events.
-     */
-    @Test
-    public void testGet_weather() throws Exception {
-
-    }
-    
 }

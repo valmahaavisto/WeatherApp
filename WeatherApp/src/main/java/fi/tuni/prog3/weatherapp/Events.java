@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javafx.util.Pair;
@@ -63,14 +62,11 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(favoritesFilePath));
                 } catch (IOException ex) {
-                    System.err.println("Error while creating file favorites.txt");
-                    ex.printStackTrace();
+                    handleException("Error while creating file favorites.txt", ex);
                 }
             } else {
-                System.err.println("Found other IOException(s) when creating "
-                        + "favorites.txt");
-                
-                e.printStackTrace();
+                handleException("Found other IOException(s) when creating "
+                        + "favorites.txt", e);               
             }
         }
         
@@ -91,13 +87,10 @@ public class Events implements iEvents {
 
                     lastWeather = new Pair(new Coord(lat, lon), unit);
                 } catch (NumberFormatException e) {
-                    // 'parts[0]' is not a double
-                    System.err.println("Invalid latitude format: " + parts[0]);
+                    // 'parts[0]' or 'parts[1]' is not a double
+                    handleException("Invalid latitude format: " + parts[0] + ", " + parts[1], e);
                 }
-            } else {
-                // lastWeather is empty
-                //System.err.println("Latitude is missing or empty.");
-            }
+            } 
 
         } catch (IOException e) {
              // If the file doesn't exist, create it and empty ArrayList
@@ -105,14 +98,11 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
-                    System.err.println("Error while creating file lastWeather.txt");
-                    ex.printStackTrace();
+                    handleException("Error while creating file lastWeather.txt", ex); 
                 }
             } else {
-                System.err.println("Found other IOException(s) when creating "
-                        + "lastWeather.txt");
-                
-                e.printStackTrace();
+                handleException("Found other IOException(s) when creating "
+                        + "lastWeather.txt", e);              
             } 
         }
     }
@@ -131,7 +121,7 @@ public class Events implements iEvents {
             // Write the empty byte array to the file
             Files.write(Paths.get(favoritesFilePath), emptyBytes);
         } catch (IOException ex) {
-            System.err.println("File not found: " + favoritesFilePath + "\n");
+            handleException("File not found: " + favoritesFilePath + "\n", ex);
         }
         
         try {
@@ -144,7 +134,7 @@ public class Events implements iEvents {
                 
             }
         } catch (IOException e) {
-            System.err.println("File not found: " + favoritesFilePath + "\n");
+            handleException("File not found: " + favoritesFilePath + "\n", e);
         }
         
         // save lastWeather
@@ -159,7 +149,7 @@ public class Events implements iEvents {
             
             
         } catch (IOException e) {
-            System.err.println("File not found: lastWeather.txt\n");
+            handleException("File not found: lastWeather.txt\n", e);
         }    
     }
 
@@ -175,7 +165,8 @@ public class Events implements iEvents {
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
             if (lastWeather.getKey() != null) {
-                System.err.println("Invalid units. Choose 'imperial' or 'metric'.");
+                handleException("Unable to retrieve last weather", ex);
+                return null;             
             }
             
             return null;
@@ -194,8 +185,7 @@ public class Events implements iEvents {
             return sortedTop5;
             
         } catch(APICallUnsuccessfulException e) {
-            System.err.println("Unable to get search information.");
-            
+            handleException("Unable to get search information", e);
             return null;
         }
     }
@@ -252,9 +242,15 @@ public class Events implements iEvents {
             return locationWeather;
             
         } catch(APICallUnsuccessfulException e) {
-            System.err.println("Unable to get weather information.");
-            
+            handleException("Unable to retrieve data from API", e);
             return null;
         }
+        
+        
     } 
+    
+    private void handleException(String message, Exception ex) {
+        System.err.println(message);
+        ex.printStackTrace(); // Print the stack trace for debugging purposes
+    }
 }
