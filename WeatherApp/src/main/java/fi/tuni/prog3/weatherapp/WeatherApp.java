@@ -98,7 +98,7 @@ public class WeatherApp extends Application {
             startScreen();
         }else{
             lastWeather = events.get_last_weather();
-            currentW= events.get_last_weather().getCurrentWeather();
+            currentW= lastWeather.getCurrentWeather();
             units=lastWeather.getUnits();
             latLong= currentW.getCoord();
             favorite= events.is_favorite(latLong);
@@ -207,6 +207,8 @@ public class WeatherApp extends Application {
                 //if there is lot of favorites, then they should be 
                 //found behind this button
                 Button moreFaves = new Button("more");
+                moreFaves.setStyle("-fx-background-color: rgba(225, 225,225, 0.9);"
+                + "-fx-background-radius: 10;");
                 HBox.setMargin(moreFaves, marginFave2);
                 
                 moreFaves.setOnAction((ActionEvent e) -> {
@@ -221,8 +223,9 @@ public class WeatherApp extends Application {
                             continue;
                         }
                         Button allBtn= new Button(allFavorite.getKey());
-                        allBtn.setPrefWidth(contextMenu.getMaxWidth());
-                        allBtn.setStyle("-fx-background-color: white;");
+                        allBtn.setMinWidth(contextMenu.getMaxWidth());
+                        allBtn.setMaxWidth(contextMenu.getMaxWidth());
+                        allBtn.setStyle("-fx-background-color: transparent;");
                         allBtn.setOnAction((ActionEvent f) -> {
                            try {
                                 lastWeather=events.get_weather(allFavorite.getValue(), units);
