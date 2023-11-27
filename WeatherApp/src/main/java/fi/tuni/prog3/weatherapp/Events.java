@@ -205,6 +205,7 @@ public class Events implements iEvents {
     public HashMap<String, Coord> remove_favorite(Coord latlong, String name) {
         // remove by value (location's coordinates)
         Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
+        
         while (iterator.hasNext()) {
             Entry<String, Coord> entry = iterator.next();
             if (entry.getValue().getLon() == latlong.getLon() 
