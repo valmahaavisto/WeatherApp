@@ -178,6 +178,13 @@ public class API implements iAPI {
         // Rain info
         JsonObject rain = jsonObject.getAsJsonObject("rain");
         double rain1h = rain != null && rain.has("1h") ? rain.getAsJsonPrimitive("1h").getAsDouble() : Double.NaN;
+        JsonObject snow = jsonObject.getAsJsonObject("rain");
+        double snow1h = rain != null && snow.has("1h") ? snow.getAsJsonPrimitive("1h").getAsDouble() : Double.NaN;
+        if (snow1h != Double.NaN) {
+            // if it snowed add it as rain
+            // 1 cm of snow is 1 mm of water
+            rain1h += snow1h/10;
+        }
         
         // Country info
         JsonObject sys = jsonObject.getAsJsonObject("sys");
