@@ -27,6 +27,14 @@ public class LocationWeather {
         this.currentWeather = currentWeather;
     }
 
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+    
     public String getCity_name() {
         return city_name;
     }
