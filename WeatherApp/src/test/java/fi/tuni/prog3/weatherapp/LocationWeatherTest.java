@@ -40,7 +40,8 @@ public class LocationWeatherTest {
                 7.0,
                 10.0,
                 800,
-                "broken clouds"
+                "broken clouds",
+                0.0
         );
 
         // Create a LocationWeather instance for testing
@@ -72,7 +73,8 @@ public class LocationWeatherTest {
                 7.0,
                 10.0,
                 800,
-                "broken clouds"
+                "broken clouds",
+                0.0
         );
 
         // Create another Weather instance for testing with a different date
@@ -90,7 +92,8 @@ public class LocationWeatherTest {
                 8.0,
                 5.0,
                 801,
-                "few clouds"
+                "few clouds",
+                0.0
         );
 
         // Create a LocationWeather instance for testing

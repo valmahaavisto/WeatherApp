@@ -59,7 +59,8 @@ public class WeatherTest {
                 7.0,  // wind_gust
                 10.0, // rain
                 800,  // weather_id
-                "broken clouds"
+                "broken clouds",
+                0.0
         );
 
         // Test getter methods
