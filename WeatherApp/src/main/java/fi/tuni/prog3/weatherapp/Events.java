@@ -36,7 +36,7 @@ public class Events implements iEvents {
     API api;
 
     @Override
-    public void startup() {
+    public void startup() throws IOException {
         // This is called when interacting with API interface/class
         api = new API();
         api.startup();
@@ -62,11 +62,11 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(favoritesFilePath));
                 } catch (IOException ex) {
-                    handleException("Error while creating file favorites.txt", ex);
+                    throw new IOException("Error while creating file favorites.txt");
                 }
             } else {
-                handleException("Found other IOException(s) when creating "
-                        + "favorites.txt", e);               
+                throw new IOException("Found other IOException(s) when creating"
+                        + "favorites.txt");              
             }
         }
         
@@ -88,7 +88,7 @@ public class Events implements iEvents {
                     lastWeather = new Pair(new Coord(lat, lon), unit);
                 } catch (NumberFormatException e) {
                     // 'parts[0]' or 'parts[1]' is not a double
-                    handleException("Invalid latitude format: " + parts[0] + ", " + parts[1], e);
+                    throw new NumberFormatException("Invalid latitude format: " + parts[0] + ", " + parts[1]);
                 }
             } 
 
@@ -98,17 +98,17 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
-                    handleException("Error while creating file lastWeather.txt", ex); 
+                    throw new IOException("Error while creating file lastWeather.tx"); 
                 }
             } else {
-                handleException("Found other IOException(s) when creating "
-                        + "lastWeather.txt", e);              
+                throw new IOException("Found other IOException(s) when creating "
+                        + "lastWeather.txt");             
             } 
         }
     }
 
     @Override
-    public void shut_down() {
+    public void shut_down() throws IOException{
         
         api.shut_down(); 
 
@@ -121,7 +121,7 @@ public class Events implements iEvents {
             // Write the empty byte array to the file
             Files.write(Paths.get(favoritesFilePath), emptyBytes);
         } catch (IOException ex) {
-            handleException("File not found: " + favoritesFilePath + "\n", ex);
+            throw new IOException("File not found: " + favoritesFilePath + "\n");
         }
         
         try {
@@ -134,7 +134,7 @@ public class Events implements iEvents {
                 
             }
         } catch (IOException e) {
-            handleException("File not found: " + favoritesFilePath + "\n", e);
+            throw new IOException("File not found: " + favoritesFilePath + "\n");
         }
         
         // save lastWeather
@@ -149,13 +149,13 @@ public class Events implements iEvents {
             
             
         } catch (IOException e) {
-            handleException("File not found: lastWeather.txt\n", e);
+            throw new IOException("File not found: lastWeather.txt\n");
         }    
     }
 
     
     @Override
-    public LocationWeather get_last_weather() {
+    public LocationWeather get_last_weather() throws InvalidUnitsException, APICallUnsuccessfulException{
         try {
             LocationWeather w = get_weather(lastWeather.getKey(), lastWeather.getValue());
             // Add the city_name that usually is gotten from search
@@ -165,16 +165,17 @@ public class Events implements iEvents {
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
             if (lastWeather.getKey() != null) {
-                handleException("Unable to retrieve last weather", ex);
-                return null;             
+                throw new APICallUnsuccessfulException("Unable to retrieve last weather");
+                
             }
             
             return null;
         }
     }
     
+    
     @Override
-    public TreeMap<String, Coord> search(String input) {
+    public TreeMap<String, Coord> search(String input) throws APICallUnsuccessfulException{
         
         try {     
             Map<String, Coord> locations = api.look_up_locations(input); 
@@ -185,8 +186,7 @@ public class Events implements iEvents {
             return sortedTop5;
             
         } catch(APICallUnsuccessfulException e) {
-            handleException("Unable to get search information", e);
-            return null;
+            throw new APICallUnsuccessfulException("Unable to get serach information");
         }
     }
 
@@ -230,7 +230,7 @@ public class Events implements iEvents {
     }
 
     @Override
-    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException {
+    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException{
         
         try {           
             lastWeather = new Pair(latlong, units);
@@ -241,16 +241,9 @@ public class Events implements iEvents {
             
             return locationWeather;
             
-        } catch(APICallUnsuccessfulException e) {
-            handleException("Unable to retrieve data from API", e);
-            return null;
+        } catch(InvalidUnitsException | APICallUnsuccessfulException e) {
+            throw new APICallUnsuccessfulException("Unable to retrieve data from API or invalid units");
         }
-        
-        
+               
     } 
-    
-    private void handleException(String message, Exception ex) {
-        System.err.println(message);
-        ex.printStackTrace(); // Print the stack trace for debugging purposes
-    }
 }
