@@ -22,14 +22,15 @@ public class Weather {
     private double temp_max;       // Celsius or farenheit
     private double current_temp;   // Celsius or farenheit
     private double feels_like;     // Celsius or farenheit
-    private double wind_speed;     // Celsius or farenheit
+    private double wind_speed;     // m/s or mi/h
     private double wind_direction; // Degrees
-    private double wind_gust;      // m/s or freedoms/second? :)
+    private double wind_gust;      // m/s or mi/h
     private double rain;           // mm or mm :)
     private int weather_id;        //For example: 800
     private String description;    // For example: "broken clouds"
+    private double humidity;
 
-    public Weather(LocalDateTime date, String location, String country, Coord coord, double temp_min, double temp_max, double current_temp, double feels_like, double wind_speed, double wind_direction, double wind_gust, double rain, int weather_id, String description) {
+    public Weather(LocalDateTime date, String location, String country, Coord coord, double temp_min, double temp_max, double current_temp, double feels_like, double wind_speed, double wind_direction, double wind_gust, double rain, int weather_id, String description, double humidity) {
         this.date = date;
         this.location = location;
         this.country = country;
@@ -44,6 +45,7 @@ public class Weather {
         this.rain = rain;
         this.weather_id = weather_id;
         this.description = description;
+        this.humidity = humidity;
     }
 
     
@@ -105,5 +107,7 @@ public class Weather {
         return description;
     }
     
-    
+    public double getHumidity() {
+        return humidity;
+    }
 }

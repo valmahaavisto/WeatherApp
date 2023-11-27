@@ -1,6 +1,9 @@
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import static java.lang.Double.NaN;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +20,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -55,7 +60,7 @@ public class WeatherApp extends Application {
     private HashMap<LocalDateTime, Weather> certainDayW;
     
     @Override
-    public void start(Stage stage) throws InvalidUnitsException {
+    public void start(Stage stage) throws InvalidUnitsException, APICallUnsuccessfulException, IOException {
         this.stage = stage;
         
         // This is called when interacting with Events interface/class
@@ -80,32 +85,26 @@ public class WeatherApp extends Application {
 
         stage.setTitle("WeatherApp");
         stage.setOnCloseRequest(event -> {
-            events.shut_down();
+            try {
+                events.shut_down();
+            } catch (IOException ex) {
+                //handle IOException
+            }
         });
         
         //shows the last searched place's weather
-        units="metric";
         root.setTop(upperMenu());
         if (events.get_last_weather()==null){
+            units="metric";
             startScreen();
         }else{
             lastWeather = events.get_last_weather();
             currentW= events.get_last_weather().getCurrentWeather();
+            units=lastWeather.getUnits();
             latLong= currentW.getCoord();
-             System.out.print(latLong.getLon());
             favorite= events.is_favorite(latLong);
             name = currentW.getLocation();
             city = lastWeather.getCity_name();
-            //top_5 = events.search(name);
-            //for (var  entry : top_5.entrySet()) {
-            //    System.out.print("\n"+entry.getValue().getLon());
-            //if (entry.getValue().getLon() == latLong.getLon() 
-            //       && entry.getValue().getLat() == latLong.getLat()) {
-            //    
-            //   var  splitted= entry.getKey().split(",");
-            //    city=splitted[0];
-            //}
-            //}
             root.setCenter(show_start());
         }
         stage.show();
@@ -115,7 +114,7 @@ public class WeatherApp extends Application {
         launch();
     }
     
-    private VBox show_start() {
+    private VBox show_start() throws InvalidUnitsException, APICallUnsuccessfulException {
         //Creating a VBox.
         page = new VBox();
         page.getChildren().clear();
@@ -157,7 +156,11 @@ public class WeatherApp extends Application {
         EventHandler<ActionEvent> buttonHandler = e -> {
             String place = search.getText();
                 if(place.length()!=0){
+                try {
                     top_5 = events.search(place);
+                } catch (APICallUnsuccessfulException ex) {
+                    //handle APICallUnsuccessfulException
+                }
                     //new scene: the search results
                     //first lets check if there are no results
                     if(top_5==null){
@@ -208,6 +211,26 @@ public class WeatherApp extends Application {
                 moreFaves.setStyle("-fx-background-color: white;"
                 + " -fx-background-radius: 10;");
                 HBox.setMargin(moreFaves, marginFave2);
+                
+                //moreFaves.setOnAction((ActionEvent e) -> {
+                //    ContextMenu contextMenu = new ContextMenu();
+                //    String input = search.getText().toLowerCase();
+                //    contextMenu.getItems().clear();
+                    //Show context menu below the text field
+                //    for (var favorite : favoriteList.entrySet()) {
+                //        MenuItem item = new MenuItem(favorite.getKey());
+                //        contextMenu.getItems().add(item);
+                //    }
+                
+                //location and if the context menu is on or off
+                //    if (!contextMenu.getItems().isEmpty() && search.getText().length()!=0) {
+                //        double x = moreFaves.localToScreen(0, 0).getX();
+                //        double y = search.localToScreen(0, search.getHeight()).getY();
+                //        contextMenu.show(search, x, y);
+                //    } else {
+                //        contextMenu.hide();
+                //    }
+                //});
                 lowerHBox.getChildren().add(moreFaves); 
                 break;
             }
@@ -226,9 +249,15 @@ public class WeatherApp extends Application {
                     latLong =favoritePlace.getValue();
                     favorite = events.is_favorite(latLong);
                     
-                } catch (InvalidUnitsException ex) {
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle APICallUnsuccessfulException and InvalidUnitsException
                 }
-                root.setCenter(show_start());
+                try {
+                    root.setCenter(show_start());
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle invalidUnitsException and APICallUnsuccesfulExcpetion
+                }
+                
             });
             HBox.setMargin(favoriteButton, marginFave2);
             lowerHBox.getChildren().add(favoriteButton);
@@ -259,7 +288,7 @@ public class WeatherApp extends Application {
         box.getChildren().add(infoText);
         // Create a StackPane to contain the VBox
         StackPane stackPane = new StackPane(box);
-        stackPane.setStyle("-fx-padding: 40;"); // Adjust padding as needed
+        stackPane.setStyle("-fx-padding: 40;");
         
         root.setCenter(box);
         stage.show();
@@ -294,7 +323,7 @@ public class WeatherApp extends Application {
         return stackPane;
     }
     
-    private HBox weekDays(){
+    private HBox weekDays() throws InvalidUnitsException, APICallUnsuccessfulException{
         ArrayList<Button> buttons= new ArrayList();
         //HBox that presents all the days
         HBox daysHbox = new HBox(5);
@@ -328,12 +357,7 @@ public class WeatherApp extends Application {
 
             int tempMin = (int) Math.round(middleValue.getTemp_min());
             int tempMax = (int) Math.round(middleValue.getTemp_max());
-            String unit;
-            if(units.equals("metric")) {
-                unit = "℃";
-            } else {
-                unit = "°F";
-            }
+            String unit= getUnitFor("temperature");
             //var lowest=weather.
             Button dayBtn= new Button(date_+"\n"+tempMin+unit+"/"+tempMax+unit);
             buttons.add(dayBtn);
@@ -371,8 +395,8 @@ public class WeatherApp extends Application {
         Collections.sort(keys);
         for(int i=0;i< certainDayW.keySet().size();i++){
             //one collumn for one hour
-            VBox hourForecast= new VBox(5);
-            hourForecast.setPrefWidth(30);
+            VBox hourForecast= new VBox(10);
+            hourForecast.setMinWidth(60);
             hourForecast.setAlignment(Pos.TOP_CENTER);
             
             //hour label
@@ -388,24 +412,27 @@ public class WeatherApp extends Application {
             image.setFitHeight(30);
             
             //temperature
-            String unitTemp;
-            if(units.equals("metric")){
-                unitTemp="℃";
-            }else{
-              unitTemp="°F";  
-            }
+            String tempUnit= getUnitFor("temperature");
             //no need for more specific temperature so we dont need decimals
             int roundedTemp = (int) Math.round(value.getCurrent_temp());
-            Label temperature=new Label(Integer.toString(roundedTemp)+unitTemp);
+            Label temperature=new Label(Integer.toString(roundedTemp)+tempUnit);
             
             //get wind direction image
             ImageView windDirection= getImage(value.getWind_direction());
             windDirection.setFitWidth(30);
             windDirection.setFitHeight(30);
             
+            Label windSpeed = new Label();
+            String windUnit= getUnitFor("speed");
+            windSpeed.setText(Long.toString((long) value.getWind_speed())+windUnit);
+            
+            Label humidity = new Label();
+            String humidityText= String.format("%.0f %%",currentW.getHumidity());
+            humidity.setText(humidityText);
+            
             //add all to the collumn
             hourForecast.getChildren().addAll(time, image, temperature,
-                    windDirection);
+                    windDirection,windSpeed,humidity);
             
             //if another day is clicked it removes the previous days hourly weather
             int size = page.getChildren().size();
@@ -450,9 +477,11 @@ public class WeatherApp extends Application {
                     city =parts[0];
                     favorite = events.is_favorite(entry.getValue());
                     root.setCenter(show_start());
-                } catch (InvalidUnitsException ex) {
-                    //some error
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle APICallUnsuccesfulException and InvalidUnitsException
                 }
+                //new scene: the search results
+                
                 //new scene: the search results
             });
             results.getChildren().add(result);
@@ -497,24 +526,18 @@ public class WeatherApp extends Application {
         image.setFitHeight(60);
         
         // Label that shows the current temperature
-        String temperatureText="";
-        Label temperature = new Label(temperatureText);
+        Label temperature = new Label();
         temperature.setStyle("-fx-font-size: 23px;");
         
         // Label that shows the current temperature
-        Label feelsLike = new Label(temperatureText);
+        Label feelsLike = new Label();
         feelsLike.setStyle("-fx-font-size: 15px;");
         // Temperature and what it feels like in the center of the grid
-        String unitString;
-        if(units.equals("metric")){
-            unitString="℃";
-        }else{
-          unitString="°F";  
-        }
+        String unitString= getUnitFor("temperature");
         int roundedTemp = (int) Math.round(currentW.getCurrent_temp());
         temperature.setText(roundedTemp+ unitString);
         int roundedFeel = (int) Math.round(currentW.getFeels_like());
-        feelsLike.setText(roundedFeel+ unitString);
+        feelsLike.setText("Feels like " + roundedFeel + unitString);
         //add temperature and what it feels like to the VBox
         temperatures.getChildren().addAll(image,temperature,feelsLike);
         return temperatures;
@@ -525,8 +548,9 @@ public class WeatherApp extends Application {
         bottomThree.setAlignment(Pos.CENTER);
         
         //Air quality in bottom left
-        Label airQuality = new Label("AQI: 23");
-        airQuality.setStyle("-fx-font-size: 12px;");
+        String humidityString= String.format("humidity %.0f %%", currentW.getHumidity());
+        Label humidity = new Label(humidityString);
+        humidity.setStyle("-fx-font-size: 12px;");
         
         // rain stuff in bottom center
         HBox rainInfo = new HBox(5);
@@ -534,7 +558,11 @@ public class WeatherApp extends Application {
         var rainImage= getImage("water");
         rainImage.setFitWidth(20);
         rainImage.setFitHeight(20);
-        Label rain = new Label(Double.toString(currentW.getRain())+"mm");
+        String rain1h=Double.toString(currentW.getRain());
+        if (rain1h.equals("NaN")){
+            rain1h="0.0";
+        }
+        Label rain = new Label(rain1h+" mm");
         rain.setStyle("-fx-font-size: 12px;");
         rainInfo.getChildren().addAll(rainImage,rain);
         
@@ -544,9 +572,9 @@ public class WeatherApp extends Application {
         var windImage= getImage("wind");
         windImage.setFitWidth(30);
         windImage.setFitHeight(30);
-        //todo: km/h no String
+        String windS= getUnitFor("speed");
         Label windSpeed = new Label(Double.toString(currentW.
-                getWind_speed())+"km/h");
+                getWind_speed())+windS);
         windSpeed.setStyle("-fx-font-size: 12px;");
         double direction= currentW.getWind_direction();
         ImageView windDirImage= getImage(direction);
@@ -554,7 +582,7 @@ public class WeatherApp extends Application {
         windDirImage.setFitHeight(40);
         windInfo.getChildren().addAll(windImage,windSpeed, windDirImage);
         
-        bottomThree.getChildren().addAll(airQuality, rainInfo, windInfo);
+        bottomThree.getChildren().addAll(humidity, rainInfo, windInfo);
         return bottomThree;
     }
     
@@ -591,7 +619,12 @@ public class WeatherApp extends Application {
                     
                 }
             }
-            root.setCenter(show_start());
+            try {
+                root.setCenter(show_start());
+            } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                //TODO: handle InvalidUnitsException and APICallUnsuccessfulException
+            }
+            
         });
         return addFavorite;
     }
@@ -716,9 +749,10 @@ public class WeatherApp extends Application {
         unitBtn.setOnAction((ActionEvent e) -> {
             if("metric".equals(units)){
                 units = "imperial";
-                try {
+             try {
                     lastWeather=events.get_weather(latLong, units);
-                } catch (InvalidUnitsException ex) {
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    // TODO: handle APICallUnsuccessfulException and InvalidUnitsException
                     
                 }
                 currentW=lastWeather.getCurrentWeather();
@@ -726,16 +760,20 @@ public class WeatherApp extends Application {
                 units = "metric";
                 try {
                     lastWeather=events.get_weather(latLong, units);
-                } catch (InvalidUnitsException ex) {
-                    
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    // TODO: handle APICallUnsuccessfulException and InvalidUnitsException
                 }
                 currentW=lastWeather.getCurrentWeather();
+                try {
+                    root.setTop(upperMenu());
+                } catch (InvalidUnitsException ex) {
+                }
+                try {  
+                    root.setCenter(show_start());
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle InvalidUnitsException and APICallUnsuccessfulException
+                }
             }
-            try {
-                root.setTop(upperMenu());
-            } catch (InvalidUnitsException ex) {
-            }
-            root.setCenter(show_start());  
         }); 
         return unitBtn;
     }
@@ -755,7 +793,11 @@ public class WeatherApp extends Application {
         
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
-            events.shut_down();
+            try {
+                events.shut_down();
+            } catch (IOException ex) {
+                //TODO: handle IOException
+            }
             Platform.exit();
         });
         
@@ -768,6 +810,25 @@ public class WeatherApp extends Application {
                     + " -fx-min-height: 70px; -fx-max-height: 70px;"
                     + "-fx-background-color: #a0e6ff;"
                     + " -fx-background-radius: 10;");
+        }
+    }
+    
+    private String getUnitFor(String info){
+        switch (info) {
+            case "temperature":
+                if(units.equals("metric")) {
+                    return "℃";
+                } else {
+                    return "°F";
+                }
+            case "speed":
+                if(units.equals("metric")) {
+                    return "m/s";
+                } else {
+                    return "mi/h";
+                }
+            default:
+                return "Error";
         }
     }
 }
