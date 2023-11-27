@@ -1,7 +1,9 @@
 package fi.tuni.prog3.weatherapp;
 
+import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import static java.lang.Double.NaN;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +60,7 @@ public class WeatherApp extends Application {
     private HashMap<LocalDateTime, Weather> certainDayW;
     
     @Override
-    public void start(Stage stage) throws InvalidUnitsException {
+    public void start(Stage stage) throws InvalidUnitsException, APICallUnsuccessfulException, IOException {
         this.stage = stage;
         
         // This is called when interacting with Events interface/class
@@ -83,7 +85,11 @@ public class WeatherApp extends Application {
 
         stage.setTitle("WeatherApp");
         stage.setOnCloseRequest(event -> {
-            events.shut_down();
+            try {
+                events.shut_down();
+            } catch (IOException ex) {
+                //handle IOException
+            }
         });
         
         //shows the last searched place's weather
@@ -108,7 +114,7 @@ public class WeatherApp extends Application {
         launch();
     }
     
-    private VBox show_start() {
+    private VBox show_start() throws InvalidUnitsException, APICallUnsuccessfulException {
         //Creating a VBox.
         page = new VBox();
         page.getChildren().clear();
@@ -150,7 +156,11 @@ public class WeatherApp extends Application {
         EventHandler<ActionEvent> buttonHandler = e -> {
             String place = search.getText();
                 if(place.length()!=0){
+                try {
                     top_5 = events.search(place);
+                } catch (APICallUnsuccessfulException ex) {
+                    //handle APICallUnsuccessfulException
+                }
                     //new scene: the search results
                     //first lets check if there are no results
                     if(top_5==null){
@@ -239,9 +249,15 @@ public class WeatherApp extends Application {
                     latLong =favoritePlace.getValue();
                     favorite = events.is_favorite(latLong);
                     
-                } catch (InvalidUnitsException ex) {
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle APICallUnsuccessfulException and InvalidUnitsException
                 }
-                root.setCenter(show_start());
+                try {
+                    root.setCenter(show_start());
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle invalidUnitsException and APICallUnsuccesfulExcpetion
+                }
+                
             });
             HBox.setMargin(favoriteButton, marginFave2);
             lowerHBox.getChildren().add(favoriteButton);
@@ -307,7 +323,7 @@ public class WeatherApp extends Application {
         return stackPane;
     }
     
-    private HBox weekDays(){
+    private HBox weekDays() throws InvalidUnitsException, APICallUnsuccessfulException{
         ArrayList<Button> buttons= new ArrayList();
         //HBox that presents all the days
         HBox daysHbox = new HBox(5);
@@ -461,9 +477,11 @@ public class WeatherApp extends Application {
                     city =parts[0];
                     favorite = events.is_favorite(entry.getValue());
                     root.setCenter(show_start());
-                } catch (InvalidUnitsException ex) {
-                    //some error
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle APICallUnsuccesfulException and InvalidUnitsException
                 }
+                //new scene: the search results
+                
                 //new scene: the search results
             });
             results.getChildren().add(result);
@@ -601,7 +619,12 @@ public class WeatherApp extends Application {
                     
                 }
             }
-            root.setCenter(show_start());
+            try {
+                root.setCenter(show_start());
+            } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                //TODO: handle InvalidUnitsException and APICallUnsuccessfulException
+            }
+            
         });
         return addFavorite;
     }
@@ -726,19 +749,31 @@ public class WeatherApp extends Application {
         unitBtn.setOnAction((ActionEvent e) -> {
             if("metric".equals(units)){
                 units = "imperial";
-            }else{  
-                units = "metric"; 
-            }
-            try {
-                lastWeather=events.get_weather(latLong, units);
+             try {
+                    lastWeather=events.get_weather(latLong, units);
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    // TODO: handle APICallUnsuccessfulException and InvalidUnitsException
+                    
+                }
                 currentW=lastWeather.getCurrentWeather();
-            } catch (InvalidUnitsException ex) {
+            }else{  
+                units = "metric";
+                try {
+                    lastWeather=events.get_weather(latLong, units);
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    // TODO: handle APICallUnsuccessfulException and InvalidUnitsException
+                }
+                currentW=lastWeather.getCurrentWeather();
+                try {
+                    root.setTop(upperMenu());
+                } catch (InvalidUnitsException ex) {
+                }
+                try {  
+                    root.setCenter(show_start());
+                } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+                    //TODO: handle InvalidUnitsException and APICallUnsuccessfulException
+                }
             }
-            try {
-                root.setTop(upperMenu());
-            } catch (InvalidUnitsException ex) {
-            }
-            root.setCenter(show_start());  
         }); 
         return unitBtn;
     }
@@ -758,7 +793,11 @@ public class WeatherApp extends Application {
         
         //Adding an event to the button to terminate the application.
         button.setOnAction((ActionEvent event) -> {
-            events.shut_down();
+            try {
+                events.shut_down();
+            } catch (IOException ex) {
+                //TODO: handle IOException
+            }
             Platform.exit();
         });
         
