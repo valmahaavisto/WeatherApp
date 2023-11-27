@@ -70,6 +70,7 @@ public class API implements iAPI {
     @Override
     public HashMap<String, Coord> look_up_locations(String loc) 
             throws APICallUnsuccessfulException {
+        System.out.println("look_up_locations");
         
         // Get the best 5 matches for searchword from API
         StringBuilder api_data = get_data_from_api(
@@ -104,7 +105,7 @@ public class API implements iAPI {
     @Override
     public Weather get_current_weather(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException{
-        
+        System.out.println("get_current_weather");
         // Check that valid units
         if (!"metric".equals(units) && !"imperial".equals(units)) {
             throw new InvalidUnitsException(
@@ -208,6 +209,7 @@ public class API implements iAPI {
     @Override
     public HashMap<LocalDateTime, Weather> get_forecast(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException {
+        System.out.println("get_forecast");
         
         // Check that valid units
         if (!"metric".equals(units) && !"imperial".equals(units)) {
@@ -304,6 +306,7 @@ public class API implements iAPI {
     @Override
     public String get_city_name(Coord latlon) throws APICallUnsuccessfulException{
         // Get the best 5 matches for searchword from API
+        System.out.println("get_city_name");
         StringBuilder api_data = get_data_from_api(
                 "http://api.openweathermap.org/geo/1.0/reverse?lat="
                         +latlon.getLat()+

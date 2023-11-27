@@ -92,7 +92,7 @@ public class WeatherApp extends Application {
             lastWeather = events.get_last_weather();
             currentW= events.get_last_weather().getCurrentWeather();
             latLong= currentW.getCoord();
-            System.out.print(latLong.getLon());
+             System.out.print(latLong.getLon());
             favorite= events.is_favorite(latLong);
             name = currentW.getLocation();
             city = lastWeather.getCity_name();
