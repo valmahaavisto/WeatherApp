@@ -42,7 +42,7 @@ public class API implements iAPI {
                         response.append(line);
                     }
                 }
-               
+       
                 
             } else {
                 // If http connection cant be established
@@ -150,7 +150,8 @@ public class API implements iAPI {
         double feels_like = main.has("feels_like") ? main.getAsJsonPrimitive("feels_like").getAsDouble() : Double.NaN;
         double temp_min = main.has("temp_min") ? main.getAsJsonPrimitive("temp_min").getAsDouble() : Double.NaN;
         double temp_max = main.has("temp_max") ? main.getAsJsonPrimitive("temp_max").getAsDouble() : Double.NaN;
-
+        double humidity = main.has("humidity") ? main.getAsJsonPrimitive("humidity").getAsDouble() : Double.NaN;
+        
         // Wind info
         JsonObject wind = jsonObject.getAsJsonObject("wind");
         double wind_speed = wind.has("speed") ? wind.getAsJsonPrimitive("speed").getAsDouble() : Double.NaN;
@@ -199,7 +200,8 @@ public class API implements iAPI {
                     wind_gust,
                     rain1h,         
                     id,
-                    description
+                    description,
+                    humidity
             );
         return current_weather;
           
@@ -259,7 +261,7 @@ public class API implements iAPI {
             double feels_like = main.has("feels_like") ? main.getAsJsonPrimitive("feels_like").getAsDouble() : Double.NaN;
             double temp_min = main.has("temp_min") ? main.getAsJsonPrimitive("temp_min").getAsDouble() : Double.NaN;
             double temp_max = main.has("temp_max") ? main.getAsJsonPrimitive("temp_max").getAsDouble() : Double.NaN;
-
+            double humidity = main.has("humidity") ? main.getAsJsonPrimitive("humidity").getAsDouble() : Double.NaN;
             // weather description info
             JsonArray weatherArray = listItem.getAsJsonArray("weather");
             JsonObject weatherObject = weatherArray.get(0).getAsJsonObject();
@@ -274,7 +276,7 @@ public class API implements iAPI {
 
             // Rain info
             JsonObject rain = listItem.getAsJsonObject("rain");
-            double rain1h = rain != null && rain.has("1h") ? rain.getAsJsonPrimitive("1h").getAsDouble() : Double.NaN;
+            double rain1h = rain != null && rain.has("3h") ? rain.getAsJsonPrimitive("3h").getAsDouble() : Double.NaN;
 
             // Make wetaher object for each hour and append to map
             Weather weather = new Weather(
@@ -291,7 +293,8 @@ public class API implements iAPI {
                     wind_gust,
                     rain1h,
                     id,
-                    description
+                    description,
+                    humidity
             );
             forecast.put(time, weather);
         }
