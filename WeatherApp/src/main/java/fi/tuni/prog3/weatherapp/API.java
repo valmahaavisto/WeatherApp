@@ -18,11 +18,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- * A Class for storing weather data of one day.
+ * A class for extracting data from the OpenWeatherMap API.
  * @author Aarni Akkala
  */
 public class API implements iAPI {
-    
+    /**
+     * API key required for API calls to openweathermap.org
+     */
     final String API_KEY = "25611dde424220be991fce1c7eefa21f";
     
     private StringBuilder get_data_from_api(String url_string) {
@@ -55,16 +57,6 @@ public class API implements iAPI {
             return null;
         }
         return response;
-    }
-
-    @Override
-    public void startup() {
-        
-    }
-
-    @Override
-    public void shut_down() {
-        
     }
 
     @Override

@@ -159,15 +159,6 @@ class EventsTest {
 
     // Internal TestAPI class to simulate API behavior
     private static class TestAPI extends API {
-        @Override
-        public void startup() {
-            // Do nothing
-        }
-
-        @Override
-        public void shut_down() {
-            // Do nothing
-        }
 
         @Override
         public Weather get_current_weather(Coord latlong, String units) {

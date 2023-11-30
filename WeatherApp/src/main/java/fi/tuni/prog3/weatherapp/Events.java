@@ -39,7 +39,6 @@ public class Events implements iEvents {
     public void startup() throws IOException {
         // This is called when interacting with API interface/class
         api = new API();
-        api.startup();
         
         String favoritesFilePath = "favorites.txt";
 
@@ -109,8 +108,6 @@ public class Events implements iEvents {
 
     @Override
     public void shut_down() throws IOException{
-        
-        api.shut_down(); 
 
         // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";

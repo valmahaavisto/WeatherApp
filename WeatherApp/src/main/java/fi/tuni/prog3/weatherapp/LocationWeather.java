@@ -10,58 +10,123 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A Class for storing weather data of one location.
- * @author Valma Haavisto, Aarni Akkala
+ * A class for storing weather data (current and forecast )of one location.
+ * This class includes the current weather, forecast, city name, and units.
+ * Author: Valma Haavisto, Aarni Akkala
  */
-
 public class LocationWeather {
+    /**
+     * Forecast data for different hours.
+     */
     HashMap<LocalDateTime, Weather> forecast;
-    ArrayList<LocalDateTime> days = new ArrayList<>();
-    Weather currentWeather;
-    String city_name;
-    String units;
-    
 
+    /**
+     * List of LocalDateTime representing different days in the forecast.
+     */
+    ArrayList<LocalDateTime> days = new ArrayList<>();
+
+    /**
+     * Current weather data.
+     */
+    Weather currentWeather;
+
+    /**
+     * Name of the city.
+     */
+    String city_name;
+
+    /**
+     * Units used for temperature measurements.
+     */
+    String units;
+
+    /**
+     * Constructs a LocationWeather object with the given forecast and current weather data.
+     *
+     * @param forecast       Forecast data for different hours.
+     * @param currentWeather Current weather data.
+     */
     public LocationWeather(HashMap<LocalDateTime, Weather> forecast, Weather currentWeather) {
         this.forecast = forecast;
         this.currentWeather = currentWeather;
     }
 
+    /**
+     * Gets the units used for temperature measurements.
+     *
+     * @return Units for temperature measurements.
+     */
     public String getUnits() {
         return units;
     }
 
+    /**
+     * Sets the units used for temperature measurements.
+     *
+     * @param units New units for temperature measurements.
+     */
     public void setUnits(String units) {
         this.units = units;
     }
-    
+
+    /**
+     * Gets the name of the city.
+     *
+     * @return Name of the city.
+     */
     public String getCity_name() {
         return city_name;
     }
 
+    /**
+     * Sets the name of the city.
+     *
+     * @param city_name New name of the city.
+     */
     public void setCity_name(String city_name) {
         this.city_name = city_name;
     }
-    
 
+    /**
+     * Gets the forecast data for different hours.
+     *
+     * @return Forecast data for different hours.
+     */
     public HashMap<LocalDateTime, Weather> getForecast() {
         return forecast;
     }
 
+    /**
+     * Sets the forecast data for different hours.
+     *
+     * @param forecast New forecast data.
+     */
     public void setForecast(HashMap<LocalDateTime, Weather> forecast) {
         this.forecast = forecast;
     }
 
+    /**
+     * Gets the current weather data.
+     *
+     * @return Current weather data.
+     */
     public Weather getCurrentWeather() {
         return currentWeather;
     }
 
+    /**
+     * Sets the current weather data.
+     *
+     * @param currentWeather New current weather data.
+     */
     public void setCurrentWeather(Weather currentWeather) {
         this.currentWeather = currentWeather;
     }
+
     /**
-     * Gets the forecast hours that are on the same day as dateTime
-     * @param day The day that we are interesetd in. The hour doesn't matter.
+     * Gets the forecast hours that are on the same day as dateTime.
+     *
+     * @param day The day that we are interested in. The hour doesn't matter.
      * @return All Weather forecasts that are within the given day.
      */
     public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime day) {
@@ -77,8 +142,10 @@ public class LocationWeather {
 
         return weathers;
     }
+
     /**
-     * Returns LocalDateTime list of days that a forecast is saved of.
+     * Returns a list of LocalDateTime representing days that a forecast is saved for.
+     *
      * @return List of different days saved. Time is atStartOfDay().
      */
     public ArrayList<LocalDateTime> getDays() {
@@ -94,7 +161,7 @@ public class LocationWeather {
                 }
             }
         }
-        
+
         return days;
     }
 }

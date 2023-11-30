@@ -1,6 +1,9 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,10pt]{article}
+\usepackage[margin=0.5in]{geometry}
 \usepackage{graphicx}
 \usepackage{placeins}
+\usepackage{listings}
+\usepackage{xcolor}
 
 \begin{document}
 
@@ -11,13 +14,13 @@
 
 \section{Software Structure}
 
-The WeatherApp consists of three main classes: WeatherApp (GUI), Events (event handlin) and API (API calls). 
+The WeatherApp consists of three main classes: WeatherApp (GUI), Events (event handlin) and API (API calls). Then there are classess: LocationWeather (for one locations weather information), Weather (One locations weather foracast or current of a certain timestamp) and Coord (stores latitude and longitude of a place).
 
 \subsection{Class Diagram}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{class_diagram.png}
+    \includegraphics[width=1\textwidth]{class_diagram.pdf}
     \caption{UML Class Diagram of WeatherApp}
     \label{fig:class_diagram}
 \end{figure}
@@ -53,10 +56,37 @@ The WeatherApp encompasses a range of essential functionalities, each detailed i
 
 \section{Implemented Classes}
 
-List and briefly describe classes implemented by the team, specifying pre and post conditions where applicable.
-List and briefly describe classes implemented by the team, specifying pre and post conditions where applicable.
-List and briefly describe classes implemented by the team, specifying pre and post conditions where applicable.
-List and briefly describe classes implemented by the team, specifying pre and post conditions where applicable.
+\subsection*{Methods}
+
+\subsubsection*{\texttt{iAPI} Interface}
+
+\begin{itemize}
+    \item \textbf{Method: \texttt{look\_up\_locations}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} \texttt{loc} not null or empty, \texttt{API\_KEY} valid.
+        \item \textbf{Postconditions:} Successful API call returns \texttt{Map} of location names and coordinates (not null). \texttt{Coord} has matching coordinates. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown.
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{get\_current\_weather}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} \texttt{coordinates} not null, has \texttt{lat} and \texttt{lon}, \texttt{units} metric or imperial.
+        \item \textbf{Postconditions:} Returned \texttt{Weather} object not null. If units not metric or imperial, \texttt{InvalidUnitsException} is thrown. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown.
+    \end{itemize}
+
+    \item \textbf{Method: \texttt{get\_forecast}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} \texttt{coordinates} not null, \texttt{units} metric or imperial.
+        \item \textbf{Postconditions:} Returned \texttt{HashMap} not empty. If units not metric or imperial, \texttt{InvalidUnitsException} is thrown. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown. Returned \texttt{HashMap} may be empty if no forecast information.
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{get\_city\_name}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} \texttt{latlon.lat} and \texttt{latlon.lon} not null.
+        \item \textbf{Postconditions:} Returned string may be empty if no result for coordinates. If API call unsuccessful, \texttt{APICallUnsuccessfulException} is thrown.
+    \end{itemize}
+\end{itemize}
+
+
 
 
 \section{Division of Work}
@@ -93,15 +123,6 @@ This section provides a brief introduction to using the WeatherApp program.
 
 The main program is \texttt{WeatherApp.java}. Execute this file, and a graphical user interface should appear.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{weather_app_main_window.png}
-    \caption{Main window launched when the program is run}
-    \label{fig:main_window}
-\end{figure}
-
-\FloatBarrier
-
 \subsection{Main window}
 
 When on the main screen of WeatherApp, you can view the current weather conditions for the last accessed location. Under the current conditions, a forecast for the current day and the next four days is displayed. Clicking on these days reveals a detailed description of the weather conditions for each day (time, description icon, temperature, wind direction, wind speed, and rain probability).
@@ -125,10 +146,8 @@ When the program is closed, the last viewed location and favorites are saved to 
 
 \section{Known Bugs and Missing Features}
 
-Document any known bugs or features that are yet to be implemented.
+1.When favorites are selected or units are changed the selected days forecast window closes and has to be reopened.
 
-\section{Conclusion}
-
-Summarize the key points covered in the document.
+\noindent 2. Openweathermap.org doesn't always retrieve rain information if it should.
 
 \end{document}
