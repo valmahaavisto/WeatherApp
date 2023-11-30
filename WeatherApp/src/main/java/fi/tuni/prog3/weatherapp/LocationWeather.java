@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import javafx.util.Pair;
 
 /**
  * A class for storing weather data (current and forecast )of one location.
@@ -163,5 +164,30 @@ public class LocationWeather {
         }
 
         return days;
+    }
+    
+    /**
+    * Retrieves the minimum and maximum temperatures for a specific day from 
+    * forecast data.
+    *
+    * @param day The LocalDateTime representing the day for which to 
+    * retrieve temperature information.
+    * @return A Pair<Double, Double> containing the minimum and maximum 
+    * temperatures for the specified day. (In that order)
+    */
+    public Pair<Double, Double> getDayMinMax(LocalDateTime day) {
+        HashMap<LocalDateTime, Weather> times = get_certain_day_weather(day);
+        // Initialize min and max temperatures with the first temperature in the map
+        double minTemp = Double.MAX_VALUE;
+        double maxTemp = Double.MIN_VALUE;
+
+        // Iterate through the Weather objects and update min and max temperatures
+        for (Weather weather : times.values()) {
+            double currentTemp = weather.getCurrent_temp();
+            minTemp = Math.min(minTemp, currentTemp);
+            maxTemp = Math.max(maxTemp, currentTemp);
+        }
+
+        return new Pair(minTemp, maxTemp);
     }
 }

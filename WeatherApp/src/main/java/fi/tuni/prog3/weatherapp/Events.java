@@ -159,7 +159,7 @@ public class Events implements iEvents {
             String cityname = api.get_city_name(lastWeather.getKey());
             w.setCity_name(cityname);
             String units = lastWeather.getValue();
-            w.setUnits(units);
+            w.setUnits(units);            
             return w;
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
