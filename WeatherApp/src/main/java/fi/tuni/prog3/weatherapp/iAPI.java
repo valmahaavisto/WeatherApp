@@ -60,5 +60,11 @@ public interface iAPI {
     public HashMap<LocalDateTime, Weather> get_forecast(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
     
+    /**
+     * 
+     * @param latlon
+     * @return
+     * @throws APICallUnsuccessfulException 
+     */
     public String get_city_name(Coord latlon) throws APICallUnsuccessfulException;
 }

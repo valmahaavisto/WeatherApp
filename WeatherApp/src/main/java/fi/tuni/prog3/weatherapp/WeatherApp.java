@@ -93,18 +93,18 @@ public class WeatherApp extends Application {
         
         //shows the last searched place's weather
         root.setTop(upperMenu());
-        if (events.get_last_weather()==null){
+        lastWeather = events.get_last_weather();
+        if (lastWeather==null){
             units="metric";
             startScreen();
         }else{
-            lastWeather = events.get_last_weather();
             currentW= lastWeather.getCurrentWeather();
             units=lastWeather.getUnits();
             latLong= currentW.getCoord();
             favorite= events.is_favorite(latLong);
             name = currentW.getLocation();
             city = lastWeather.getCity_name();
-            root.setCenter(show_start());
+            root.setCenter(show_start());  //!!!!!!!!!
         }
         stage.show();
     }
@@ -117,7 +117,7 @@ public class WeatherApp extends Application {
         //Creating a VBox.
         page = new VBox();
         page.getChildren().clear();
-        page.getChildren().addAll( currentWeather(),weekDays());
+        page.getChildren().addAll( currentWeather(),weekDays()); //!!!!!
         
         return page;
     }
@@ -354,14 +354,13 @@ public class WeatherApp extends Application {
         daysHbox.setPrefSize(600,100);
         var days= lastWeather.getDays();
         Collections.sort(days, Comparator.naturalOrder());
-        
         for(var day: days){
             //date
             //image
             //lowest and highest temperature
             String date_= day.getDayOfMonth()+"."+day.getMonthValue();
             // get weather description of the weather in the middle of the day
-            var weather=events.get_last_weather().get_certain_day_weather(day);
+            var weather=lastWeather.get_certain_day_weather(day);
             
             LinkedHashMap<LocalDateTime, Weather> sortedMap = new LinkedHashMap<>();
             weather.entrySet()
