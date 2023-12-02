@@ -178,16 +178,19 @@ public class LocationWeather {
     public Pair<Double, Double> getDayMinMax(LocalDateTime day) {
         HashMap<LocalDateTime, Weather> times = get_certain_day_weather(day);
         // Initialize min and max temperatures with the first temperature in the map
-        double minTemp = Double.MAX_VALUE;
-        double maxTemp = Double.MIN_VALUE;
+        double minTemp = Double.POSITIVE_INFINITY ; // Double.MAX_VALUE and min value would produce error
+        double maxTemp = Double.NEGATIVE_INFINITY; // this is still high enough
 
         // Iterate through the Weather objects and update min and max temperatures
         for (Weather weather : times.values()) {
-            double currentTemp = weather.getCurrent_temp();
-            minTemp = Math.min(minTemp, currentTemp);
-            maxTemp = Math.max(maxTemp, currentTemp);
+            double tempmin = weather.getTemp_min();
+            double tempmax = weather.getTemp_max();
+            minTemp = Math.min(minTemp, tempmin);
+            maxTemp = Math.max(maxTemp, tempmax);
+            System.out.println("Current Temperature: " + tempmin);
+            System.out.println("Current Temperature: " + tempmax);
         }
 
-        return new Pair(minTemp, maxTemp);
+        return new Pair<>(minTemp, maxTemp);
     }
 }
