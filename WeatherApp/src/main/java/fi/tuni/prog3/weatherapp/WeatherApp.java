@@ -240,14 +240,16 @@ public class WeatherApp extends Application {
                             counter2++;
                             continue;
                         }
-                        Button moreBtn= new Button(allFavorite.getKey());
+                        String key = allFavorite.getKey();
+                        var splitted = key.split(";");
+                        Button moreBtn= new Button(splitted[0]+", "+splitted[1]);
                         moreBtn.setStyle("-fx-background-color: transparent;");
                         moreBtn.setOnAction((ActionEvent f) -> {
                            try {
                                 lastWeather=events.get_weather(allFavorite.getValue(), units);
                                 currentW=lastWeather.getCurrentWeather();
                                 name = currentW.getLocation();
-                                city= allFavorite.getKey();
+                                city= splitted[0];
                                 latLong =allFavorite.getValue();
                                 favorite = events.is_favorite(latLong);
 
