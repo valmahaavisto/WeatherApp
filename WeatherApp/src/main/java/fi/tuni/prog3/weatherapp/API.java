@@ -222,13 +222,6 @@ public class API implements iAPI {
                                                 "&appid=" + API_KEY + 
                                                 "&units=" + units);
         
-        System.out.println(
-                "https://pro.openweathermap.org/data/2.5/forecast/hourly?"+
-                                                "lat="+coords.getLat() +
-                                                "&lon="+coords.getLon() + 
-                                                "&appid=" + API_KEY + 
-                                                "&units=" + units);
-        
         if (api_data == null) {
             throw new APICallUnsuccessfulException("Unable to connect to API");
         }

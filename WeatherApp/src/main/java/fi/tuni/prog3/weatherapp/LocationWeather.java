@@ -187,8 +187,6 @@ public class LocationWeather {
             double tempmax = weather.getTemp_max();
             minTemp = Math.min(minTemp, tempmin);
             maxTemp = Math.max(maxTemp, tempmax);
-            System.out.println("Current Temperature: " + tempmin);
-            System.out.println("Current Temperature: " + tempmax);
         }
 
         return new Pair<>(minTemp, maxTemp);
