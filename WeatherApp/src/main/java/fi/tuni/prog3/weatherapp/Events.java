@@ -46,12 +46,14 @@ public class Events implements iEvents {
             // Open the file and read it line by line using a stream
             try (Stream<String> lines = Files.lines(Paths.get(favoritesFilePath))) {
                 lines.forEach(line -> {
-                    String[] parts = line.split(", ");
-                    String name = parts[0];
-                    double lat = Double.parseDouble(parts[1]);
-                    double lon = Double.parseDouble(parts[2]);
-                    Coord coordinates = new Coord(lat, lon);
-                    favorites.put(name, coordinates);
+                String[] parts = line.split(", ");
+                    if (parts.length >= 3) {
+                        String name = parts[0];
+                        double lat = Double.parseDouble(parts[1]);
+                        double lon = Double.parseDouble(parts[2]);
+                        Coord coordinates = new Coord(lat, lon);
+                        favorites.put(name, coordinates);
+                    }
                 });
             }
 
