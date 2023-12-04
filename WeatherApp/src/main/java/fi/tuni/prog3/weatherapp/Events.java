@@ -33,17 +33,19 @@ public class Events implements iEvents {
     // store current location's coordinates and imperial/metric choice
     Pair<Coord, String> lastWeather = new Pair(null, null);
     
+    // API instance for making API calls
     API api;
 
     @Override
     public void startup() throws IOException {
-        // This is called when interacting with API interface/class
+        // Initialize the API instance
         api = new API();
         
+        // Load favorites from file
         String favoritesFilePath = "favorites.txt";
 
         try {
-            // Open the file and read it line by line using a stream
+            // Read the file and populate the 'favorites' map
             try (Stream<String> lines = Files.lines(Paths.get(favoritesFilePath))) {
                 lines.forEach(line -> {
                 String[] parts = line.split(", ");
@@ -58,8 +60,9 @@ public class Events implements iEvents {
             }
 
         } catch (IOException e) {
-             // If the file doesn't exist, create it and empty ArrayList
+             // Handle file-related exceptions
             if (e instanceof NoSuchFileException) {
+                // If the file doesn't exist, create it and an empty ArrayList
                 try {
                     Files.createFile(Paths.get(favoritesFilePath));
                 } catch (IOException ex) {
@@ -71,11 +74,11 @@ public class Events implements iEvents {
             }
         }
         
-        
+        // Load last weather information from file
         String lastWeatherFilePath = "lastWeather.txt";
-        
+               
         try {
-           // Read the string representation of Coord from the file
+            // Read the string representation of Coord from the file
             String coordString = new String(Files.readAllBytes(Paths.get(lastWeatherFilePath)));
             String[] parts = coordString.split(", ");
             
@@ -94,8 +97,9 @@ public class Events implements iEvents {
             } 
 
         } catch (IOException e) {
-             // If the file doesn't exist, create it and empty ArrayList
+            // Handle file-related exceptions
             if (e instanceof NoSuchFileException) {
+                // If the file doesn't exist, create it and empty ArrayList
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
@@ -110,10 +114,8 @@ public class Events implements iEvents {
 
     @Override
     public void shut_down() throws IOException{
-
         // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";
-
         byte[] emptyBytes = new byte[0];
 
         try {
@@ -124,6 +126,7 @@ public class Events implements iEvents {
         }
         
         try {
+            // Append each favorite to the file
             for (Map.Entry<String, Coord> entry : favorites.entrySet()) {
                 Coord value = entry.getValue();
 
@@ -140,7 +143,9 @@ public class Events implements iEvents {
         String lastWeatherFilePath = "lastWeather.txt";
 
         try {
+            // Check if lastWeather information is not null
             if (lastWeather.getKey() != null && lastWeather.getValue() != null) {
+                // Write the lastWeather information to the file
                 String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
                     + ", " + lastWeather.getValue();
                 Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
@@ -156,6 +161,7 @@ public class Events implements iEvents {
     @Override
     public LocationWeather get_last_weather() throws InvalidUnitsException, APICallUnsuccessfulException{
         try {
+            // Get the current weather using lastWeather coordinates and units
             LocationWeather w = get_weather(lastWeather.getKey(), lastWeather.getValue());
             // Add the city_name that usually is gotten from search
             String cityname = api.get_city_name(lastWeather.getKey());
@@ -165,6 +171,7 @@ public class Events implements iEvents {
             return w;
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+            // Handle exceptions
             if (lastWeather.getKey() != null) {
                 throw new APICallUnsuccessfulException("Unable to retrieve last weather");
                 
@@ -178,10 +185,11 @@ public class Events implements iEvents {
     @Override
     public TreeMap<String, Coord> search(String input) throws APICallUnsuccessfulException{
         
-        try {     
+        try {    
+            // Look up locations based on the input
             Map<String, Coord> locations = api.look_up_locations(input); 
 
-            // sort the top_5 by key (city and country name)
+            // Sort the locations by key (city and country name)
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
             
             return sortedTop5;
@@ -200,7 +208,7 @@ public class Events implements iEvents {
     
     @Override
     public HashMap<String, Coord> remove_favorite(Coord latlong, String name) {
-        // remove by value (location's coordinates)
+        // Remove a favorite by value (location's coordinates)
         Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
         
         while (iterator.hasNext()) {
@@ -216,6 +224,7 @@ public class Events implements iEvents {
     
     @Override
     public boolean is_favorite(Coord latlong) {
+        // Check if a location is a favorite
         for (Entry<String, Coord> entry : favorites.entrySet()) {
             if (entry.getValue().getLon() == latlong.getLon() 
                     && entry.getValue().getLat() == latlong.getLat()) {
@@ -227,15 +236,18 @@ public class Events implements iEvents {
     
     @Override
     public HashMap<String, Coord> get_favourites(){
+         // Get the favorites map
         return favorites;
     }
 
     @Override
     public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException{
         
-        try {           
+        try {
+            // Update lastWeather information
             lastWeather = new Pair(latlong, units);
             
+            // Get the current weather and forecast using coordinates and units
             Weather weather = api.get_current_weather(latlong, units);
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
             LocationWeather locationWeather = new LocationWeather(forecast, weather);
