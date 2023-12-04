@@ -23,19 +23,16 @@ public interface iEvents {
      * @throws java.io.IOException
      */
     public void startup() throws IOException;
-    // API rajapinnan toteuttavan luokan olion tekeminen
-    // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
     
     /**
-     * Operations that need to be done when shutting program.Saves current locaiton and favorites to file.
+     * Operations that need to be done when shutting program.
+     * Saves current location and favorites to file.
      * Calls API shut_down()
      * @throws java.io.IOException
      */
     public void shut_down() throws IOException;
-    // Kutsu API rajapinnan toteuttavan luokan startup-funktioon
 
     /**
-     * 
      * @return LocationWeather of the place that was shown 
      * when the app was closed last time
      * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
@@ -51,10 +48,6 @@ public interface iEvents {
      * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
      */
     public TreeMap<String, Coord> search(String input) throws APICallUnsuccessfulException;
-       // Kutsuu API:lta hakutulokseen osuvat paikat ja palauttaa 5 parasta.
-       // API:lta tulee 5 kappaletta osumia  joista valitaan "parhaat" 5
-       // Jos N<5 näytetään vain ne tai palautetaan tyhjä map, josta seuraa virheteksti
-       // WeatherApp:ssa
        
     /**
      * Updates favorite information of given location
@@ -75,7 +68,7 @@ public interface iEvents {
     /**
      * Searches if coordinates are marked as favorite
      * @param latlong Coordinates of the location
-     * @return True -> is favoite, false -> is not favorite
+     * @return True -> is favoite, false -> not favorite
      */
     public boolean is_favorite(Coord latlong);
     
@@ -83,7 +76,13 @@ public interface iEvents {
      * Returns container of favorite locations and coords
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> get_favourites(); 
+    public HashMap<String, Coord> get_favourites();
+    
+    /**
+     * 
+     * @return container of last 5 searched locations
+     */
+    public HashMap<String, Coord> get_search_history();
     
     /**
      * Gets locations weather information and saves it to a LocationWeather object.
@@ -94,6 +93,5 @@ public interface iEvents {
      * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
      */
     public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException;
-    // Kutsuu API:lta nykyisen sään ja sääennusteen (kaksi eri API funktiota)
 
 }

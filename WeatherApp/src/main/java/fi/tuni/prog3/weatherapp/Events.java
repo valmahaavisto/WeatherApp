@@ -6,6 +6,10 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -14,6 +18,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -33,31 +38,38 @@ public class Events implements iEvents {
     // store current location's coordinates and imperial/metric choice
     Pair<Coord, String> lastWeather = new Pair(null, null);
     
+    LimitedSizeLinkedHashMap<String, Coord> searchHistory = new LimitedSizeLinkedHashMap<>(5);
+    
+    // API instance for making API calls
     API api;
 
     @Override
     public void startup() throws IOException {
-        // This is called when interacting with API interface/class
+        // Initialize the API instance
         api = new API();
         
+        // Load favorites from file
         String favoritesFilePath = "favorites.txt";
 
         try {
-            // Open the file and read it line by line using a stream
+            // Read the file and populate the 'favorites' map
             try (Stream<String> lines = Files.lines(Paths.get(favoritesFilePath))) {
                 lines.forEach(line -> {
-                    String[] parts = line.split(", ");
-                    String name = parts[0];
-                    double lat = Double.parseDouble(parts[1]);
-                    double lon = Double.parseDouble(parts[2]);
-                    Coord coordinates = new Coord(lat, lon);
-                    favorites.put(name, coordinates);
+                String[] parts = line.split(", ");
+                    if (parts.length >= 3) {
+                        String name = parts[0];
+                        double lat = Double.parseDouble(parts[1]);
+                        double lon = Double.parseDouble(parts[2]);
+                        Coord coordinates = new Coord(lat, lon);
+                        favorites.put(name, coordinates);
+                    }
                 });
             }
 
         } catch (IOException e) {
-             // If the file doesn't exist, create it and empty ArrayList
+             // Handle file-related exceptions
             if (e instanceof NoSuchFileException) {
+                // If the file doesn't exist, create it and an empty ArrayList
                 try {
                     Files.createFile(Paths.get(favoritesFilePath));
                 } catch (IOException ex) {
@@ -70,10 +82,11 @@ public class Events implements iEvents {
         }
         
         
+        // Load last weather information from file
         String lastWeatherFilePath = "lastWeather.txt";
-        
+               
         try {
-           // Read the string representation of Coord from the file
+            // Read the string representation of Coord from the file
             String coordString = new String(Files.readAllBytes(Paths.get(lastWeatherFilePath)));
             String[] parts = coordString.split(", ");
             
@@ -92,26 +105,58 @@ public class Events implements iEvents {
             } 
 
         } catch (IOException e) {
-             // If the file doesn't exist, create it and empty ArrayList
+            // Handle file-related exceptions
             if (e instanceof NoSuchFileException) {
+                // If the file doesn't exist, create it and empty ArrayList
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
-                    throw new IOException("Error while creating file lastWeather.tx"); 
+                    throw new IOException("Error while creating file lastWeather.txt"); 
                 }
             } else {
                 throw new IOException("Found other IOException(s) when creating "
                         + "lastWeather.txt");             
             } 
         }
+        
+        // Load search history from file
+        String searchHistoryFilePath = "searchHistory.txt";
+
+        try {
+            // Check if the file exists
+            if (!Files.exists(Paths.get(searchHistoryFilePath))) {
+                // If the file doesn't exist, create it and empty ArrayList
+                Files.createFile(Paths.get(searchHistoryFilePath));
+            }
+
+            // Now, proceed to read from the file
+            try (BufferedReader reader = new BufferedReader(new FileReader(searchHistoryFilePath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Split the line into latitude, longitude and name parts
+                    String[] parts = line.split(", ");
+                    if (parts.length >= 3) {
+                        String name = parts[0];
+                        double lat = Double.parseDouble(parts[1]);
+                        double lon = Double.parseDouble(parts[2]);
+                        Coord coordinates = new Coord(lat, lon);
+                        searchHistory.put(name, coordinates);
+                    }
+                }
+            } catch (IOException ex) {
+                throw new IOException("Error while reading file searchHistory.txt", ex);
+            }
+        } catch (IOException e) {
+            throw new IOException("Error while creating file searchHistory.txt", e);
+        }
+          
     }
 
+    
     @Override
     public void shut_down() throws IOException{
-
         // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";
-
         byte[] emptyBytes = new byte[0];
 
         try {
@@ -122,6 +167,7 @@ public class Events implements iEvents {
         }
         
         try {
+            // Append each favorite to the file
             for (Map.Entry<String, Coord> entry : favorites.entrySet()) {
                 Coord value = entry.getValue();
 
@@ -138,22 +184,44 @@ public class Events implements iEvents {
         String lastWeatherFilePath = "lastWeather.txt";
 
         try {
+            // Check if lastWeather information is not null
             if (lastWeather.getKey() != null && lastWeather.getValue() != null) {
+                // Write the lastWeather information to the file
                 String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
                     + ", " + lastWeather.getValue();
                 Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
-            } 
-            
-            
+            }     
         } catch (IOException e) {
             throw new IOException("File not found: lastWeather.txt\n");
-        }    
+        }
+        
+        
+        // save search history
+        String searchHistoryFilePath = "searchHistory.txt";
+        
+        try {
+            if (searchHistory != null) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(searchHistoryFilePath))) {
+                    // Iterate through the entries and write each entry to a new line
+                    for (Map.Entry<String, Coord> entry : searchHistory.entrySet()) {
+                        String line = entry.getKey() + ", " + entry.getValue().getLat() + ", " + entry.getValue().getLon();
+                        writer.write(line);
+                        writer.newLine();
+                    }
+                } catch (IOException e) {
+                    throw new IOException("File not found: searchHistory.txt\n");
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("File not found: searchHistory.txt\n");
+        }
     }
 
     
     @Override
     public LocationWeather get_last_weather() throws InvalidUnitsException, APICallUnsuccessfulException{
         try {
+            // Get the current weather using lastWeather coordinates and units
             LocationWeather w = get_weather(lastWeather.getKey(), lastWeather.getValue());
             // Add the city_name that usually is gotten from search
             String cityname = api.get_city_name(lastWeather.getKey());
@@ -163,6 +231,7 @@ public class Events implements iEvents {
             return w;
             
         } catch (InvalidUnitsException | APICallUnsuccessfulException ex) {
+            // Handle exceptions
             if (lastWeather.getKey() != null) {
                 throw new APICallUnsuccessfulException("Unable to retrieve last weather");
                 
@@ -176,10 +245,11 @@ public class Events implements iEvents {
     @Override
     public TreeMap<String, Coord> search(String input) throws APICallUnsuccessfulException{
         
-        try {     
+        try {            
+            // Look up locations based on the input
             Map<String, Coord> locations = api.look_up_locations(input); 
 
-            // sort the top_5 by key (city and country name)
+            // Sort the locations by key (city and country name)
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
             
             return sortedTop5;
@@ -198,7 +268,7 @@ public class Events implements iEvents {
     
     @Override
     public HashMap<String, Coord> remove_favorite(Coord latlong, String name) {
-        // remove by value (location's coordinates)
+        // Remove a favorite by value (location's coordinates)
         Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
         
         while (iterator.hasNext()) {
@@ -214,6 +284,7 @@ public class Events implements iEvents {
     
     @Override
     public boolean is_favorite(Coord latlong) {
+        // Check if a location is a favorite
         for (Entry<String, Coord> entry : favorites.entrySet()) {
             if (entry.getValue().getLon() == latlong.getLon() 
                     && entry.getValue().getLat() == latlong.getLat()) {
@@ -225,18 +296,25 @@ public class Events implements iEvents {
     
     @Override
     public HashMap<String, Coord> get_favourites(){
+         // Get the favorites map
         return favorites;
     }
 
     @Override
     public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException{
         
-        try {           
+        try {
+            // Update lastWeather information
             lastWeather = new Pair(latlong, units);
             
+            // Get the current weather and forecast using coordinates and units
             Weather weather = api.get_current_weather(latlong, units);
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
             LocationWeather locationWeather = new LocationWeather(forecast, weather);
+            
+            // Update search history
+            String location_name = weather.getLocation();
+            searchHistory.put(location_name, latlong);
             
             return locationWeather;
             
@@ -244,5 +322,27 @@ public class Events implements iEvents {
             throw new APICallUnsuccessfulException("Unable to retrieve data from API or invalid units");
         }
                
-    } 
+    }
+    
+    @Override
+    public HashMap<String, Coord> get_search_history() {
+        // Get the search history map
+        return searchHistory;
+    }
 }
+
+// keep account of 5 last searched locations
+class LimitedSizeLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
+    private final int maxSize;
+
+    public LimitedSizeLinkedHashMap(int maxSize) {
+        super(maxSize, 0.75f, true);
+        this.maxSize = maxSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > maxSize;
+    }
+}
+
