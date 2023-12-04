@@ -1,4 +1,5 @@
 /WeatherApp/target/
 favorites.txt
 lastWeather.txt
+searchHistory.txt
 /WeatherApp/nbproject/

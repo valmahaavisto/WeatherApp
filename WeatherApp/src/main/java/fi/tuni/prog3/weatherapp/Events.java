@@ -6,6 +6,10 @@ package fi.tuni.prog3.weatherapp;
 
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -14,6 +18,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -32,6 +37,8 @@ public class Events implements iEvents {
     
     // store current location's coordinates and imperial/metric choice
     Pair<Coord, String> lastWeather = new Pair(null, null);
+    
+    LimitedSizeLinkedHashMap<String, Coord> searchHistory = new LimitedSizeLinkedHashMap<>(5);
     
     // API instance for making API calls
     API api;
@@ -74,6 +81,7 @@ public class Events implements iEvents {
             }
         }
         
+        
         // Load last weather information from file
         String lastWeatherFilePath = "lastWeather.txt";
                
@@ -103,15 +111,48 @@ public class Events implements iEvents {
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
-                    throw new IOException("Error while creating file lastWeather.tx"); 
+                    throw new IOException("Error while creating file lastWeather.txt"); 
                 }
             } else {
                 throw new IOException("Found other IOException(s) when creating "
                         + "lastWeather.txt");             
             } 
         }
+        
+        // Load search history from file
+        String searchHistoryFilePath = "searchHistory.txt";
+
+        try {
+            // Check if the file exists
+            if (!Files.exists(Paths.get(searchHistoryFilePath))) {
+                // If the file doesn't exist, create it and empty ArrayList
+                Files.createFile(Paths.get(searchHistoryFilePath));
+            }
+
+            // Now, proceed to read from the file
+            try (BufferedReader reader = new BufferedReader(new FileReader(searchHistoryFilePath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Split the line into latitude, longitude and name parts
+                    String[] parts = line.split(", ");
+                    if (parts.length >= 3) {
+                        String name = parts[0];
+                        double lat = Double.parseDouble(parts[1]);
+                        double lon = Double.parseDouble(parts[2]);
+                        Coord coordinates = new Coord(lat, lon);
+                        searchHistory.put(name, coordinates);
+                    }
+                }
+            } catch (IOException ex) {
+                throw new IOException("Error while reading file searchHistory.txt", ex);
+            }
+        } catch (IOException e) {
+            throw new IOException("Error while creating file searchHistory.txt", e);
+        }
+          
     }
 
+    
     @Override
     public void shut_down() throws IOException{
         // empty favorites and add ArrayList favorites to it
@@ -149,12 +190,31 @@ public class Events implements iEvents {
                 String content = lastWeather.getKey().getLat()+ ", " +lastWeather.getKey().getLon() 
                     + ", " + lastWeather.getValue();
                 Files.write(Paths.get(lastWeatherFilePath), content.getBytes());
-            } 
-            
-            
+            }     
         } catch (IOException e) {
             throw new IOException("File not found: lastWeather.txt\n");
-        }    
+        }
+        
+        
+        // save search history
+        String searchHistoryFilePath = "searchHistory.txt";
+        
+        try {
+            if (searchHistory != null) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(searchHistoryFilePath))) {
+                    // Iterate through the entries and write each entry to a new line
+                    for (Map.Entry<String, Coord> entry : searchHistory.entrySet()) {
+                        String line = entry.getKey() + ", " + entry.getValue().getLat() + ", " + entry.getValue().getLon();
+                        writer.write(line);
+                        writer.newLine();
+                    }
+                } catch (IOException e) {
+                    throw new IOException("File not found: searchHistory.txt\n");
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("File not found: searchHistory.txt\n");
+        }
     }
 
     
@@ -185,7 +245,7 @@ public class Events implements iEvents {
     @Override
     public TreeMap<String, Coord> search(String input) throws APICallUnsuccessfulException{
         
-        try {    
+        try {            
             // Look up locations based on the input
             Map<String, Coord> locations = api.look_up_locations(input); 
 
@@ -252,11 +312,37 @@ public class Events implements iEvents {
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
             LocationWeather locationWeather = new LocationWeather(forecast, weather);
             
+            // Update search history
+            String location_name = weather.getLocation();
+            searchHistory.put(location_name, latlong);
+            
             return locationWeather;
             
         } catch(InvalidUnitsException | APICallUnsuccessfulException e) {
             throw new APICallUnsuccessfulException("Unable to retrieve data from API or invalid units");
         }
                
-    } 
+    }
+    
+    @Override
+    public HashMap<String, Coord> get_search_history() {
+        // Get the search history map
+        return searchHistory;
+    }
 }
+
+// keep account of 5 last searched locations
+class LimitedSizeLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
+    private final int maxSize;
+
+    public LimitedSizeLinkedHashMap(int maxSize) {
+        super(maxSize, 0.75f, true);
+        this.maxSize = maxSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > maxSize;
+    }
+}
+

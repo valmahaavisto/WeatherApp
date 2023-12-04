@@ -76,7 +76,13 @@ public interface iEvents {
      * Returns container of favorite locations and coords
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> get_favourites(); 
+    public HashMap<String, Coord> get_favourites();
+    
+    /**
+     * 
+     * @return container of last 5 searched locations
+     */
+    public HashMap<String, Coord> get_search_history();
     
     /**
      * Gets locations weather information and saves it to a LocationWeather object.
