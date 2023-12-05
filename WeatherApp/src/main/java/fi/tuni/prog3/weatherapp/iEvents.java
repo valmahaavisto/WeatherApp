@@ -8,6 +8,7 @@ package fi.tuni.prog3.weatherapp;
 import fi.tuni.prog3.exceptions.APICallUnsuccessfulException;
 import fi.tuni.prog3.exceptions.InvalidUnitsException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -82,7 +83,7 @@ public interface iEvents {
      * 
      * @return container of last 5 searched locations
      */
-    public HashMap<String, Coord> get_search_history();
+    public ArrayList<String> getSearchHistory();
     
     /**
      * Gets locations weather information and saves it to a LocationWeather object.

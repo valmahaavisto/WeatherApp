@@ -16,9 +16,9 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -38,8 +38,9 @@ public class Events implements iEvents {
     // store current location's coordinates and imperial/metric choice
     Pair<Coord, String> lastWeather = new Pair(null, null);
     
-    LimitedSizeLinkedHashMap<String, Coord> searchHistory = new LimitedSizeLinkedHashMap<>(5);
-    
+    // Data structure to save search history while program is running
+    ArrayList<String> searchHistory = new ArrayList<>();
+       
     // API instance for making API calls
     API api;
 
@@ -107,7 +108,7 @@ public class Events implements iEvents {
         } catch (IOException e) {
             // Handle file-related exceptions
             if (e instanceof NoSuchFileException) {
-                // If the file doesn't exist, create it and empty ArrayList
+                // If the file doesn't exist, create it 
                 try {
                     Files.createFile(Paths.get(lastWeatherFilePath));
                 } catch (IOException ex) {
@@ -125,23 +126,15 @@ public class Events implements iEvents {
         try {
             // Check if the file exists
             if (!Files.exists(Paths.get(searchHistoryFilePath))) {
-                // If the file doesn't exist, create it and empty ArrayList
+                // If the file doesn't exist, create it 
                 Files.createFile(Paths.get(searchHistoryFilePath));
             }
 
             // Now, proceed to read from the file
             try (BufferedReader reader = new BufferedReader(new FileReader(searchHistoryFilePath))) {
                 String line;
-                while ((line = reader.readLine()) != null) {
-                    // Split the line into latitude, longitude and name parts
-                    String[] parts = line.split(", ");
-                    if (parts.length >= 3) {
-                        String name = parts[0];
-                        double lat = Double.parseDouble(parts[1]);
-                        double lon = Double.parseDouble(parts[2]);
-                        Coord coordinates = new Coord(lat, lon);
-                        searchHistory.put(name, coordinates);
-                    }
+                while ((line = reader.readLine()) != null) {                    
+                    searchHistory.add(line);
                 }
             } catch (IOException ex) {
                 throw new IOException("Error while reading file searchHistory.txt", ex);
@@ -203,9 +196,8 @@ public class Events implements iEvents {
             if (searchHistory != null) {
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(searchHistoryFilePath))) {
                     // Iterate through the entries and write each entry to a new line
-                    for (Map.Entry<String, Coord> entry : searchHistory.entrySet()) {
-                        String line = entry.getKey() + ", " + entry.getValue().getLat() + ", " + entry.getValue().getLon();
-                        writer.write(line);
+                    for (String entry : searchHistory) {
+                        writer.write(entry);
                         writer.newLine();
                     }
                 } catch (IOException e) {
@@ -251,6 +243,14 @@ public class Events implements iEvents {
 
             // Sort the locations by key (city and country name)
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
+            
+            // update search history
+            searchHistory.add(input);
+            
+            // search history only consists of 5 last searched elements
+            if (searchHistory.size() > 5) {
+                searchHistory.remove(0); // Remove the oldest element (index 0)
+            }
             
             return sortedTop5;
             
@@ -312,10 +312,6 @@ public class Events implements iEvents {
             HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
             LocationWeather locationWeather = new LocationWeather(forecast, weather);
             
-            // Update search history
-            String location_name = weather.getLocation();
-            searchHistory.put(location_name, latlong);
-            
             return locationWeather;
             
         } catch(InvalidUnitsException | APICallUnsuccessfulException e) {
@@ -325,24 +321,9 @@ public class Events implements iEvents {
     }
     
     @Override
-    public HashMap<String, Coord> get_search_history() {
+    public ArrayList<String> getSearchHistory() {
         // Get the search history map
         return searchHistory;
-    }
-}
-
-// keep account of 5 last searched locations
-class LimitedSizeLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
-    private final int maxSize;
-
-    public LimitedSizeLinkedHashMap(int maxSize) {
-        super(maxSize, 0.75f, true);
-        this.maxSize = maxSize;
-    }
-
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-        return size() > maxSize;
     }
 }
 
