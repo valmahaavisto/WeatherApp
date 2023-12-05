@@ -245,11 +245,13 @@ public class Events implements iEvents {
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
             
             // update search history
-            searchHistory.add(input);
+            if (!searchHistory.contains(input)) {
+                searchHistory.add(input);
             
-            // search history only consists of 5 last searched elements
-            if (searchHistory.size() > 5) {
-                searchHistory.remove(0); // Remove the oldest element (index 0)
+                // search history only consists of 5 last searched elements
+                if (searchHistory.size() > 5) {
+                    searchHistory.remove(0); // Remove the oldest element (index 0)
+                }
             }
             
             return sortedTop5;
@@ -322,7 +324,7 @@ public class Events implements iEvents {
     
     @Override
     public ArrayList<String> getSearchHistory() {
-        // Get the search history map
+        // Get the search history list
         return searchHistory;
     }
 }

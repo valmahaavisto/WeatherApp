@@ -21,6 +21,11 @@ public interface iEvents {
     /**
      * Operations that need to be done when starting program
      * Calls API startup()
+     * Preconditions: none
+     * Postconditions: The API instance (api) is initialized.
+     * Favorites are loaded from the "favorites.txt" file into the favorites map.
+     * Last weather information is loaded from the "lastWeather.txt" file into the lastWeather pair.
+     * Search history is loaded from the "searchHistory.txt" file into the searchHistory list.
      * @throws java.io.IOException
      */
     public void startup() throws IOException;
@@ -29,11 +34,19 @@ public interface iEvents {
      * Operations that need to be done when shutting program.
      * Saves current location and favorites to file.
      * Calls API shut_down()
+     * Preconditions: none
+     * Postconditions: The current weather based on the last weather coordinates and units is returned.
+     * The city name and units of the returned LocationWeather object are set.
      * @throws java.io.IOException
      */
     public void shut_down() throws IOException;
 
     /**
+     * Preconditions: none
+     * Postconditions: Locations based on the input are looked up using the API.
+     * The top 5 locations are sorted and returned in a TreeMap.
+     * The input is added to the search history.
+     * If the search history size exceeds 5, the oldest element is removed.
      * @return LocationWeather of the place that was shown 
      * when the app was closed last time
      * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
