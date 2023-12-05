@@ -64,7 +64,8 @@ public class WeatherApp extends Application {
     private ContextMenu history;
     
     @Override
-    public void start(Stage stage) throws InvalidUnitsException, APICallUnsuccessfulException, IOException {
+    public void start(Stage stage) throws InvalidUnitsException,
+            APICallUnsuccessfulException, IOException {
         this.stage = stage;
         
         // This is called when interacting with Events interface/class
@@ -102,7 +103,7 @@ public class WeatherApp extends Application {
             }
         });
         //shows the last searched place's weather
-        root.setTop(upperMenu());
+        root.setTop(menuBar());
         try{
             lastWeather = events.get_last_weather();
         } catch (InvalidUnitsException ex) {
@@ -122,20 +123,32 @@ public class WeatherApp extends Application {
             favorite= events.is_favorite(latLong);
             name = currentW.getLocation();
             city = lastWeather.getCity_name();
-            root.setCenter(show_start());  //!!!!!!!!!
+            root.setCenter(showStart());  //!!!!!!!!!
         }
         stage.show();
     }
 
     /**
-     * main function
+     * main function launches the application
      * @param args 
      */
     public static void main(String[] args) {
         launch();
     }
     
-    private VBox show_start() throws InvalidUnitsException, APICallUnsuccessfulException {
+    /**
+     * creates the center of the whole application and updates the view of
+     * forecast and searches 
+     * preconditions: application is launched and all private methods are
+     * initialized
+     * postconditions: weather is shown to user and it is shown with right units
+     * and other information
+     * @return VBox containing current weather, days and possible 24 hour 
+     * forecast of one day
+     * @throws InvalidUnitsException if unit is not "metric" or "imperial"
+     * @throws APICallUnsuccessfulException if apicall was not successful
+     */
+    private VBox showStart() throws InvalidUnitsException, APICallUnsuccessfulException {
         //Creating a VBox.
         page = new VBox();
         page.getChildren().clear();
@@ -148,7 +161,18 @@ public class WeatherApp extends Application {
         return page;
     }
     
-    private VBox upperMenu() throws InvalidUnitsException {
+    /**
+     * builds whole menubar on top of the app where user can search places from
+     * favorites search history or writing in the search
+     * preconditions:GUI and Events are working and ready to add vbox in the
+     * layout
+     * postconditions: vbox is returned and errors are handled without program
+     * crashing
+     * @return Vbox containing logo, searchbar with search button, unit button,
+     * shortcuts to favorite places, history showing when user writes in search
+     * @throws InvalidUnitsException if unit is not "metric" or "imperial"
+     */
+    private VBox menuBar() throws InvalidUnitsException {
         //Creating a HBox for the logo, search bar and search button.
         AnchorPane menuSearch = new AnchorPane();
         menuSearch.setStyle("-fx-background-color: #232f75;");
@@ -264,7 +288,12 @@ public class WeatherApp extends Application {
         favoriteHbox.setAlignment(Pos.TOP_LEFT);
         
         Insets marginFave1 = new Insets(0,0 , 0, 90);
-        Label favorites = new Label("Favorites:");
+        ImageView favoriteImg = new ImageView("file:icons/remove.png");
+        favoriteImg.setScaleX(0.55);
+        favoriteImg.setScaleY(0.50);
+        Label favorites = new Label();
+        favorites.setGraphic(favoriteImg);
+        
         favorites.setStyle("-fx-text-fill: white;");
         HBox.setMargin(favorites, marginFave1);
         favoriteHbox.getChildren().add(favorites);
@@ -307,7 +336,7 @@ public class WeatherApp extends Application {
                                 city = splitted[0];
                                 latLong = allFavorite.getValue();
                                 favorite = events.is_favorite(latLong);
-                                root.setCenter(show_start());
+                                root.setCenter(showStart());
                             } catch (InvalidUnitsException ex) {
                                 getErrorWin("Invalid unit, must be metric or imperial");
                             } catch (APICallUnsuccessfulException ex) {
@@ -345,7 +374,7 @@ public class WeatherApp extends Application {
                     city = splittedKey[0];
                     latLong = favoritePlace.getValue();
                     favorite = events.is_favorite(latLong);
-                    root.setCenter(show_start());
+                    root.setCenter(showStart());
                 } catch (InvalidUnitsException ex) {
                     getErrorWin("Invalid unit, must be metric or imperial");
                 } catch (APICallUnsuccessfulException ex) {
@@ -366,7 +395,7 @@ public class WeatherApp extends Application {
     
     /**
      * Screen is shown first time opening the app
-     * precondition: app is opened the first time, lastWeather.txt is empty
+     * precondition: function can get the image wanted from getImage(int)
      * postcondition: starting screen is shown and user can use search bar
      */
     private void startScreen(){
@@ -395,6 +424,13 @@ public class WeatherApp extends Application {
         root.setCenter(stack);
     }
     
+    /**
+     * returns current weather information in a StackPane
+     * preconditions:place has been chosen from search or the program got last
+     * weather from previous time
+     * postconditions:current weather layout is ready and returned
+     * @return stackpane containing all current weather information
+     */
     private StackPane currentWeather() {
         //vbox for all components for current weather
         VBox grid = new VBox();
@@ -421,6 +457,16 @@ public class WeatherApp extends Application {
         return stackPane;
     }
     
+    /**
+     * returns 5 day buttons in a row, buttons contain weather image and lowest
+     * and highest temperatures of the days
+     * preconditions: place has been chosen from search or the program got last
+     * weather from previous time
+     * postconditions: returns Hbox
+     * @return HBox containing 5 day buttons with right information
+     * @throws InvalidUnitsException if unit is not "metric" or "imperial"
+     * @throws APICallUnsuccessfulException if the apicall was not successful
+     */
     private HBox weekDays() throws InvalidUnitsException, APICallUnsuccessfulException{
         ArrayList<Button> buttons= new ArrayList();
         //HBox that presents all the days
@@ -519,10 +565,11 @@ public class WeatherApp extends Application {
         return daysHbox;
     }
     
-    /**
-     * preconditions:
-     * postconditions:
-     * @return 
+    /** returns scrollable component showing days 24 hour forecast
+     * preconditions: day button is clicked.
+     * postconditions:returns scrollpane
+     * @return scollpane containing hour, image, temperature, compass,
+     * wind speed and humidity
      */
     private ScrollPane weatherByHour(){
         //shows 24 hour forecast
@@ -597,8 +644,7 @@ public class WeatherApp extends Application {
      * searchfield
      * preconditions: search button has been pressed, input is not empty
      * postconditions:shows 5 or less places that match the user's input 
-     * if nothing matches, it shows no options.
-     * TODO: text "no matches try to search using different words"
+     * if nothing matches, it shows error message.
      */
     private void searchResult(){
         //Creating a VBox to display the results
@@ -643,7 +689,7 @@ public class WeatherApp extends Application {
                     city = parts[0];
                     favorite = events.is_favorite(entry.getValue());
                     certainDayW = null;
-                    root.setCenter(show_start());
+                    root.setCenter(showStart());
                 } catch (InvalidUnitsException ex) {
                     getErrorWin("Invalid unit, must be metric or imperial");
                 } catch (APICallUnsuccessfulException ex) {
@@ -661,9 +707,10 @@ public class WeatherApp extends Application {
      * the place of the coodinates, name of the city and country. in right
      * upper corner also is button to add place to favorites or delete from
      * favorites.
-     * preconditions:
-     * postconditions:
-     * @return 
+     * preconditions:GUI is working and place has been chosen from search or 
+     * the program is not used for the first time.
+     * postconditions: AnchorPane is shown in top of the current weather forecast
+     * @return  Anchorpane containing place, city, country and button
      */
     private AnchorPane topInfo(){
         // place name, favorite button
@@ -688,7 +735,7 @@ public class WeatherApp extends Application {
         AnchorPane.setLeftAnchor(nameInfo, -20.0);
         AnchorPane.setTopAnchor(nameInfo, 8.0);
         AnchorPane.setRightAnchor(addFavorite, -20.0);
-        AnchorPane.setTopAnchor(addFavorite, 20.0);
+        AnchorPane.setTopAnchor(addFavorite, 8.0);
         return anchorPane;
     }
     
@@ -696,9 +743,10 @@ public class WeatherApp extends Application {
      * gets middle info of the current weather( what is shown in the middle):
      * image of the weather, real temperature and what the temperature feels
      * like
-     * preconditions:
-     * postconditions:
-     * @return 
+     * preconditions: GUI is working and place has been chosen from search or 
+     * the program is not used for the first time.
+     * postconditions: Vbox is shown in the center of current weather forecast
+     * @return  VBox containing image and temperatures
      */
     private VBox middleInfo(){
         // temperature and what it feels like and image
@@ -733,9 +781,11 @@ public class WeatherApp extends Application {
     /**
      * gets bottom info of the current weather (what is shown in the bottom)
      * humidity, rain and wind speed and direction
-     * preconditions:
-     * postconditions:
-     * @return 
+     * preconditions: GUI is working and place has been chosen from search or 
+     * the program is not used for the first time.
+     * postconditions: vbox is shown in the bottom of the current weather 
+     * forecast
+     * @return HBox containing humidity, rain and wind information
      */
     private HBox bottomInfo(){
         //humidity, rain, wind
@@ -785,21 +835,29 @@ public class WeatherApp extends Application {
     
     /**
      * returns button to add or delete a place from favorites
-     * preconditions:
-     * postconditions:
-     * @return 
+     * preconditions: favorite function is working, program knows if the place
+     * is in favorites or not
+     * postconditions: adds or removes favorite. if removed, place should
+     * disappear from menubar. If added it should appear to menubar.
+     * @return button to add/remove from favorites
      */
     private Button getFavoriteButton() {
         Button addFavorite = new Button ();
+        addFavorite.setMaxSize(40, 30);
+        addFavorite.setMinSize(40, 30);
         addFavorite.setStyle("-fx-text-fill: white;-fx-background-color: #232f75;"
-                + " -fx-background-radius: 30; -fx-font-weight: bold;");
+                + " -fx-background-radius: 10; -fx-font-weight: bold;");
         
         //button text
+        ImageView image = new ImageView("file:icons/error.png");
         if( favorite == false ){
-            addFavorite.setText("Add to favorites");
+            image = new ImageView("file:icons/add.png");
         } else {
-            addFavorite.setText("remove from favorites");
-        }  
+            image = new ImageView("file:icons/remove.png");
+        }
+        image.setScaleX(0.65);
+        image.setScaleY(0.60); 
+        addFavorite.setGraphic(image);
         // action
         addFavorite.setOnAction((ActionEvent e) -> {
             String name =city+";"+currentW.getCountry();
@@ -807,7 +865,7 @@ public class WeatherApp extends Application {
                 events.add_favorite(latLong, name);
                 favorite=events.is_favorite(latLong);
                 try {
-                    root.setTop(upperMenu());
+                    root.setTop(menuBar());
                 } catch (InvalidUnitsException ex) {
                     getErrorWin("Invalid unit, must be metric or imperial");
                 }
@@ -815,13 +873,13 @@ public class WeatherApp extends Application {
                 events.remove_favorite(latLong, name);
                 favorite= events.is_favorite(latLong);
                 try {
-                    root.setTop(upperMenu());
+                    root.setTop(menuBar());
                 } catch (InvalidUnitsException ex) {
                     getErrorWin("Invalid unit, must be metric or imperial");
                 }
             }
             try {
-                root.setCenter(show_start());
+                root.setCenter(showStart());
             } catch (InvalidUnitsException ex) {
                 getErrorWin("Invalid unit, must be metric or imperial");
             } catch (APICallUnsuccessfulException ex) {
@@ -856,11 +914,13 @@ public class WeatherApp extends Application {
             pathFile = "file:icons/brokenclouds.png";
         } else if ((id >= 300 && id <= 321) || (id >= 520 && id <= 531)) {
             pathFile = "file:icons/showerrain.png";
-        } else if ((id >= 500 && id <= 504) || (id >= 600 && id <= 622 && id != 616)) {
+        } else if ((id >= 500 && id <= 504) || (id >= 600 && id <= 622 &&
+                id != 616)) {
             pathFile = "file:icons/rain.png";
         } else if (id >= 200 && id <= 232) {
             pathFile = "file:icons/thunderstorm.png";
-        } else if (id == 511 || (id >= 603 && id <= 615) || (id >= 617 && id <= 622)) {
+        } else if (id == 511 || (id >= 603 && id <= 615) || (id >= 617 &&
+                id <= 622)) {
             pathFile = "file:icons/snow.png";
         } else if (id >= 700 && id <= 771) {
             pathFile = "file:icons/mist.png";
@@ -897,9 +957,8 @@ public class WeatherApp extends Application {
         }else if(id==12){
             pathFile = "file:icons/logo.png";
         } else {
-            // Default case
-            //todo: questionmark image
-            pathFile = "file:icons/showerrain.png";
+            // if none of the top then something went wrong
+            pathFile = "file:icons/error.png";
         }  
         Image img = new Image(pathFile);
         ImageView imageView = new ImageView(img);
@@ -986,8 +1045,8 @@ public class WeatherApp extends Application {
                 }
             }
             try {
-                root.setTop(upperMenu());
-                root.setCenter(show_start());
+                root.setTop(menuBar());
+                root.setCenter(showStart());
             } catch (InvalidUnitsException ex) {
                 getErrorWin("Invalid unit, must be metric or imperial");
             } catch (APICallUnsuccessfulException ex) {
@@ -1017,7 +1076,6 @@ public class WeatherApp extends Application {
             }
             Platform.exit();
         });
-        
         return button;
     }
     
@@ -1075,8 +1133,8 @@ public class WeatherApp extends Application {
     }
     
     /**
-     * window to show what went wrong
-     * precondition: expection should have been caught
+     * window to show what went wrong if exception is caught
+     * precondition: exception should have been caught
      * postcondition: error window should be seen on the screen
      * @param message message which will be shown in the error window.
      * it tells user what is the problem
