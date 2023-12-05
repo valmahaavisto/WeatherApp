@@ -39,7 +39,7 @@ public interface iEvents {
      * The city name and units of the returned LocationWeather object are set.
      * @throws java.io.IOException
      */
-    public void shut_down() throws IOException;
+    public void shutDown() throws IOException;
 
     /**
      * Preconditions: none
@@ -52,7 +52,7 @@ public interface iEvents {
      * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
      * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
      */
-    public LocationWeather get_last_weather() throws InvalidUnitsException, APICallUnsuccessfulException;
+    public LocationWeather getLastWeather() throws InvalidUnitsException, APICallUnsuccessfulException;
     
     /**
      * Fetch first 5 search results that match the searchphrase the best.
@@ -69,7 +69,7 @@ public interface iEvents {
      * @param name name of the place
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> add_favorite(Coord latlong, String name);
+    public HashMap<String, Coord> addFavorite(Coord latlong, String name);
     
     /**
      * Removes location from favorites
@@ -77,20 +77,20 @@ public interface iEvents {
      * @param name name of the place
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> remove_favorite(Coord latlong, String name);
+    public HashMap<String, Coord> removeFavorite(Coord latlong, String name);
     
     /**
      * Searches if coordinates are marked as favorite
      * @param latlong Coordinates of the location
      * @return True -> is favoite, false -> not favorite
      */
-    public boolean is_favorite(Coord latlong);
+    public boolean isFavorite(Coord latlong);
     
     /**
      * Returns container of favorite locations and coords
      * @return container of favorite locations and coords
      */
-    public HashMap<String, Coord> get_favourites();
+    public HashMap<String, Coord> getFavorites();
     
     /**
      * 
@@ -106,6 +106,6 @@ public interface iEvents {
      * @throws fi.tuni.prog3.exceptions.InvalidUnitsException
      * @throws fi.tuni.prog3.exceptions.APICallUnsuccessfulException
      */
-    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException;
+    public LocationWeather getWeather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException;
 
 }

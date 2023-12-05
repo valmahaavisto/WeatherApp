@@ -45,7 +45,7 @@ class EventsTest {
         Files.write(tempFile, String.format("%f, %f, %s", coord.getLat(), coord.getLon(), units).getBytes());
 
         // Call the method to test
-        LocationWeather result = events.get_last_weather();
+        LocationWeather result = events.getLastWeather();
         Weather currentW = result.getCurrentWeather();
         Coord latlong = currentW.getCoord();
         

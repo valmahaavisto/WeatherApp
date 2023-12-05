@@ -57,14 +57,14 @@ public class APITest {
     }
 
     /**
-     * Test of look_up_locations method, of class API.
+     * Test of lookUpLocations method, of class API.
      */
     @Test
-    public void testLook_up_locations() throws Exception {
+    public void testLookUpLocations() throws Exception {
         API api = new API();
         String location = "Helsinki";
         try {
-            HashMap<String, Coord> locations = api.look_up_locations(location);
+            HashMap<String, Coord> locations = api.lookUpLocations(location);
             assertNotNull(locations);
             assertFalse(locations.isEmpty());
         } catch (APICallUnsuccessfulException e) {
@@ -73,17 +73,17 @@ public class APITest {
     }
 
     /**
-     * Test of get_current_weather method, of class API.
+     * Test of getCurrentWeather method, of class API.
      */
     @Test
-    public void testGet_current_weather() throws Exception {
+    public void testGetCurrentWeather() throws Exception {
         API api = new API();
         
         // Test good inputs
         Coord coords = new Coord(60.1695, 24.9354); // Example coordinates for Helsinki
         String units = "metric";
         try {
-            Weather currentWeather = api.get_current_weather(coords, units);
+            Weather currentWeather = api.getCurrentWeather(coords, units);
             assertNotNull(currentWeather);
             assertEquals("Helsinki", currentWeather.getLocation());
         } catch (APICallUnsuccessfulException | InvalidUnitsException e) {
@@ -91,7 +91,7 @@ public class APITest {
         }
         String okunits = "imperial";
         try {
-            Weather currentWeather = api.get_current_weather(coords, okunits);
+            Weather currentWeather = api.getCurrentWeather(coords, okunits);
             assertNotNull(currentWeather);
             assertEquals("Helsinki", currentWeather.getLocation());
         } catch (APICallUnsuccessfulException | InvalidUnitsException e) {
@@ -101,7 +101,7 @@ public class APITest {
         //Test bad coords
         Coord badCoords = new Coord(-400000, 345); // Example bad coordinates
         try {
-            api.get_current_weather(badCoords, units);
+            api.getCurrentWeather(badCoords, units);
             fail("Expected APICallUnsuccessfulException to be thrown");
         } catch (APICallUnsuccessfulException e) {
             // Good, an exception was expected
@@ -111,7 +111,7 @@ public class APITest {
         
         String badUnits = "invalidUnit";
         try {
-            api.get_current_weather(coords, badUnits);
+            api.getCurrentWeather(coords, badUnits);
             fail("Expected InvalidUnitsException to be thrown");
         } catch (InvalidUnitsException e) {
             // Good, an exception was expected
@@ -121,17 +121,17 @@ public class APITest {
     }
 
     /**
-     * Test of get_forecast method, of class API.
+     * Test of getForecast method, of class API.
      */
     @Test
-    public void testGet_forecast() throws Exception {
+    public void testGetForecast() throws Exception {
         API api = new API();
         
         // Test good inputs
         Coord coords = new Coord(60.1695, 24.9354); // Example coordinates for Helsinki
         String units = "metric";
         try {
-            HashMap<LocalDateTime, Weather> forecast = api.get_forecast(coords, units);
+            HashMap<LocalDateTime, Weather> forecast = api.getForecast(coords, units);
             assertNotNull(forecast);
             assertFalse(forecast.isEmpty());
         } catch (APICallUnsuccessfulException | InvalidUnitsException e) {
@@ -140,7 +140,7 @@ public class APITest {
         
         String okunits = "imperial";
         try {
-            HashMap<LocalDateTime, Weather> forecast = api.get_forecast(coords, okunits);
+            HashMap<LocalDateTime, Weather> forecast = api.getForecast(coords, okunits);
             assertNotNull(forecast);
             assertFalse(forecast.isEmpty());
         } catch (APICallUnsuccessfulException | InvalidUnitsException e) {
@@ -150,7 +150,7 @@ public class APITest {
         //Test bad coords
         Coord badCoords = new Coord(-400000, 345); // Example bad coordinates
         try {
-            api.get_forecast(badCoords, units);
+            api.getForecast(badCoords, units);
             fail("Expected APICallUnsuccessfulException to be thrown");
         } catch (APICallUnsuccessfulException e) {
             // Good, an exception was expected
@@ -160,7 +160,7 @@ public class APITest {
         
         String badUnits = "invalidUnit";
         try {
-            api.get_forecast(coords, badUnits);
+            api.getForecast(coords, badUnits);
             fail("Expected InvalidUnitsException to be thrown");
         } catch (InvalidUnitsException e) {
             // Good, an exception was expected
@@ -169,12 +169,12 @@ public class APITest {
         }
     }
     
-    public void testGet_city_name() {
+    public void testGetCityName() {
         API api = new API();
         // Call the actual method
         try {
             Coord testCoord = new Coord(60.1695, 24.9354);
-            String cityName = api.get_city_name(testCoord);
+            String cityName = api.getCityName(testCoord);
 
             // Assert the result
             assertEquals("Helsinki", cityName);

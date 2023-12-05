@@ -17,8 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test class for checking that API call data is good. Junit test file is a
- * separate test. This is manual testing.
+ * Test class for checking that API call data is good. Junit test file is for
+ * separate automatic testing. This is manual testing to see API call data is 
+ * what it should. AKA it is not -50C in Buenos Aires.
  * @author Aarni Akkala
  */
 public class testAPI {
@@ -26,15 +27,15 @@ public class testAPI {
     private static void testCurrentWeather(API api, double lat, double lon, String units) {
     Coord coord = new Coord(lat, lon);
     try {
-        Weather w = api.get_current_weather(coord, units);
+        Weather w = api.getCurrentWeather(coord, units);
 
         if (w != null) {
             System.out.println("Location: " + (w.getLocation().equals("null") ? "N/A" : w.getLocation()));
-            System.out.println("Current Temperature: " + (Double.isNaN(w.getCurrent_temp()) ? "N/A" : w.getCurrent_temp()));
-            System.out.println("Feels Like: " + (Double.isNaN(w.getFeels_like()) ? "N/A" : w.getFeels_like()));
-            System.out.println("Wind Speed: " + (Double.isNaN(w.getWind_speed()) ? "N/A" : w.getWind_speed()));
-            System.out.println("Wind Direction: " + (Double.isNaN(w.getWind_direction()) ? "N/A" : w.getWind_direction()));
-            System.out.println("Wind Gust: " + (Double.isNaN(w.getWind_gust()) ? "N/A" : w.getWind_gust()));
+            System.out.println("Current Temperature: " + (Double.isNaN(w.getCurrentTemp()) ? "N/A" : w.getCurrentTemp()));
+            System.out.println("Feels Like: " + (Double.isNaN(w.getFeelsLike()) ? "N/A" : w.getFeelsLike()));
+            System.out.println("Wind Speed: " + (Double.isNaN(w.getWindSpeed()) ? "N/A" : w.getWindSpeed()));
+            System.out.println("Wind Direction: " + (Double.isNaN(w.getWindDirection()) ? "N/A" : w.getWindDirection()));
+            System.out.println("Wind Gust: " + (Double.isNaN(w.getWindGust()) ? "N/A" : w.getWindGust()));
             System.out.println("Rain: " + (Double.isNaN(w.getRain()) ? "N/A" : w.getRain()));
             System.out.println("Date: " + (w.getDate() != null ? w.getDate() : "N/A"));
             System.out.println("Weather ID: " + (w.getDescription().equals("null") ? "N/A" : w.getDescription()));
@@ -50,7 +51,7 @@ public class testAPI {
 
     private static void testLookUpLocations(API api, String text) {
         try {
-            HashMap<String, Coord> locations = api.look_up_locations(text);
+            HashMap<String, Coord> locations = api.lookUpLocations(text);
             
             System.out.println("Locations:");
             for (Map.Entry<String, Coord> entry : locations.entrySet()) {
@@ -70,7 +71,7 @@ public class testAPI {
     private static void testForecast(API api, double lat, double lon, String units) {
         Coord coord = new Coord(lat, lon);
         try {
-            HashMap<LocalDateTime, Weather> forecast = api.get_forecast(coord, units);
+            HashMap<LocalDateTime, Weather> forecast = api.getForecast(coord, units);
 
             if (!forecast.isEmpty()) {
                 // Sort dates
@@ -83,11 +84,11 @@ public class testAPI {
 
                     System.out.println("Time: " + time);
                     System.out.println("Location: " + (weather.getLocation().equals("null") ? "N/A" : weather.getLocation()));
-                    System.out.println("Current Temperature: " + (Double.isNaN(weather.getCurrent_temp()) ? "N/A" : weather.getCurrent_temp()));
-                    System.out.println("Feels Like: " + (Double.isNaN(weather.getFeels_like()) ? "N/A" : weather.getFeels_like()));
-                    System.out.println("Wind Speed: " + (Double.isNaN(weather.getWind_speed()) ? "N/A" : weather.getWind_speed()));
-                    System.out.println("Wind Direction: " + (Double.isNaN(weather.getWind_direction()) ? "N/A" : weather.getWind_direction()));
-                    System.out.println("Wind Gust: " + (Double.isNaN(weather.getWind_gust()) ? "N/A" : weather.getWind_gust()));
+                    System.out.println("Current Temperature: " + (Double.isNaN(weather.getCurrentTemp()) ? "N/A" : weather.getCurrentTemp()));
+                    System.out.println("Feels Like: " + (Double.isNaN(weather.getFeelsLike()) ? "N/A" : weather.getFeelsLike()));
+                    System.out.println("Wind Speed: " + (Double.isNaN(weather.getWindSpeed()) ? "N/A" : weather.getWindSpeed()));
+                    System.out.println("Wind Direction: " + (Double.isNaN(weather.getWindDirection()) ? "N/A" : weather.getWindDirection()));
+                    System.out.println("Wind Gust: " + (Double.isNaN(weather.getWindGust()) ? "N/A" : weather.getWindGust()));
                     System.out.println("Rain: " + (Double.isNaN(weather.getRain()) ? "N/A" : weather.getRain()));
                     System.out.println("Weather ID: " + (weather.getDescription().equals("null") ? "N/A" : weather.getDescription()));
                     System.out.println();
@@ -104,7 +105,7 @@ public class testAPI {
     
     private static void testGetCityName(API api, String text) {
         try {
-            HashMap<String, Coord> locations = api.look_up_locations(text);
+            HashMap<String, Coord> locations = api.lookUpLocations(text);
             
             System.out.println("Locations:");
             for (Map.Entry<String, Coord> entry : locations.entrySet()) {
@@ -113,11 +114,11 @@ public class testAPI {
                 System.out.println(name+ " | " + 
                         coord.getLat()+ ":" + coord.getLon());
                 
-                Weather w = api.get_current_weather(coord, "metric");
+                Weather w = api.getCurrentWeather(coord, "metric");
                 
                 if (w != null) {
                     
-                    String city_name = api.get_city_name(w.getCoord());
+                    String city_name = api.getCityName(w.getCoord());
                     
                     
                     

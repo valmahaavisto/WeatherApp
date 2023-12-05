@@ -27,7 +27,7 @@ public class API implements iAPI {
      */
     final String API_KEY = "25611dde424220be991fce1c7eefa21f";
     
-    private StringBuilder get_data_from_api(String url_string) {
+    private StringBuilder getDataFromAPI(String url_string) {
         
         StringBuilder response = new StringBuilder();
         try {
@@ -60,11 +60,11 @@ public class API implements iAPI {
     }
 
     @Override
-    public HashMap<String, Coord> look_up_locations(String loc) 
+    public HashMap<String, Coord> lookUpLocations(String loc) 
             throws APICallUnsuccessfulException {
         
         // Get the best 5 matches for searchword from API
-        StringBuilder api_data = get_data_from_api(
+        StringBuilder api_data = getDataFromAPI(
                 "https://api.openweathermap.org/geo/1.0/direct?q=" 
                         + loc + "&appid=" + API_KEY+ "&limit=5");
         
@@ -94,7 +94,7 @@ public class API implements iAPI {
     }
 
     @Override
-    public Weather get_current_weather(Coord coords, String units)
+    public Weather getCurrentWeather(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException{
         // Check that valid units
         if (!"metric".equals(units) && !"imperial".equals(units)) {
@@ -103,7 +103,7 @@ public class API implements iAPI {
         }
         
         // Get current weather for given coordinates
-        StringBuilder api_data = get_data_from_api(
+        StringBuilder api_data = getDataFromAPI(
                 "https://api.openweathermap.org/data/2.5/weather?" + 
                                                 "lat="+coords.getLat() +
                                                 "&lon="+coords.getLon() + 
@@ -206,7 +206,7 @@ public class API implements iAPI {
     }
 
     @Override
-    public HashMap<LocalDateTime, Weather> get_forecast(Coord coords, String units)
+    public HashMap<LocalDateTime, Weather> getForecast(Coord coords, String units)
             throws InvalidUnitsException, APICallUnsuccessfulException {
         
         // Check that valid units
@@ -215,7 +215,7 @@ public class API implements iAPI {
         }
         
         // Get forecast of given coordinates from API
-        StringBuilder api_data = get_data_from_api(
+        StringBuilder api_data = getDataFromAPI(
                 "https://pro.openweathermap.org/data/2.5/forecast/hourly?"+
                                                 "lat="+coords.getLat() +
                                                 "&lon="+coords.getLon() + 
@@ -303,9 +303,9 @@ public class API implements iAPI {
     }
     
     @Override
-    public String get_city_name(Coord latlon) throws APICallUnsuccessfulException{
+    public String getCityName(Coord latlon) throws APICallUnsuccessfulException{
         // Get the best 5 matches for searchword from API
-        StringBuilder api_data = get_data_from_api(
+        StringBuilder api_data = getDataFromAPI(
                 "http://api.openweathermap.org/geo/1.0/reverse?lat="
                         +latlon.getLat()+
                         "&lon="+latlon.getLon()+

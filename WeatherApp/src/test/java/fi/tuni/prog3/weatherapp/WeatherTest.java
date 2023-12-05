@@ -67,15 +67,15 @@ public class WeatherTest {
         assertEquals(testDate, testWeather.getDate());
         assertEquals("Tampere", testWeather.getLocation());
         assertEquals("FI", testWeather.getCountry());
-        assertEquals(10.0, testWeather.getTemp_min(), 0.01); // Using delta for double comparison
-        assertEquals(20.0, testWeather.getTemp_max(), 0.01);
-        assertEquals(15.0, testWeather.getCurrent_temp(), 0.01);
-        assertEquals(14.0, testWeather.getFeels_like(), 0.01);
-        assertEquals(5.0, testWeather.getWind_speed(), 0.01);
-        assertEquals(180.0, testWeather.getWind_direction(), 0.01);
-        assertEquals(7.0, testWeather.getWind_gust(), 0.01);
+        assertEquals(10.0, testWeather.getTempMin(), 0.01); // Using delta for double comparison
+        assertEquals(20.0, testWeather.getTempMax(), 0.01);
+        assertEquals(15.0, testWeather.getCurrentTemp(), 0.01);
+        assertEquals(14.0, testWeather.getFeelsLike(), 0.01);
+        assertEquals(5.0, testWeather.getWindSpeed(), 0.01);
+        assertEquals(180.0, testWeather.getWindDirection(), 0.01);
+        assertEquals(7.0, testWeather.getWindGust(), 0.01);
         assertEquals(10.0, testWeather.getRain(), 0.01);
-        assertEquals(800, testWeather.getWeather_id());
+        assertEquals(800, testWeather.getWeatherID());
         assertEquals("broken clouds", testWeather.getDescription());
     }
     

@@ -14,7 +14,7 @@
 
 \section{Software Structure}
 
-The WeatherApp consists of three main classes: WeatherApp (GUI), Events (event handlin) and API (API calls). Then there are classess: LocationWeather (for one locations weather information), Weather (One locations weather foracast or current of a certain timestamp) and Coord (stores latitude and longitude of a place).
+The WeatherApp consists of three main classes: WeatherApp (GUI), Events (event handlin) and API (API calls). Additionally there are classess: LocationWeather (for one locations weather information), Weather (One locations weather foracast or current of a certain timestamp) and Coord (stores latitude and longitude of a place).
 
 \subsection{Class Diagram}
 
@@ -32,7 +32,7 @@ The WeatherApp consists of three main classes: WeatherApp (GUI), Events (event h
 
 \texttt{WeatherApp.java} is responsible for handling GUI element placement and event handling. It creates an \texttt{Events} object that manages storing favorites, the last searched location, and communicates with the API through an \texttt{API.java} object. The \texttt{Events.java} class implements the \texttt{iEvents.java} interface. 
 
-The \texttt{API} class, implementing the \texttt{iAPI-java} interface, retrieves JSON files containing current weather data and forecasts for given locations from \texttt{openweathermap.org}. Additionally, it identifies coordinates and proper names for a given search term (up to 5 results).
+The \texttt{API} class, implementing the \texttt{iAPI.java} interface, retrieves JSON files containing current weather data and forecasts for given locations from \texttt{openweathermap.org}. Additionally, it identifies coordinates and proper names for a given search term (up to 5 results).
 
 These resulting JSONs are parsed to create \texttt{Weather} class instances, storing weather conditions (current or forecast) for a specific timestamp. \texttt{Events.java} then stores these \texttt{Weather.java} objects into \texttt{LocationWeather.java} class instances, representing all weather information for a particular location. For example, the current weather and a 4-day forecast for Tampere, Finland. The \texttt{Coord.java} class stores the latitude and longitude of a given location.
 
@@ -48,8 +48,10 @@ The WeatherApp encompasses a range of essential functionalities, each detailed i
 	\item \textbf{Current Weather Display:} View real-time weather details for a selected location.
 	\item \textbf{Forecast Information:} Access a comprehensive forecast, including hourly breakdowns for the current day and daily maximum and minimum temperatures for the next four days. Additionally, receive weather descriptions.
 	\item \textbf{Favorites Management:} Easily add or remove locations to and from the favorites list for quick access.
-	\item \textbf{Persistent Data:} Save the last accessed location and user favorites to a file, ensuring automatic retrieval and display when the application is relaunched.
+	\item \textbf{Persistent Data:} Save the last accessed location, search history and user favorites to a file, ensuring automatic retrieval and display when the application is relaunched.
 	\item \textbf{Unit Customization:} Seamlessly switch between metric and imperial units to suit individual preferences.
+	\item \textbf{Search history:} Five last searchwords are saved and displayed under the search bar when typing a searchword.
+	\item \textbf{Junit tests:} Junit test classes have been created for Events and API. Junit test compiles without errors.
 \end{itemize}
 
 
@@ -58,36 +60,117 @@ The WeatherApp encompasses a range of essential functionalities, each detailed i
 
 \subsection*{Methods}
 
-\subsubsection*{\texttt{iAPI} Interface}
+\subsubsection*{\texttt{iAPI} Interface (implemented by API class)}
 
 \begin{itemize}
-    \item \textbf{Method: \texttt{look\_up\_locations}}
+    \item \textbf{Method: \texttt{lookUpLocations}}
     \begin{itemize}
         \item \textbf{Preconditions:} \texttt{loc} not null or empty, \texttt{API\_KEY} valid.
         \item \textbf{Postconditions:} Successful API call returns \texttt{Map} of location names and coordinates (not null). \texttt{Coord} has matching coordinates. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown.
     \end{itemize}
     
-    \item \textbf{Method: \texttt{get\_current\_weather}}
+    \item \textbf{Method: \texttt{getCurrentWeather}}
     \begin{itemize}
         \item \textbf{Preconditions:} \texttt{coordinates} not null, has \texttt{lat} and \texttt{lon}, \texttt{units} metric or imperial.
         \item \textbf{Postconditions:} Returned \texttt{Weather} object not null. If units not metric or imperial, \texttt{InvalidUnitsException} is thrown. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown.
     \end{itemize}
 
-    \item \textbf{Method: \texttt{get\_forecast}}
+    \item \textbf{Method: \texttt{getForecast}}
     \begin{itemize}
         \item \textbf{Preconditions:} \texttt{coordinates} not null, \texttt{units} metric or imperial.
         \item \textbf{Postconditions:} Returned \texttt{HashMap} not empty. If units not metric or imperial, \texttt{InvalidUnitsException} is thrown. If API data is bad or no connection, \texttt{APICallUnsuccessfulException} is thrown. Returned \texttt{HashMap} may be empty if no forecast information.
     \end{itemize}
     
-    \item \textbf{Method: \texttt{get\_city\_name}}
+    \item \textbf{Method: \texttt{getCityName}}
     \begin{itemize}
         \item \textbf{Preconditions:} \texttt{latlon.lat} and \texttt{latlon.lon} not null.
         \item \textbf{Postconditions:} Returned string may be empty if no result for coordinates. If API call unsuccessful, \texttt{APICallUnsuccessfulException} is thrown.
     \end{itemize}
 \end{itemize}
 
+\subsubsection*{\texttt{iEvents} Interface}
 
+\begin{itemize}
+    \item \textbf{Method: \texttt{startup}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} The API instance (\texttt{api}) is initialized. Favorites are loaded from the "favorites.txt" file into the favorites map. Last weather information is loaded from the "lastWeather.txt" file into the lastWeather pair. Search history is loaded from the "searchHistory.txt" file into the searchHistory list.
+        \item \textbf{Exceptions:} \texttt{IOException}
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{shutDown}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} The current location and favorites are saved to a file. The current weather based on the last weather coordinates and units is returned. The city name and units of the returned \texttt{LocationWeather} object are set.
+        \item \textbf{Exceptions:} \texttt{IOException}
+    \end{itemize}
 
+    \item \textbf{Method: \texttt{getLastWeather}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Locations based on the input are looked up using the API. The top 5 locations are sorted and returned in a \texttt{TreeMap}. The input is added to the search history. If the search history size exceeds 5, the oldest element is removed.
+        \item \textbf{Return:} \texttt{LocationWeather} of the place that was shown when the app was closed last time
+        \item \textbf{Exceptions:} \texttt{InvalidUnitsException, APICallUnsuccessfulException}
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{search}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Fetch first 5 search results that match the search phrase the best.
+        \item \textbf{Parameters:} \texttt{input} - The text in the search box
+        \item \textbf{Return:} Alphabetical list of locations in the form: "location, country\_prefix" and Coordinates.
+        \item \textbf{Exceptions:} \texttt{APICallUnsuccessfulException}
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{addFavorite}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Updates favorite information of the given location.
+        \item \textbf{Parameters:} \texttt{latlong} - Coordinates of the location, \texttt{name} - Name of the place
+        \item \textbf{Return:} Container of favorite locations and coords
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{removeFavorite}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Removes location from favorites
+        \item \textbf{Parameters:} \texttt{latlong} - Coordinates of the location, \texttt{name} - Name of the place
+        \item \textbf{Return:} Container of favorite locations and coords
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{isFavorite}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Searches if coordinates are marked as a favorite
+        \item \textbf{Parameters:} \texttt{latlong} - Coordinates of the location
+        \item \textbf{Return:} \texttt{true} if it's a favorite, \texttt{false} otherwise
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{getFavorites}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Returns a container of favorite locations and coords
+        \item \textbf{Return:} Container of favorite locations and coords
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{getSearchHistory}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Returns a container of the last 5 searched locations
+        \item \textbf{Return:} Container of last 5 searched locations
+    \end{itemize}
+    
+    \item \textbf{Method: \texttt{getWeather}}
+    \begin{itemize}
+        \item \textbf{Preconditions:} None
+        \item \textbf{Postconditions:} Gets location's weather information and saves it to a \texttt{LocationWeather} object.
+        \item \textbf{Parameters:} \texttt{latlong} - Coordinates of the place, \texttt{units} - Options: "imperial" or "metric"
+        \item \textbf{Return:} Current day weather information
+        \item \textbf{Exceptions:} \texttt{InvalidUnitsException, APICallUnsuccessfulException}
+    \end{itemize}
+\end{itemize}
+
+OTHER CLASSES WILL NOT FIT INTO THIS DOCUMENTATION FILE AS IT HAS TO BE LESS THAN 5 PAGES. EVERY METHOD IS COMMENTED ON JAVA CODE. INCLUDING PRE- AND POSTCONDITIONS.
 
 \section{Division of Work}
 
@@ -96,7 +179,7 @@ Below are listed the responsibilities (agreed and actual) of each team member on
 \textbf{Vilma Pirilä:}
 \begin{itemize}
     \item \texttt{WeatherApp.java:} Implemented the entire GUI class.
-    \item \texttt{GUI weather icons:} Weather icons shown on GUI were made by Vilma.
+    \item \texttt{GUI weather icons:} Weather icons shown on GUI were designed by Vilma.
 \end{itemize}
 
 \textbf{Valma Haavisto:}
@@ -109,8 +192,9 @@ Below are listed the responsibilities (agreed and actual) of each team member on
 
 \textbf{Aarni Akkala:}
 \begin{itemize}
-    \item \texttt{API.java:} Implemented the entire class and test class for it.
-    \item \texttt{iEvents \& iAPI interfaces:} Implemented interfaces of the three main classes.
+    \item \texttt{API.java:} Implemented the entire class and test classes for it.
+    \item \texttt{LocationWeather.java:} Implemented part of the functions.
+    \item \texttt{iEvents \& iAPI interfaces:} Created interfaces of the three main classes.
     \item \texttt{Documentation.pdf:} Made documentation file and class diagram.
 \end{itemize}
 
@@ -125,11 +209,11 @@ The main program is \texttt{WeatherApp.java}. Execute this file, and a graphical
 
 \subsection{Main window}
 
-When on the main screen of WeatherApp, you can view the current weather conditions for the last accessed location. Under the current conditions, a forecast for the current day and the next four days is displayed. Clicking on these days reveals a detailed description of the weather conditions for each day (time, description icon, temperature, wind direction, wind speed, and rain probability).
+When on the main screen of WeatherApp, you can view the current weather conditions for the last accessed location. If no location has been accessed before, the program starts from main window that includes a greeting message instead. Under the current conditions, a forecast for the current day and the next four days is displayed. Clicking on these days reveals a detailed description of the weather conditions for each day (time, description icon, temperature, wind direction, wind speed, and humidity).
 
 \subsection{Searching for a location}
 
-Utilize the topmost search bar to search for a location by entering its name (e.g., Tampere) and pressing Enter (or Search). A list of locations matching the search key is presented (up to five locations). By clicking on a result, the user is presented with the weather information and forecast for the chosen place on the main window, as previously described.
+Utilize the topmost search bar to search for a location by entering its name (e.g., Tampere) and clicking Enter "Search". A list of locations matching the search key is presented (up to five locations). By clicking on a result, the user is presented with the weather information and forecast for the chosen place on the main window, as previously described. Five last search results are shown under the search bar when typing a searchword.
 
 \subsection{Favorites}
 
@@ -141,15 +225,23 @@ There are two units available: metric or imperial. In metric, the temperature is
 
 \subsection{Closing program}
 
-When the program is closed, the last viewed location and favorites are saved to memory and retrieved when the program is relaunched.
+When the program is closed, the last viewed location, search history and favorites are saved to memory and retrieved when the program is relaunched.
+
+
+\subsection{Additional features}
+
+Search history is shown under the search bar when typing a searchword. Only the matches of the last 5 searches that match the currently typed keyword are shown. Search history is saved to a txt file when app is closed and is read back when app is opened.
+
+Additional unit support is available. Available units are metric and imperial. They can be changed from upper right corner.
+
+
 
 
 \section{Known Bugs and Missing Features}
 
-1.When favorites are selected or units are changed the selected days forecast window closes and has to be reopened.
+\noindent 1. Openweathermap.org doesn't always retrieve rain information if it should. 
 
-\noindent 2. Openweathermap.org doesn't always retrieve rain information if it should.
+\noindent 2. Weather icons are sometimes different when calling in metric units vs imperial units. weathermap.org gives different IDs.
 
-\noindent 3. Sometimes if .txt files in WeatherApp get corrupted the program execution fails.
 
 \end{document}

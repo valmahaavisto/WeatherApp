@@ -34,7 +34,7 @@ public class LocationWeather {
     /**
      * Name of the city.
      */
-    String city_name;
+    String cityName;
 
     /**
      * Units used for temperature measurements.
@@ -75,17 +75,17 @@ public class LocationWeather {
      *
      * @return Name of the city.
      */
-    public String getCity_name() {
-        return city_name;
+    public String getCityName() {
+        return cityName;
     }
 
     /**
      * Sets the name of the city.
      *
-     * @param city_name New name of the city.
+     * @param cityName New name of the city.
      */
-    public void setCity_name(String city_name) {
-        this.city_name = city_name;
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
     }
 
     /**
@@ -130,7 +130,7 @@ public class LocationWeather {
      * @param day The day that we are interested in. The hour doesn't matter.
      * @return All Weather forecasts that are within the given day.
      */
-    public HashMap<LocalDateTime, Weather> get_certain_day_weather(LocalDateTime day) {
+    public HashMap<LocalDateTime, Weather> getCertainDayWeather(LocalDateTime day) {
         HashMap<LocalDateTime, Weather> weathers = new HashMap<>();
 
         // Check each forecast hour and see which ones have the same day as "day"
@@ -176,15 +176,15 @@ public class LocationWeather {
     * temperatures for the specified day. (In that order)
     */
     public Pair<Double, Double> getDayMinMax(LocalDateTime day) {
-        HashMap<LocalDateTime, Weather> times = get_certain_day_weather(day);
+        HashMap<LocalDateTime, Weather> times = getCertainDayWeather(day);
         // Initialize min and max temperatures with the first temperature in the map
         double minTemp = Double.POSITIVE_INFINITY ;
         double maxTemp = Double.NEGATIVE_INFINITY; 
 
         // Iterate through the Weather objects and update min and max temperatures
         for (Weather weather : times.values()) {
-            double tempmin = weather.getTemp_min();
-            double tempmax = weather.getTemp_max();
+            double tempmin = weather.getTempMin();
+            double tempmax = weather.getTempMax();
             minTemp = Math.min(minTemp, tempmin);
             maxTemp = Math.max(maxTemp, tempmax);
         }

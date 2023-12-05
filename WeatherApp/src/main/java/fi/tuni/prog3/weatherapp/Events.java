@@ -147,7 +147,7 @@ public class Events implements iEvents {
 
     
     @Override
-    public void shut_down() throws IOException{
+    public void shutDown() throws IOException{
         // empty favorites and add ArrayList favorites to it
         String favoritesFilePath = "favorites.txt";
         byte[] emptyBytes = new byte[0];
@@ -211,13 +211,13 @@ public class Events implements iEvents {
 
     
     @Override
-    public LocationWeather get_last_weather() throws InvalidUnitsException, APICallUnsuccessfulException{
+    public LocationWeather getLastWeather() throws InvalidUnitsException, APICallUnsuccessfulException{
         try {
             // Get the current weather using lastWeather coordinates and units
-            LocationWeather w = get_weather(lastWeather.getKey(), lastWeather.getValue());
+            LocationWeather w = getWeather(lastWeather.getKey(), lastWeather.getValue());
             // Add the city_name that usually is gotten from search
-            String cityname = api.get_city_name(lastWeather.getKey());
-            w.setCity_name(cityname);
+            String cityname = api.getCityName(lastWeather.getKey());
+            w.setCityName(cityname);
             String units = lastWeather.getValue();
             w.setUnits(units);            
             return w;
@@ -239,7 +239,7 @@ public class Events implements iEvents {
         
         try {            
             // Look up locations based on the input
-            Map<String, Coord> locations = api.look_up_locations(input); 
+            Map<String, Coord> locations = api.lookUpLocations(input); 
 
             // Sort the locations by key (city and country name)
             TreeMap<String, Coord> sortedTop5 = new TreeMap<>(locations);
@@ -262,14 +262,14 @@ public class Events implements iEvents {
     }
 
     @Override
-    public HashMap<String, Coord> add_favorite(Coord latlong, String name) {
+    public HashMap<String, Coord> addFavorite(Coord latlong, String name) {
         favorites.put(name, latlong);
         
         return favorites;
     }
     
     @Override
-    public HashMap<String, Coord> remove_favorite(Coord latlong, String name) {
+    public HashMap<String, Coord> removeFavorite(Coord latlong, String name) {
         // Remove a favorite by value (location's coordinates)
         Iterator<Entry<String, Coord>> iterator = favorites.entrySet().iterator();
         
@@ -285,7 +285,7 @@ public class Events implements iEvents {
     }
     
     @Override
-    public boolean is_favorite(Coord latlong) {
+    public boolean isFavorite(Coord latlong) {
         // Check if a location is a favorite
         for (Entry<String, Coord> entry : favorites.entrySet()) {
             if (entry.getValue().getLon() == latlong.getLon() 
@@ -297,21 +297,21 @@ public class Events implements iEvents {
     }
     
     @Override
-    public HashMap<String, Coord> get_favourites(){
+    public HashMap<String, Coord> getFavorites(){
          // Get the favorites map
         return favorites;
     }
 
     @Override
-    public LocationWeather get_weather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException{
+    public LocationWeather getWeather(Coord latlong, String units) throws InvalidUnitsException, APICallUnsuccessfulException{
         
         try {
             // Update lastWeather information
             lastWeather = new Pair(latlong, units);
             
             // Get the current weather and forecast using coordinates and units
-            Weather weather = api.get_current_weather(latlong, units);
-            HashMap <LocalDateTime, Weather> forecast = api.get_forecast(latlong, units);            
+            Weather weather = api.getCurrentWeather(latlong, units);
+            HashMap <LocalDateTime, Weather> forecast = api.getForecast(latlong, units);            
             LocationWeather locationWeather = new LocationWeather(forecast, weather);
             
             return locationWeather;

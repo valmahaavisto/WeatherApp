@@ -30,7 +30,7 @@ public interface iAPI {
      * @throws APICallUnsuccessfulException when API call unsuccessfull
      * (no response or data is invalid)
      */
-    public Map<String, Coord> look_up_locations(String loc) 
+    public Map<String, Coord> lookUpLocations(String loc) 
             throws APICallUnsuccessfulException;
     
     /**
@@ -47,7 +47,7 @@ public interface iAPI {
      * @throws InvalidUnitsException when units are wrong
      * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
-    public Weather get_current_weather(Coord coordinates, String units) 
+    public Weather getCurrentWeather(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
 
     /**
@@ -65,7 +65,7 @@ public interface iAPI {
      * @throws InvalidUnitsException when units are wrong
      * @throws APICallUnsuccessfulException when API call unsuccessfull
      */
-    public HashMap<LocalDateTime, Weather> get_forecast(Coord coordinates, String units) 
+    public HashMap<LocalDateTime, Weather> getForecast(Coord coordinates, String units) 
             throws InvalidUnitsException, APICallUnsuccessfulException;
     
     /**
@@ -78,5 +78,5 @@ public interface iAPI {
      * @return Name of a city that has latlon coordinates in Openweathermap.org.
      * @throws APICallUnsuccessfulException when API call unsuccessfull.
      */
-    public String get_city_name(Coord latlon) throws APICallUnsuccessfulException;
+    public String getCityName(Coord latlon) throws APICallUnsuccessfulException;
 }
