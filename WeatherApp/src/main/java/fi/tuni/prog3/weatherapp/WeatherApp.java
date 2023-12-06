@@ -198,8 +198,8 @@ public class WeatherApp extends Application {
         Button searchBtn = new Button("Search");
         searchBtn.setStyle("-fx-background-color: #a0e6ff;"
                 + " -fx-background-radius: 0 10 10 0;");
-        searchBtn.setMaxSize(60, 25);
-        searchBtn.setMinSize(60, 25);
+        searchBtn.setMaxSize(80, 25);
+        searchBtn.setMinSize(80, 25);
 
         //put search components in good place
         AnchorPane.setTopAnchor(search, 15.1);
@@ -932,7 +932,7 @@ public class WeatherApp extends Application {
         } else if (id == 802) {
             pathFile = "file:icons/scatteredclouds.png";
         } else if (id == 10) {
-            pathFile = "file:icons/wind_icon.png";
+            pathFile = "file:icons/wind.png";
         } else if (id == 11) {
             pathFile = "file:icons/water.png";
         } else if (id == 1) {
