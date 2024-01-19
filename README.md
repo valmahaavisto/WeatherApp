@@ -11,3 +11,4 @@ Technologies used:
 - JavaFX: GUI
 - JUnit: testing
 
+To use the Weather App, you need to obtain an API key from Weather API Provider. Once you have the key, replace the placeholder in the code with your actual API key.
