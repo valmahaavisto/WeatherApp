@@ -1,17 +1,13 @@
-# Ohjelmointi 3 projektin tietovarasto
+(c) Valma Haavisto, Vilma Pirilä, Aarni Akkala 2023
 
-Tämä on ryhmäsi yhteinen tietovarasto projektin tekemistä varten. Huomaa, että nyt
-projektissa on useita jäseniä ja tekemisesi vaikuttaa muiden työhön. Liitä harjoitustyön
-materiaalien etätietovarasto (https://course-gitlab.tuni.fi/compcs140-fall2023/group_template_project)
-paikalliseen tietovarastoosi remoteksi, jotta voit ladata kurssin tarjoamaa materiaalia.
+The Weather App is a application that provides real-time weather information for different locations. Users can quickly check the current weather conditions, temperature, humidity, and other relevant details. User can also add locations to favorites.
 
-Tätä tiedostoa saa (ja on hyväkin) muuttaa projektin aloittamisen jälkeen.
+Throughout this project, we learned how to create a user-friendly application with a graphical interface. We figured out how to make the app talk to a server, fetch real data using API calls, and save it in a .txt format. Plus, we gained hands-on experience in reading data back from a file. 
 
-# Programming 3 project repository
+Technologies used:
 
-This is the repository for implementing the course project for your group. Note that
-your project now has several members and what you do impacts other's work. Add the remote
-repository for the project material (https://course-gitlab.tuni.fi/compcs140-fall2023/group_template_project)
-as a remote to your local repository to fetch the code provided by the course.
+- Java: coding
+- Maven: building and dependency management
+- JavaFX: GUI
+- JUnit: testing
 
-You are allowed (and probably should) make changes to this file after you have started your project.
