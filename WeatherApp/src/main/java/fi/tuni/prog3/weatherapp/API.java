@@ -25,7 +25,7 @@ public class API implements iAPI {
     /**
      * API key required for API calls to openweathermap.org
      */
-    final String API_KEY = "25611dde424220be991fce1c7eefa21f";
+    final String API_KEY = 'YOUR_API_KEY';
     
     private StringBuilder getDataFromAPI(String url_string) {
         
